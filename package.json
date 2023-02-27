@@ -1,9 +1,14 @@
 {
   "name": "library-system",
-  "version": "0.0.0",
-  "private": true,
+  "version": "1.0.0",
+  "description": " sample library management System",
+  "main": "app.js",
   "scripts": {
     "start": "nodemon app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahmedelshaar/librarySystem.git"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",
@@ -16,6 +21,8 @@
     "nodemailer": "^6.9.1"
   },
   "devDependencies": {
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "cros": "^1.0.1"
+
   }
 }
