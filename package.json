@@ -1,14 +1,12 @@
 {
-  "name": "node-project",
+  "name": "library-system",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "nodemon app"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",
-    "cookie-parser": "~1.4.4",
-    "debug": "~2.6.9",
     "express": "^4.18.2",
     "express-validator": "^6.15.0",
     "jsonwebtoken": "^9.0.0",
