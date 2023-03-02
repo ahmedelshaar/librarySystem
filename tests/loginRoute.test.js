@@ -11,8 +11,23 @@ beforeEach(async () => {
 
 describe("Test the login route", () => {
   test("should response status code 200", async () => {
-    const response = await request(app).post("/login");
+    const response = await request(app)
+    .post("/login")
+    .send({ 
+      email: 'peter@gmail.com',
+      password:'HdjdHdK1'
+     });
     expect(response.statusCode).toBe(200);
+  });
+
+  test("should response status code 422", async () => {
+    const response = await request(app)
+    .post("/login")
+    .send({ 
+      email: 'petergmail.com',
+      password:'HdjdHdK1'
+     });
+    expect(response.statusCode).toBe(422);
   });
 });
 
