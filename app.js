@@ -1,3 +1,4 @@
+const fs = require('fs');
 const express = require('express');
 const app = express();
 const mongoose = require("mongoose");
@@ -8,6 +9,7 @@ const logger = require("morgan");
 
 //import Routes
 const LoginRoute = require("./routes/authenticationRouter");
+const bookRounte = require("./routes/bookRoute");
 // ========= server =========
 mongoose.set("strictQuery",true);
 mongoose.connect(process.env.MongoUrl)
@@ -30,17 +32,22 @@ app.use(express.urlencoded({extended:false,limit:'2mb'}));
 //login
 app.use(LoginRoute);
 //routing
+app.use(bookRounte);
 
 // not found Middleware
 app.use((req,res,next)=>{
     res.status(404)
     .json({massage:"page not found"})
+    if(req.file && req.file.path)
+        fs.unlinkSync(req.file.path);
 })
 
 // error Middleware
 app.use((err,req,res,next)=>{
     let status=err.status|| 500;
     res.status(status).json({message:err+""});
+    if(req.file && req.file.path)
+        fs.unlinkSync(req.file.path);
 })
 
 module.exports = app;
