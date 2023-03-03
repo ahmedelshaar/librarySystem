@@ -11,12 +11,13 @@ exports.getValidator = exports.deleteValidator = [
 exports.postValidator = [
     // Strings
     body("title").isString().withMessage("title should be String"),
-    body("auther").isString().withMessage("auther should be String"),
+    body("author").isString().withMessage("author should be String"),
     body("publisher").isString().withMessage("publisher should be String"),
     body("Category").isIn(categories).withMessage(`Category should be in [${categories}]`),
     // Numbers
     body("PublishingDate").isISO8601().withMessage("PublishingDate should be A valid Date").toDate(),
     body("Edition").isInt({min:1}).withMessage("Edition should be Number").toInt(),
+    body("pages").isInt({min:1}).withMessage("Edition should be Number").toInt(),
     body("NoOfCopies").isInt({min:1}).withMessage("NoOfCopies should be Number").toInt(),
     body("shelfNo").isInt({min:1}).withMessage("shelfNo should be Number").toInt(),
     // Boolean

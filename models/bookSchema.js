@@ -8,12 +8,13 @@ const bookSchema = new mongoose.Schema({
     _id:Number,
     //String
     title:{type:String,required:true},
-    auther:{type:String,required:true},
+    author:{type:String,required:true},
     publisher:{type:String,required:true},
     Category:{type:String,required:true,enum:categories},
     //Number
     PublishingDate:{type:Date,required:true},
     Edition:{type:Number,required:true},
+    pages:{type:Number,required:true},
     NoOfCopies:{type:Number,required:true},
     shelfNo:{type:Number,required:true},
     //Boolean
@@ -21,6 +22,7 @@ const bookSchema = new mongoose.Schema({
 
     //Extra
     borrowedCopies:{type:Number,required:false,default:0},
+    readingCopies:{type:Number,required:false,default:0},
     
 }, { timestamps: true}); // Stamps for new arrived books
 

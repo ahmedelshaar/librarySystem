@@ -2,7 +2,7 @@ const mongoose=require("mongoose");
 require("./../Models/bookSchema");
 
 const BookSchema=mongoose.model("books");
-const LogsSchema=mongoose.model("logs");
+
 
 exports.getAllBooks=(req,res,next)=>{
     BookSchema.find({})
@@ -49,10 +49,11 @@ exports.addClass=(req,res,next)=>{
     BookSchema.create({
         _id:req.body.id,
         title: req.body.title,
-        auther: req.body.auther,
+        author: req.body.author,
         publisher: req.body.publisher,
         Category: req.body.Category,
         PublishingDate: req.body.PublishingDate,
+        pages: req.body.pages,
         Edition: req.body.Edition,
         NoOfCopies: req.body.NoOfCopies,
         shelfNo: req.body.shelfNo,
@@ -74,7 +75,8 @@ exports.updateClass=(req,res,next)=>{
         if (!data) throw new Error("Not Valid Book ID");
 
         let avilable = true;
-        if (req.body.NoOfCopies){
+        // if editing NoOfCopies and no Reading Copies
+        if (req.body.NoOfCopies && ! data.readingCopies ){
             // if copy = one copy so no one can borrow it
             // if all copies are borrowed so no one can borrow until one copy is speared 
             if (req.body.NoOfCopies<=1 || req.body.NoOfCopies - data.borrowedCopies <=1)
@@ -87,10 +89,11 @@ exports.updateClass=(req,res,next)=>{
             _id:id,
         },{
             title: req.body.title,
-            auther: req.body.auther,
+            author: req.body.author,
             publisher: req.body.publisher,
             Category: req.body.Category,
             PublishingDate: req.body.PublishingDate,
+            pages: req.body.pages,
             Edition: req.body.Edition,
             NoOfCopies: req.body.NoOfCopies,
             shelfNo: req.body.shelfNo,
