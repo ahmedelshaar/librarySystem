@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const autoIncrement = require("mongoose-sequence")(mongoose);
 
-const adminSchema = mongoose.Schema({
+const adminAndEmpSchema = mongoose.Schema({
   _id: Number,
   firstName: {
     type: String,
@@ -13,6 +13,7 @@ const adminSchema = mongoose.Schema({
   },
   email: {
     type: String,
+    match: [/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/, "Please Enter a valid Email"],
     required: [true, "You need to enter email"],
   },
   password: {
@@ -26,6 +27,7 @@ const adminSchema = mongoose.Schema({
   hireDate: {
     type: Date,
     required: [true, "you need to enter a hire date"],
+    immutable: true,
   },
   salary: {
     type: Number,
@@ -42,4 +44,4 @@ const adminSchema = mongoose.Schema({
 });
 
 adminSchema.plugin(autoIncrement, { id: "adminId", inc_field: "_id" });
-mongoose.model("admin", adminSchema); //What to do with super admin
+mongoose.model("adminAndEmp", adminAndEmpSchema);
