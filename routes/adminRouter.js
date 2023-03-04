@@ -1,8 +1,8 @@
 //Requires
 const express = require("express");
-const adminController = require("./../controllers/adminController");
-const { validateAddAdmin, validateUpdateAdmin } = require("./../validation/adminValidation");
-const validateMW = require("./../validation/validationMW");
+const adminController = require("../controllers/adminController");
+const { validateAddAdmin, validateUpdateAdmin, validateGetById } = require("../validation/adminValidation");
+const validateMW = require("../validation/validationMW");
 const multer = require("multer");
 const path = require("path");
 const moment = require("moment");
@@ -18,13 +18,12 @@ const fileFilter = (req, file, callBack) => {
   }
 };
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "../public/images/admins"));
+  destination: (req, file, callBack) => {
+    callBack(null, path.join(__dirname, "../images/admins"));
   },
   filename: (req, file, callBack) => {
     let extension = path.extname(file.originalname);
     let baseName = path.basename(file.originalname, extension);
-    // let imageDate = moment.unix(Date.now()).format("DD-MM-YYYY");
     let imageName = file.fieldname + "-" + baseName + "-" + Date.now() + extension;
     callBack(null, imageName);
   },
@@ -39,3 +38,9 @@ router
   .post(upload.single("image"), validateAddAdmin, validateMW, adminController.addAdmin)
   .put(upload.single("image"), validateUpdateAdmin, validateMW, adminController.updateAdmin)
   .delete(adminController.deleteAdmin);
+
+// Get Admin by ID
+router.route("/admin/:id").get(validateGetById, validateMW, adminController.getAdminById);
+
+// Export router
+module.exports = router;
