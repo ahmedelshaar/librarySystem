@@ -11,7 +11,7 @@ const salt = bcrypt.genSaltSync(saltRounds);
 
 // Get all Admins
 exports.getAllAdmins = (req, res, next) => {
-  adminAndEmpSchema
+  managersSchema
     .find({ role: "admin" })
     .then((data) => {
       res.status(200).json({ data });
@@ -24,9 +24,9 @@ exports.getAllAdmins = (req, res, next) => {
 // Get Admin by id
 exports.getAdminById = (req, res, next) => {
   if (req.role == "admin" && (req.body.id || req.params.id) == req.id) {
-    adminAndEmpSchema
+    managersSchema
       .findOne({
-        _id: req.body.id || req.params.id,
+        _id: req.params.id,
       })
       .then((data) => {
         res.status(200).json({ data });
@@ -35,7 +35,7 @@ exports.getAdminById = (req, res, next) => {
         next(err);
       });
   } else if (req.role == "super-admin" && (req.body.id || req.params.id)) {
-    adminAndEmpSchema
+    managersSchema
       .findOne({
         _id: req.body.id || req.params.id,
       })
@@ -65,7 +65,7 @@ exports.addAdmin = (req, res, next) => {
     hireDate: req.body.hireDate,
     salary: req.body.salary,
     image: req.file.filename, //Why not req.body,image
-    role: req.body.role,
+    role: "admin",
   });
   newAdmin
     .save()
@@ -87,9 +87,9 @@ exports.updateAdmin = (req, res, next) => {
       if (!data) {
         throw new Error("Admin not found");
       } 
-      let hashedPass = request.body.password ? bcrypt.hashSync(request.body.password, salt) : undefined;
+      let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : undefined;
 
-      if (request.role == "admin" && request.body.id == request.id) {
+      if (req.role == "admin" && req.body.id == req.id) {
         if (req.file) {
           fs.unlinkSync(path.join(__dirname, `../images/admins/${data.image}`));
         }
@@ -131,12 +131,14 @@ exports.updateAdmin = (req, res, next) => {
       } else {
         throw new Error("You are not allowed to do this action");
       }
+    }).catch((err) => {
+      next(err);
     });
 };
 
 // Delete admin
 exports.deleteAdmin = (req, res, next) => {
-  adminAndEmpSchema
+  managersSchema
     .findOne({ _id: req.body.id })
     .then((data) => {
       if (!data) {

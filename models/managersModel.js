@@ -16,6 +16,7 @@ const managersSchema = mongoose.Schema(
       type: String,
       match: [/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/, "Please Enter a valid Email"],
       required: [true, "You need to enter email"],
+      unique: true,
     },
     password: {
       type: String,
@@ -36,7 +37,7 @@ const managersSchema = mongoose.Schema(
     },
     image: {
       type: String,
-      required: [true, "You need to enter image"],
+      required: false,
     },
     role: {
       type: String,

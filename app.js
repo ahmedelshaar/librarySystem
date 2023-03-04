@@ -7,6 +7,8 @@ const fs = require("fs");
 //import Routes
 const LoginRoute = require("./routes/authenticationRouter");
 const adminRouter = require("./routes/adminRouter");
+const employeeRouter = require("./routes/employeeRouter");
+
 const app = express();
 // ========= server =========
 mongoose.set("strictQuery", true);
@@ -30,6 +32,7 @@ app.use(express.urlencoded({ extended: false, limit: "2mb" }));
 app.use(LoginRoute);
 //routing
 app.use(adminRouter);
+app.use(employeeRouter);
 // not found Middleware
 app.use((req, res, next) => {
   res.status(404).json({ massage: "page not found" });
