@@ -11,7 +11,7 @@ const salt = bcrypt.genSaltSync(saltRounds);
 
 // Get all Admins
 exports.getAllAdmins = (req, res, next) => {
-  adminAndEmpSchema
+  managersSchema
     .find({ role: "admin" })
     .then((data) => {
       res.status(200).json({ data });
@@ -23,10 +23,10 @@ exports.getAllAdmins = (req, res, next) => {
 
 // Get Admin by id
 exports.getAdminById = (req, res, next) => {
-  if (req.role == "admin" && (req.body.id || req.params.id) == req.id) {
-    adminAndEmpSchema
+  if (req.role == "admin" && req.params.id == req.id) {
+    managersSchema
       .findOne({
-        _id: req.body.id || req.params.id,
+        _id: req.params.id,
       })
       .then((data) => {
         res.status(200).json({ data });
@@ -34,10 +34,10 @@ exports.getAdminById = (req, res, next) => {
       .catch((err) => {
         next(err);
       });
-  } else if (req.role == "super-admin" && (req.body.id || req.params.id)) {
-    adminAndEmpSchema
+  } else if (req.role == "super-admin" && req.params.id) {
+    managersSchema
       .findOne({
-        _id: req.body.id || req.params.id,
+        _id: req.params.id,
       })
       .then((data) => {
         if (!data) {
@@ -64,8 +64,8 @@ exports.addAdmin = (req, res, next) => {
     birthDate: req.body.birthDate,
     hireDate: req.body.hireDate,
     salary: req.body.salary,
-    image: req.file.filename, //Why not req.body,image
-    role: req.body.role,
+    image: req.file.filename, //should be deleted
+    role: "admin",
   });
   newAdmin
     .save()
@@ -87,107 +87,75 @@ exports.updateAdmin = (req, res, next) => {
       if (!data) {
         throw new Error("Admin not found");
       } else {
-        let hashedPass = request.body.password ? bcrypt.hashSync(request.body.password, salt) : request.body.password;
-        if (request.role == "admin" && request.body.id == request.id) {
-          delete req.body.email;
-          delete req.body.hireDate;
-          delete req.body.salary;
-          delete req.body.role;
-          if (req.file) {
-            fs.unlinkSync(path.join(__dirname, `../images/admins/${data.image}`));
-            return managersSchema.updateOne(
-              {
-                _id: req.body.id,
-              },
-              {
-                $set: {
-                  firstName: req.body.firstName,
-                  lastName: req.body.lastName,
-                  password: hashedPass,
-                  birthDate: req.body.birthDate,
-                  image: req.file.filename,
-                },
-              }
-            );
-          } else {
-            return managersSchema.updateOne(
-              {
-                _id: req.body.id,
-              },
-              {
-                $set: {
-                  firstName: req.body.firstName,
-                  lastName: req.body.lastName,
-                  password: hashedPass,
-                  birthDate: req.body.birthDate,
-                },
-              }
-            );
-          }
-        } else if (req.role == "super-admin") {
-          delete req.body.hireDate;
-          if (req.file) {
-            fs.unlinkSync(path.join(__dirname, `../images/admins/${data.image}`));
-            return managersSchema.updateOne(
-              {
-                _id: req.body.id,
-              },
-              {
-                $set: {
-                  firstName: req.body.firstName,
-                  lastName: req.body.lastName,
-                  email: req.body.email,
-                  password: hashedPass,
-                  birthDate: req.body.birthDate,
-                  salary: req.body.salary,
-                  image: req.file.filename,
-                  role: req.body.role,
-                },
-              }
-            );
-          } else {
-            return managersSchema.updateOne(
-              {
-                _id: req.body.id,
-              },
-              {
-                $set: {
-                  firstName: req.body.firstName,
-                  lastName: req.body.lastName,
-                  email: req.body.email,
-                  password: hashedPass,
-                  birthDate: req.body.birthDate,
-                  salary: req.body.salary,
-                  role: req.body.role,
-                },
-              }
-            );
-          }
-        } else {
-          throw new Error("You are not allowed to do this action");
+        let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
+        // if (req.role == "admin" && req.body.id == req.id) {
+        console.log(req.file);
+        if (req.file) {
+          console.log(data.image)
+          fs.unlinkSync(path.join(__dirname, `../images/admins/${data.image}`));
         }
+        return managersSchema.updateOne(
+          {
+            _id: req.body.id,
+          },
+          {
+            $set: {
+              firstName: req.body.firstName,
+              lastName: req.body.lastName,
+              password: hashedPass,
+              birthDate: req.body.birthDate,
+              image: req.file.filename,
+            },
+          }
+        );
+        // } else if (req.role == "super-admin") {
+        //   if (req.file) {
+        //     fs.unlinkSync(path.join(__dirname, `../images/admins/${data.image}`));
+        //   }
+        //   return managersSchema.updateOne(
+        //     {
+        //       _id: req.body.id,
+        //     },
+        //     {
+        //       $set: {
+        //         firstName: req.body.firstName,
+        //         lastName: req.body.lastName,
+        //         email: req.body.email,
+        //         password: hashedPass,
+        //         birthDate: req.body.birthDate,
+        //         salary: req.body.salary,
+        //         image: req.file.filename,
+        //         role: req.body.role,
+        //       },
+        //     }
+        //   );
+        // } else {
+        //   throw new Error("You are not allowed to do this action");
+        // }
       }
-    });
+    })
+    .then((data) => {
+      res.status(200).json({ data });
+    })
+    .catch((err) => next(err));
 };
 
 // Delete admin
 exports.deleteAdmin = (req, res, next) => {
-  adminAndEmpSchema
+  managersSchema
     .findOne({ _id: req.body.id })
     .then((data) => {
       if (!data) {
         throw new Error("Admin not found");
       } else {
-        fs.unlinkSync(path.join(__dirname, `../images/admins/${data.image}`));
+        if (data.image) {
+          fs.unlinkSync(path.join(__dirname, `../images/admins/${data.image}`));
+        }
         return managersSchema.deleteOne({ _id: req.body.id });
       }
     })
     .then((data) => {
-      if (data.deletedCount == 0) {
-        throw new Error("Admin not found");
-      } else {
-        res.status(200).json({ data });
-      }
+      res.status(200).json({ data });
     })
     .catch((err) => {
       next(err);

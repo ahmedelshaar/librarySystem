@@ -1,7 +1,7 @@
 //Requires
 const express = require("express");
 const adminController = require("../controllers/adminController");
-const { validateAddAdmin, validateUpdateAdmin, validateGetById } = require("../validation/adminValidation");
+const { validateAddAdmin, validateUpdateAdmin, validateParam } = require("../validation/adminValidation");
 const validateMW = require("../validation/validationMW");
 const multer = require("multer");
 const path = require("path");
@@ -36,11 +36,11 @@ router
   .route("/admin")
   .get(adminController.getAllAdmins)
   .post(upload.single("image"), validateAddAdmin, validateMW, adminController.addAdmin)
-  .put(upload.single("image"), validateUpdateAdmin, validateMW, adminController.updateAdmin)
+  .patch(upload.single("image"), validateUpdateAdmin, validateMW, adminController.updateAdmin)
   .delete(adminController.deleteAdmin);
 
 // Get Admin by ID
-router.route("/admin/:id").get(validateGetById, validateMW, adminController.getAdminById);
+router.route("/admin/:id").get(validateParam, validateMW, adminController.getAdminById);
 
 // Export router
 module.exports = router;
