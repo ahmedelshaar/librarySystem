@@ -86,86 +86,50 @@ exports.updateAdmin = (req, res, next) => {
     .then((data) => {
       if (!data) {
         throw new Error("Admin not found");
-      } else {
-        let hashedPass = request.body.password ? bcrypt.hashSync(request.body.password, salt) : request.body.password;
-        if (request.role == "admin" && request.body.id == request.id) {
-          delete req.body.email;
-          delete req.body.hireDate;
-          delete req.body.salary;
-          delete req.body.role;
-          if (req.file) {
-            fs.unlinkSync(path.join(__dirname, `../images/admins/${data.image}`));
-            return managersSchema.updateOne(
-              {
-                _id: req.body.id,
-              },
-              {
-                $set: {
-                  firstName: req.body.firstName,
-                  lastName: req.body.lastName,
-                  password: hashedPass,
-                  birthDate: req.body.birthDate,
-                  image: req.file.filename,
-                },
-              }
-            );
-          } else {
-            return managersSchema.updateOne(
-              {
-                _id: req.body.id,
-              },
-              {
-                $set: {
-                  firstName: req.body.firstName,
-                  lastName: req.body.lastName,
-                  password: hashedPass,
-                  birthDate: req.body.birthDate,
-                },
-              }
-            );
-          }
-        } else if (req.role == "super-admin") {
-          delete req.body.hireDate;
-          if (req.file) {
-            fs.unlinkSync(path.join(__dirname, `../images/admins/${data.image}`));
-            return managersSchema.updateOne(
-              {
-                _id: req.body.id,
-              },
-              {
-                $set: {
-                  firstName: req.body.firstName,
-                  lastName: req.body.lastName,
-                  email: req.body.email,
-                  password: hashedPass,
-                  birthDate: req.body.birthDate,
-                  salary: req.body.salary,
-                  image: req.file.filename,
-                  role: req.body.role,
-                },
-              }
-            );
-          } else {
-            return managersSchema.updateOne(
-              {
-                _id: req.body.id,
-              },
-              {
-                $set: {
-                  firstName: req.body.firstName,
-                  lastName: req.body.lastName,
-                  email: req.body.email,
-                  password: hashedPass,
-                  birthDate: req.body.birthDate,
-                  salary: req.body.salary,
-                  role: req.body.role,
-                },
-              }
-            );
-          }
-        } else {
-          throw new Error("You are not allowed to do this action");
+      } 
+      let hashedPass = request.body.password ? bcrypt.hashSync(request.body.password, salt) : undefined;
+
+      if (request.role == "admin" && request.body.id == request.id) {
+        if (req.file) {
+          fs.unlinkSync(path.join(__dirname, `../images/admins/${data.image}`));
         }
+        return managersSchema.updateOne(
+          {
+            _id: req.body.id,
+          },
+          {
+            $set: {
+              firstName: req.body.firstName,
+              lastName: req.body.lastName,
+              password: hashedPass,
+              birthDate: req.body.birthDate,
+              image: req.file.filename,
+            },
+          }
+        );
+      } else if (req.role == "super-admin") {
+        if (req.file) {
+          fs.unlinkSync(path.join(__dirname, `../images/admins/${data.image}`));
+        }
+        return managersSchema.updateOne(
+          {
+            _id: req.body.id,
+          },
+          {
+            $set: {
+              firstName: req.body.firstName,
+              lastName: req.body.lastName,
+              email: req.body.email,
+              password: hashedPass,
+              birthDate: req.body.birthDate,
+              salary: req.body.salary,
+              image: req.file.filename,
+              role: req.body.role,
+            },
+          }
+        );
+      } else {
+        throw new Error("You are not allowed to do this action");
       }
     });
 };
