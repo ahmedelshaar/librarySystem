@@ -32,7 +32,7 @@ app.use(express.urlencoded({extended:false,limit:'2mb'}));
 //login
 app.use(LoginRoute);
 //routing
-app.use(bookRounte);
+app.use(bookRounte); //  /books and /categories routes
 
 // not found Middleware
 app.use((req,res,next)=>{
@@ -46,6 +46,7 @@ app.use((req,res,next)=>{
 app.use((err,req,res,next)=>{
     let status=err.status|| 500;
     res.status(status).json({message:err+""});
+    // Delete Saved files in case of error throwing 
     if(req.file && req.file.path)
         fs.unlinkSync(req.file.path);
 })

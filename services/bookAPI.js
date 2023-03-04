@@ -56,7 +56,7 @@ exports.getBookByTitle = (title)=>{
 }
 
 exports.avilableBooks = (req,res,next)=>{
-    BookSchema.find({Avilable:true})
+    BookSchema.find({Avilable:{$gt:0}})
         .then(data=>{
             return data;
         })
@@ -64,15 +64,19 @@ exports.avilableBooks = (req,res,next)=>{
             return null;
         })
 }
+
+// TO BE CONTINUED
+
+
 // Read Book
 exports.readBook = async(member_id,book_id)=>{
     let data = await BookSchema.findOne({_id:book_id})
     // if No Books with This ID
     if (!data) return False
     // if No books available [all borrowed and currently reading]
-    if (data.NoOfCopies <= data.borrowedCopies+readingCopies) return False;
+    if (data.Avilable <= 0) return False;
     // Adding +1 reading to the book
-    await BookSchema.updateMany({_id:book_id},{$inc:{readingCopies:1}})
+    await BookSchema.updateMany({_id:book_id},{$inc:{Avilable:-1}})
     // Adding log with read status 
     data = await LogSchema.create({member:member_id,book:book_id,emp:emp_id,status:"read"})
     return true;
