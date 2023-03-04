@@ -6,6 +6,7 @@ const logger = require("morgan");
 const fs = require("fs");
 //import Routes
 const LoginRoute = require("./routes/authenticationRouter");
+const superAdminRouter = require("./routes/superAdminRouter");
 const adminRouter = require("./routes/adminRouter");
 const app = express();
 // ========= server =========
@@ -29,6 +30,7 @@ app.use(express.urlencoded({ extended: false, limit: "2mb" }));
 //login
 app.use(LoginRoute);
 //routing
+app.use(superAdminRouter);
 app.use(adminRouter);
 // not found Middleware
 app.use((req, res, next) => {

@@ -14,8 +14,8 @@ const managersSchema = mongoose.Schema(
     },
     email: {
       type: String,
-      unique: true,
       match: [/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/, "Please Enter a valid Email"],
+      unique: true,
       required: [true, "You need to enter email"],
     },
     password: {
