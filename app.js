@@ -5,31 +5,29 @@ const cors = require("cors");
 const logger = require("morgan");
 const fs = require("fs");
 
-//import Routes
+// import Routes
 const LoginRoute = require("./routes/authenticationRouter");
 const superAdminRouter = require("./routes/superAdminRouter");
 const adminRouter = require("./routes/adminRouter");
 const employeeRouter = require("./routes/employeeRouter");
-const bookRounte = require("./routes/bookRoute");
+const bookRouter = require("./routes/bookRouter");
+const memberRouter = require("./routes/memberRouter");
 
 const app = express();
 // ========= server =========
 mongoose.set("strictQuery", true);
 mongoose
-  .connect(process.env.MongoUrl)
-  .then(() => {
-    console.log("DB connected");
-    app.listen(process.env.PORT || 8080, () => console.log(`listening on http://localhost:${process.env.PORT}`));
-  })
-  .catch((error) => console.log(`DB connection error ${error}`));
+.connect(process.env.MongoUrl)
+.then(() => {
+  console.log("DB connected");
+  app.listen(process.env.PORT || 8080, () => console.log(`listening on http://localhost:${process.env.PORT}`));
+})
+.catch((error) => console.log(`DB connection error ${error}`));
 
 //============server=========
-
 app.use(cors());
 app.use(logger("dev"));
 
-app.use(express.json({ limit: "2mb" }));
-app.use(express.urlencoded({ extended: false, limit: "2mb" }));
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: false, limit: "2mb" }));
 
@@ -39,7 +37,8 @@ app.use(LoginRoute);
 app.use(superAdminRouter);
 app.use(adminRouter);
 app.use(employeeRouter);
-app.use(bookRounte); //  /books and /categories routes
+app.use(memberRouter);
+app.use(bookRouter); //  /books and /categories routes
 
 // not found Middleware
 app.use((req,res,next)=>{

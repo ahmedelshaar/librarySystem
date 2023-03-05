@@ -1,7 +1,7 @@
 const express = require("express");
-const controller = require("./../controllers/memberController");
-const validation = require("./../validation/validationMW");
-const memberValidation = require("./../validation/memberValidation");
+const controller = require("../controllers/memberController");
+const validation = require("../validation/validationMW");
+const memberValidation = require("../validation/memberValidation");
 const multer = require("multer");
 const path = require("path");
 
@@ -39,4 +39,5 @@ router
 	.patch(uploadImage.single("image"), memberValidation.patchValidation, validation, controller.updateMember);
 
 router.route("/members/:id").get(controller.getMembers);
+
 module.exports = router;

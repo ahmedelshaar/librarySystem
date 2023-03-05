@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 require("./../models/memberModel");
 
 const bcrypt = require("bcrypt");
-const { request } = require("../app");
 const saltRound = 10;
 const salt = bcrypt.genSaltSync(saltRound);
 const MemberSchema = mongoose.model("members");

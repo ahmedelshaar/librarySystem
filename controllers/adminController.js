@@ -23,28 +23,9 @@ exports.getAllAdmins = (req, res, next) => {
 
 // Get Admin by id
 exports.getAdminById = (req, res, next) => {
-<<<<<<< HEAD
-  if (req.role == "admin" && (req.body.id || req.params.id) == req.id) {
-    managersSchema
-      .findOne({
-        _id: req.params.id,
-      })
-      .then((data) => {
-        res.status(200).json({ data });
-      })
-      .catch((err) => {
-        next(err);
-      });
-  } else if (req.role == "super-admin" && (req.body.id || req.params.id)) {
-    managersSchema
-      .findOne({
-        _id: req.body.id || req.params.id,
-      })
-=======
   if ((req.role == "admin" && req.params.id == req.id) || req.role == "super-admin") {
     managersSchema
       .findOne({ _id: req.params.id, role: "admin" })
->>>>>>> admin_Dev
       .then((data) => {
         if (!data) {
           throw new Error("Admin not found");
@@ -70,11 +51,7 @@ exports.addAdmin = (req, res, next) => {
     birthDate: req.body.birthDate,
     hireDate: req.body.hireDate,
     salary: req.body.salary,
-<<<<<<< HEAD
-    image: req.file.filename, //Why not req.body,image
-=======
     image: req.file.filename, //should be deleted
->>>>>>> admin_Dev
     role: "admin",
   });
   newAdmin
@@ -94,30 +71,6 @@ exports.updateAdmin = (req, res, next) => {
     .then((data) => {
       if (!data) {
         throw new Error("Admin not found");
-<<<<<<< HEAD
-      } 
-      let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : undefined;
-
-      if (req.role == "admin" && req.body.id == req.id) {
-        if (req.file) {
-          fs.unlinkSync(path.join(__dirname, `../images/admins/${data.image}`));
-        }
-        return managersSchema.updateOne(
-          {
-            _id: req.body.id,
-          },
-          {
-            $set: {
-              firstName: req.body.firstName,
-              lastName: req.body.lastName,
-              password: hashedPass,
-              birthDate: req.body.birthDate,
-              image: req.file.filename,
-            },
-          }
-        );
-      } else if (req.role == "super-admin") {
-=======
       } else {
         let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
         if (req.role == "admin") {
@@ -129,7 +82,6 @@ exports.updateAdmin = (req, res, next) => {
             throw new Error("You are not authorized to update this admin data");
           }
         }
->>>>>>> admin_Dev
         if (req.file) {
           fs.unlinkSync(path.join(__dirname, `../images/admins/${data.image}`));
         }
@@ -150,31 +102,18 @@ exports.updateAdmin = (req, res, next) => {
             },
           }
         );
-<<<<<<< HEAD
-      } else {
-        throw new Error("You are not allowed to do this action");
-      }
-    }).catch((err) => {
-      next(err);
-    });
-=======
       }
     })
     .then((data) => {
       res.status(200).json({ data });
     })
     .catch((err) => next(err));
->>>>>>> admin_Dev
 };
 
 // Delete admin
 exports.deleteAdmin = (req, res, next) => {
   managersSchema
-<<<<<<< HEAD
-    .findOne({ _id: req.body.id })
-=======
     .findOne({ _id: req.body.id, role: "admin" })
->>>>>>> admin_Dev
     .then((data) => {
       if (!data) {
         throw new Error("Admin not found");
