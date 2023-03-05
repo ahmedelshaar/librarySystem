@@ -15,12 +15,14 @@ const managersSchema = mongoose.Schema(
     email: {
       type: String,
       match: [/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/, "Please Enter a valid Email"],
+      unique: true,
       required: [true, "You need to enter email"],
       unique: true,
     },
     password: {
       type: String,
       required: [true, "You need to enter password"],
+      minlength: [4, "Password must be at least 4 characters long"],
     },
     birthDate: {
       type: Date,

@@ -1,6 +1,6 @@
 //Requires
 const express = require("express");
-const adminController = require("../controllers/adminController");
+const superAdminController = require("../controllers/superAdminController");
 const { validateAddAdmin, validateUpdateAdmin, validateParam } = require("../validation/adminValidation");
 const validateMW = require("../validation/validationMW");
 const multer = require("multer");
@@ -18,7 +18,7 @@ const fileFilter = (req, file, callBack) => {
 };
 const storage = multer.diskStorage({
   destination: (req, file, callBack) => {
-    callBack(null, path.join(__dirname, "../images/admins"));
+    callBack(null, path.join(__dirname, "../images/superAdmins"));
   },
   filename: (req, file, callBack) => {
     let extension = path.extname(file.originalname);
@@ -32,14 +32,12 @@ const upload = multer({ limits: { fileSize: 1024 * 1024 * 2 }, storage: storage,
 
 //Routes
 router
-  .route("/admin")
-  .get(adminController.getAllAdmins)
-  .post(upload.single("image"), validateAddAdmin, validateMW, adminController.addAdmin)
-  .patch(upload.single("image"), validateUpdateAdmin, validateMW, adminController.updateAdmin)
-  .delete(adminController.deleteAdmin);
-
-// Get Admin by ID
-router.route("/admin/:id").get(validateParam, validateMW, adminController.getAdminById);
-
+  .route("/superAdmin")
+  .get(superAdminController.getAllSuperAdmins)
+  .post(upload.single("image"), validateAddAdmin, validateMW, superAdminController.addSuperAdmin)
+  .patch(upload.single("image"), validateUpdateAdmin, validateMW, superAdminController.updateSuperAdmin)
+  .delete(superAdminController.deleteSuperAdmin);
+//Get by id
+router.route("/superAdmin/:id").get(validateParam, validateMW, superAdminController.getSuperAdminById);
 // Export router
 module.exports = router;
