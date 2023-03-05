@@ -66,7 +66,7 @@ exports.updateMember = (req, res, next) => {
 	MemberSchema.findOne({
 		_id: req.body.id,
 	}).then((data) => {
-		if (data.matchedCount == 0) {
+		if (!data) {
 			next(new Error("Member Not Found"));
 		} else {
 			let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
@@ -104,10 +104,12 @@ exports.deleteMember = (req, res, next) => {
 	MemberSchema.findOne({
 		_id: req.body.id,
 	}).then((data) => {
-		if (data.matchedCount == 0) {
+		if (!data) {
 			next(new Error("Member Not Found"));
 		} else {
-			fs.unlinkSync(data.image);
+			if (data.image) {
+				fs.unlinkSync(data.image);
+			}
 			return MemberSchema.deleteOne({ _id: req.body.id })
 				.then((data) => {
 					res.status(200).json({ data: "Deleted" });

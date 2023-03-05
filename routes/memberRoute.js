@@ -25,7 +25,7 @@ const uploadImage = multer({
 		},
 	}),
 	limits: {
-		fileSize: 1000 * 1024,
+		fileSize: 1024 * 1024,
 	},
 });
 
@@ -33,9 +33,9 @@ const router = express.Router();
 
 router
 	.route("/members")
-	.get(controller.getAllMembers)
+	.get(memberValidation.ckeckId, controller.getAllMembers)
 	.post(uploadImage.single("image"), memberValidation.postValidation, validation, controller.addMember)
-	.delete(memberValidation.deleteValidation, validation, controller.deleteMember)
+	.delete(uploadImage.single("image"), memberValidation.ckeckId, validation, controller.deleteMember)
 	.patch(uploadImage.single("image"), memberValidation.patchValidation, validation, controller.updateMember);
 
 router.route("/members/:id").get(controller.getMembers);

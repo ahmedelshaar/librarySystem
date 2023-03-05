@@ -1,4 +1,4 @@
-const { body } = require("express-validator");
+const { body, param } = require("express-validator");
 
 exports.postValidation = [
 	body("full_name").isString().withMessage("Invalid Name"),
@@ -14,6 +14,7 @@ exports.postValidation = [
 ];
 
 exports.patchValidation = [
+	body("id").isNumeric().withMessage("Invalid Member ID"),
 	body("full_name").optional().isString().withMessage("Invalid Name"),
 	body("email").optional().isEmail().withMessage("Invalid Email"),
 	body("password").optional().isString().withMessage("Password Must Be Hybird").isLength({ Min: 4 }).withMessage("Password must be > 8"),
@@ -26,4 +27,4 @@ exports.patchValidation = [
 	body("address.building").optional().isInt().withMessage("Invalid Building Number"),
 ];
 
-exports.deleteValidation = [body("id").isNumeric().withMessage("Invalid Member ID")];
+exports.ckeckId = [body("id").isNumeric().withMessage("Invalid Member ID")];
