@@ -37,6 +37,10 @@ const MemberSchema = mongoose.Schema(
 			trim: true,
 		},
 		address: { type: AddressSchema, required: true },
+		last_login: {
+			type: Date,
+			default: Date.now(),
+		},
 	},
 	{
 		timestamps: {

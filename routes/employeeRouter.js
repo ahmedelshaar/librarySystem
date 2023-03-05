@@ -40,4 +40,11 @@ router
 router.route("/employee/:id").get(validateGetById, validateMW, employeeController.getEmployeeById);
 router.route("/employee/search").post(validateSearchEmployee, validateMW,employeeController.seacrchEmployee);
 router.route("/employee/autocomplete").post(validateSearchEmployee, validateMW,employeeController.autoComplete);
+
+
+
+
+
+
+
 module.exports = router;
