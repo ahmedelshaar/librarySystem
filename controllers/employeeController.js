@@ -33,13 +33,16 @@ exports.getEmployeeById = (req, res, next) => {
 };
 
 exports.seacrchEmployee = (req, res, next) => {
+  const term = req.body.term.split(' ');
+  const firstName = term[0];
+  const lastName = term[1] ?? '';
   managersSchema
   .find({
     $and : [
       { role: "employee" },
       { $or: [
-          { firstName: { $regex: req.body.firstName, $options: "i" } },
-          { lastName: { $regex: req.body.lastName, $options: "i" } },
+          { firstName: { $regex: firstName, $options: "i" } },
+          { lastName: { $regex: lastName, $options: "i" } },
         ]
       }
     ]
@@ -53,13 +56,16 @@ exports.seacrchEmployee = (req, res, next) => {
 };
 
 exports.autoComplete = (req, res, next) => {
+  const term = req.body.term.split(' ');
+  const firstName = term[0];
+  const lastName = term[1] ?? '';
   managersSchema
   .find({
     $and : [
       { role: "employee" },
       { $or: [
-          { firstName: { $regex: "^"+req.body.firstName, $options: "i" } },
-          { lastName: { $regex: "^"+req.body.lastName, $options: "i" } },
+          { firstName: { $regex: firstName, $options: "i" } },
+          { lastName: { $regex: lastName, $options: "i" } },
         ]
       }
     ]
