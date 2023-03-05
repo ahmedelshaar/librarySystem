@@ -29,6 +29,8 @@ app.use(logger("dev"));
 
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: false, limit: "2mb" }));
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: false, limit: "2mb" }));
 
 //login
 app.use(LoginRoute);
