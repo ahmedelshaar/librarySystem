@@ -58,8 +58,8 @@ exports.autoComplete = (req, res, next) => {
     $and : [
       { role: "employee" },
       { $or: [
-          { firstName: { $regex: req.body.firstName, $options: "i" } },
-          { lastName: { $regex: req.body.lastName, $options: "i" } },
+          { firstName: { $regex: "^"+req.body.firstName, $options: "i" } },
+          { lastName: { $regex: "^"+req.body.lastName, $options: "i" } },
         ]
       }
     ]

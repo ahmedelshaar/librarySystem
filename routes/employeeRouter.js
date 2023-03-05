@@ -35,7 +35,7 @@ router
   .get(employeeController.getAllEmployees)
   .post(validateAddEmployee, validateMW, employeeController.addEmployee)
   .patch(upload.single("image"), validateUpdateEmployee, validateMW, employeeController.updateEmployee)
-  .delete(employeeController.deleteEmployee);
+  .delete(validateUpdateEmployee, validateMW, employeeController.deleteEmployee);
 
 router.route("/employee/:id").get(validateGetById, validateMW, employeeController.getEmployeeById);
 router.route("/employee/search").post(validateSearchEmployee, validateMW,employeeController.seacrchEmployee);
