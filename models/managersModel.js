@@ -46,6 +46,10 @@ const managersSchema = mongoose.Schema(
       enum: ["super-admin", "admin", "employee"],
       required: [true, "You need to enter role"],
     },
+    token: {
+      type: String,
+      required: false,
+    },
   },
   { timestamps: true }
 );
