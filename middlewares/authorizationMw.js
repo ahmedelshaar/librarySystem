@@ -6,7 +6,7 @@ exports.isSuperAdmin = (request, response, next) => {
   }
 };
 
-exports.isSuperAdminOrAdmin = (request, response, next) => {
+exports.isAdmin = (request, response, next) => {
   if (request.role == "super-admin" || request.role == "admin") {
     next();
   } else {
@@ -14,7 +14,7 @@ exports.isSuperAdminOrAdmin = (request, response, next) => {
   }
 };
 
-exports.isSuperAdminOrAdminOrEmp = (request, response, next) => {
+exports.isEmployee = (request, response, next) => {
   if (request.role == "super-admin" || request.role == "admin" || request.role == "employee") {
     next();
   } else {
@@ -22,13 +22,8 @@ exports.isSuperAdminOrAdminOrEmp = (request, response, next) => {
   }
 };
 
-exports.isSuperAdminOrAdminOrEmpOrMember = (request, response, next) => {
-  if (
-    request.role == "super-admin" ||
-    request.role == "admin" ||
-    request.role == "employee" ||
-    request.role == "member"
-  ) {
+exports.isMember = (request, response, next) => {
+  if (request.role == "member") {
     next();
   } else {
     throw new Error("not permitted");
