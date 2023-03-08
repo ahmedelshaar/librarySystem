@@ -3,7 +3,12 @@ const multer = require("multer");
 const path = require("path");
 
 const employeeController = require("../controllers/employeeController");
-const { validateAddEmployee, validateUpdateEmployee, validateGetById, validateSearchEmployee } = require("../validation/employeeValidation");
+const {
+  validateAddEmployee,
+  validateUpdateEmployee,
+  validateGetById,
+  validateSearchEmployee,
+} = require("../validation/employeeValidation");
 const validateMW = require("../validation/validationMW");
 
 const router = express.Router();
@@ -28,7 +33,7 @@ const upload = multer({
     },
   }),
   limits: { fileSize: 1024 * 1024 * 2 },
-})
+});
 
 router
   .route("/employee")
@@ -38,13 +43,7 @@ router
   .delete(validateUpdateEmployee, validateMW, employeeController.deleteEmployee);
 
 router.route("/employee/:id").get(validateGetById, validateMW, employeeController.getEmployeeById);
-router.route("/employee/search").post(validateSearchEmployee, validateMW,employeeController.seacrchEmployee);
-router.route("/employee/autocomplete").post(validateSearchEmployee, validateMW,employeeController.autoComplete);
-
-
-
-
-
-
+router.route("/employee/search").post(validateSearchEmployee, validateMW, employeeController.seacrchEmployee);
+router.route("/employee/autocomplete").post(validateSearchEmployee, validateMW, employeeController.autoComplete);
 
 module.exports = router;

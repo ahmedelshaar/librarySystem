@@ -10,66 +10,77 @@ const salt = bcrypt.genSaltSync(saltRounds);
 
 exports.getAllEmployees = (req, res, next) => {
   managersSchema
-  .find({ role: "employee" }, { password: 0 })
-  .then((data) => {
-    res.status(200).json({ data });
-  })
-  .catch((err) => {
-    next(err);
-  });
+    .find({ role: "employee" }, { password: 0 })
+    .then((data) => {
+      res.status(200).json({ data });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.getEmployeeById = (req, res, next) => {
   managersSchema
-  .findOne({
-    _id: req.params.id,
-  }, { password: 0 })
-  .then((data) => {
-    res.status(200).json({ data: data });
-  })
-  .catch((err) => {
-    next(err);
-  });
+    .findOne(
+      {
+        _id: req.params.id,
+      },
+      { password: 0 }
+    )
+    .then((data) => {
+      res.status(200).json({ data: data });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.seacrchEmployee = (req, res, next) => {
   managersSchema
-  .find({
-    $and : [
-      { role: "employee" },
-      { $or: [
-          { firstName: { $regex: req.body.firstName, $options: "i" } },
-          { lastName: { $regex: req.body.lastName, $options: "i" } },
-        ]
-      }
-    ]
-  }, { password: 0 })
-  .then((data) => {
-    res.status(200).json({ data });
-  })
-  .catch((err) => {
-    next(err);
-  });
+    .find(
+      {
+        $and: [
+          { role: "employee" },
+          {
+            $or: [
+              { firstName: { $regex: req.body.firstName, $options: "i" } },
+              { lastName: { $regex: req.body.lastName, $options: "i" } },
+            ],
+          },
+        ],
+      },
+      { password: 0 }
+    )
+    .then((data) => {
+      res.status(200).json({ data });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.autoComplete = (req, res, next) => {
   managersSchema
-  .find({
-    $and : [
-      { role: "employee" },
-      { $or: [
-          { firstName: { $regex: "^"+req.body.firstName, $options: "i" } },
-          { lastName: { $regex: "^"+req.body.lastName, $options: "i" } },
-        ]
-      }
-    ]
-  }, { firstName: 1, lastName: 1 })
-  .then((data) => {
-    res.status(200).json({ data });
-  })
-  .catch((err) => {
-    next(err);
-  });
+    .find(
+      {
+        $and: [
+          { role: "employee" },
+          {
+            $or: [
+              { firstName: { $regex: "^" + req.body.firstName, $options: "i" } },
+              { lastName: { $regex: "^" + req.body.lastName, $options: "i" } },
+            ],
+          },
+        ],
+      },
+      { firstName: 1, lastName: 1 }
+    )
+    .then((data) => {
+      res.status(200).json({ data });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.addEmployee = (req, res, next) => {
@@ -84,20 +95,20 @@ exports.addEmployee = (req, res, next) => {
     role: "employee",
   });
   newEmployee
-  .save()
-  .then((data) => {
-    res.status(201).json({ data });
-  })
-  .catch((err) => {
-    next(err);
-  });
+    .save()
+    .then((data) => {
+      res.status(201).json({ data });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.updateEmployee = (req, res, next) => {
   managersSchema
     .findOne({
       _id: req.body.id,
-      role: "employee"
+      role: "employee",
     })
     .then((data) => {
       if (!data) {
@@ -106,7 +117,7 @@ exports.updateEmployee = (req, res, next) => {
       let password = req.body.password ? bcrypt.hashSync(req.body.password, salt) : undefined;
 
       if (req.role == "employee") {
-        if(req.body.id != req.id){
+        if (req.body.id != req.id) {
           throw new Error("You can't update other employee");
         }
         delete req.body.salary;
@@ -133,7 +144,8 @@ exports.updateEmployee = (req, res, next) => {
           },
         }
       );
-    }).then((data) => {
+    })
+    .then((data) => {
       res.status(200).json({ data });
     })
     .catch((err) => {
@@ -143,19 +155,20 @@ exports.updateEmployee = (req, res, next) => {
 
 exports.deleteEmployee = (req, res, next) => {
   let count = managersSchema
-  .findOne({ _id: req.body.id, role: "employee" }).countDocuments()
-  .then((data) => {
-    if (!data) {
-      throw new Error("Employee not found");
-    } else {
-      fs.unlinkSync(path.join(__dirname, `../images/employee/${data.image}`));
-      return managersSchema.deleteOne({ _id: req.body.id });
-    }
-  })
-  .then((data) => {
-    res.status(200).json({ data });
-  })
-  .catch((err) => {
-    next(err);
-  });
+    .findOne({ _id: req.body.id, role: "employee" })
+    .countDocuments()
+    .then((data) => {
+      if (!data) {
+        throw new Error("Employee not found");
+      } else {
+        fs.unlinkSync(path.join(__dirname, `../images/employee/${data.image}`));
+        return managersSchema.deleteOne({ _id: req.body.id });
+      }
+    })
+    .then((data) => {
+      res.status(200).json({ data });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
