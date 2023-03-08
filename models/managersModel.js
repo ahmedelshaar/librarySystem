@@ -17,7 +17,6 @@ const managersSchema = mongoose.Schema(
       match: [/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/, "Please Enter a valid Email"],
       unique: true,
       required: [true, "You need to enter email"],
-      unique: true,
     },
     password: {
       type: String,
@@ -45,6 +44,13 @@ const managersSchema = mongoose.Schema(
       type: String,
       enum: ["super-admin", "admin", "employee"],
       required: [true, "You need to enter role"],
+    },
+    token: {
+      type: String,
+      required: false,
+    },
+    lastLoginTime: {
+      type: Date,
     },
   },
   { timestamps: true }

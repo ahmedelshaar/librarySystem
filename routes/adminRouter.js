@@ -41,5 +41,8 @@ router
 // Get Admin by ID
 router.route("/admin/:id").get(validateParam, validateMW, adminController.getAdminById);
 
+// Get by email
+// router.route("/admin/email").post(adminController.searchAdminByEmail);
+
 // Export router
 module.exports = router;

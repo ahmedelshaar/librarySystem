@@ -21,7 +21,6 @@ exports.getAllMembers = (req, res, next) => {
 exports.getMembers = (req, res, next) => {
   MemberSchema.findById(req.params.id)
     .then((data) => {
-      // console.log(data + "Hi");
       if (data == null) {
         next(new Error("Member Not Found"));
       } else {
@@ -34,7 +33,7 @@ exports.getMembers = (req, res, next) => {
 };
 
 exports.searchByName = (req, res, next) => {
-  MemberSchema.find({ full_name: { $regex: req.body.full_name } })
+  MemberSchema.find({ full_name: { $regex: "^" + req.body.full_name } })
     .then((data) => {
       res.status(200).json({ data });
     })
@@ -62,10 +61,7 @@ exports.addMember = (req, res, next) => {
     })
     .catch((error) => {
       if (error.message.includes("E11000")) {
-        return res.status(500).json({
-          message: "This Email Already Exists try with another email",
-          success: false,
-        });
+        error.message = "This Email Already Exists try with another email";
       }
       next(error);
     });
