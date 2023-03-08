@@ -131,3 +131,15 @@ exports.deleteAdmin = (req, res, next) => {
       next(err);
     });
 };
+
+// search by email
+// exports.searchAdminByEmail = (req, res, next) => {
+//   managersSchema
+//     .find({ email: { $regex: req.body.email }, role: "admin" })
+//     .then((data) => {
+//       res.status(200).json({ data });
+//     })
+//     .catch((err) => {
+//       next(err);
+//     });
+// };
