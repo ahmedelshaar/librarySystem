@@ -57,8 +57,9 @@ exports.seacrchEmployee = (req, res, next) => {
 
 exports.autoComplete = (req, res, next) => {
   const term = req.body.term.split(' ');
-  const firstName = term[0];
-  const lastName = term[1] ?? '';
+  const firstName = new RegExp(`^${term[0]}`, 'i');;
+  const lastName = "^"+term[1] ?? '';
+  console.log(firstName,"===", lastName);
   managersSchema
   .find({
     $and : [
