@@ -5,7 +5,7 @@ const {categories} = require("../Core/Static/categories");
 const checkBodyAndParams = buildCheckFunction(['params','body']);
 
 exports.getValidator = exports.deleteValidator = [
-    checkBodyAndParams("id").isInt().withMessage("Id should be Number").toInt()
+    param("id").isInt().withMessage("Id should be Number").toInt()
 ];
 
 exports.postValidator = [
@@ -24,6 +24,6 @@ exports.postValidator = [
 ];
 
 exports.patchValidator =[
-    checkBodyAndParams("id").isInt().withMessage("ID should be Number").toInt(),
+    param("id").isInt().withMessage("ID should be Number").toInt(),
     ...[exports.postValidator.map(elem=>elem.optional())]
 ];

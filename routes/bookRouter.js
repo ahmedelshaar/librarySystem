@@ -10,8 +10,8 @@ router.route("/books")
     
     .get(bookController.getAllBooks)
     .post(bookValidations.postValidator,validator,bookController.addBook)
-    .patch(bookValidations.patchValidator,validator,bookController.updateBook)      // in case id was in body not params
-    .delete(bookValidations.deleteValidator,validator,bookController.deleteBook)    // in case id was in body not params
+    // .patch(bookValidations.patchValidator,validator,bookController.updateBook)      // in case id was in body not params
+    // .delete(bookValidations.deleteValidator,validator,bookController.deleteBook)    // in case id was in body not params
 
 router.route("/books/:id")
 
@@ -24,5 +24,21 @@ router.route("/categories").get(
         response.status(200).json({data:categories}) // categories for Book Schema
     }
 )
+// ###### Emp 
+// F
+// books/author/:author
+// books/publisher/:publisher
+// books/title/:title
 
+//g /books/availbe
+//g /books/borrowed
+
+// h /books/new
+// h /books/mostborrowed + /:_year
+// h /books/mostreading + /:_year
+// 
+
+
+
+// /members/:id/books
 module.exports = router;
