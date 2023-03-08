@@ -50,6 +50,9 @@ const createToken = (userData) => {
   );
   return { accessToken, refreshToken };
 };
+const isFirstLogin = (userData)=>{
+
+}
 exports.loginAdministration = async (request, response, next) => {
   try {
     // TOOD: get user from dataBase if  exists

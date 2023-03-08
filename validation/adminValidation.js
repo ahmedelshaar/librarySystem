@@ -12,6 +12,8 @@ exports.validateAddAdmin = [
   body("role").isIn(["super-admin", "admin"]).withMessage("Enter a Valid role"),
 ];
 
+
+
 //Validation for updating admin
 exports.validateUpdateAdmin = [
   body("id").isInt().withMessage(" Must be an Integer").toInt(),

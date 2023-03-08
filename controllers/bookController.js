@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 require("../models/bookSchema");
 
 const BookSchema = mongoose.model("books");
+const bookApi = require("../services/bookAPI");
 
 // Fetch all Books
 exports.getAllBooks = (req, res, next) => {
@@ -103,4 +104,9 @@ exports.updateBook = (req, res, next) => {
     .catch((error) => {
       next(error);
     });
+};
+
+exports.getBooksByAuthor = (request, response, next) => {
+  bookApi.getBookByAuthor(request.params.authorName);
+  console.log(request.params.authorName);
 };
