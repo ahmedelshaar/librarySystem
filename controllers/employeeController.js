@@ -23,6 +23,7 @@ exports.getEmployeeById = (req, res, next) => {
   managersSchema
   .findOne({
     _id: req.params.id,
+    role: "employee"
   }, { password: 0 })
   .then((data) => {
     res.status(200).json({ data: data });
@@ -33,9 +34,9 @@ exports.getEmployeeById = (req, res, next) => {
 };
 
 exports.seacrchEmployee = (req, res, next) => {
-  const term = req.body.term.split(' ');
-  const firstName = term[0];
-  const lastName = term[1] ?? '';
+  const term = req.body.term.trim().split(' '); 
+  const firstName = "^"+term[0];
+  const lastName = "^"+(term[1] ?? firstName);
   managersSchema
   .find({
     $and : [
@@ -56,10 +57,9 @@ exports.seacrchEmployee = (req, res, next) => {
 };
 
 exports.autoComplete = (req, res, next) => {
-  const term = req.body.term.split(' ');
-  const firstName = new RegExp(`^${term[0]}`, 'i');;
-  const lastName = "^"+term[1] ?? '';
-  console.log(firstName,"===", lastName);
+  const term = req.body.term.trim().split(' ');
+  const firstName = "^"+term[0];
+  const lastName = "^"+ (term[1] ?? firstName);
   managersSchema
   .find({
     $and : [
@@ -120,8 +120,8 @@ exports.updateEmployee = (req, res, next) => {
         delete req.body.role;
       }
 
-      if (req.file) {
-        fs.unlinkSync(path.join(__dirname, `../images/employee/${data.image}`));
+      if (req.file && data.image) {
+        fs.unlinkSync(path.join(__dirname, '..','images',`${data.image}`));
       }
 
       return managersSchema.updateOne(

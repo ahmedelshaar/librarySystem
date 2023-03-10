@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
-
+const saveImage = require("../services/saveImage");
 // bcrybt
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
@@ -27,6 +27,7 @@ const checkMailAndPassword = async (model, request, response, next) => {
     next(error);
   }
 };
+
 const createToken = (userData) => {
   const accessToken = jwt.sign(
     {
@@ -35,7 +36,7 @@ const createToken = (userData) => {
       role: userData.role,
     },
     process.env.SECRET_KEY,
-    { expiresIn: "1h" }
+    { expiresIn: "24h" }
   );
 
   // create refresh token
@@ -50,15 +51,13 @@ const createToken = (userData) => {
   );
   return { accessToken, refreshToken };
 };
+
 exports.loginAdministration = async (request, response, next) => {
   try {
-    // TOOD: get user from dataBase if  exists
     const userData = await checkMailAndPassword(ManagersSchema, request, response, next);
     if (userData) {
-      // create refresh token
+      if(userData.image == undefined) response.status(400).json({ "message": "You should Complete Your data" });
       const { accessToken, refreshToken } = createToken(userData);
-
-      // TOOD: store refreshToken in dataBase (user Model)
       const hashToken = await bcrypt.hash(refreshToken, salt);
       await ManagersSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
       response.status(200).json({ accessToken, refreshToken });
@@ -67,16 +66,34 @@ exports.loginAdministration = async (request, response, next) => {
     next(error);
   }
 };
+
 exports.login = async (request, response, next) => {
   try {
-    // TOOD: get user from dataBase if  exists
     const userData = await checkMailAndPassword(MemberSchema, request, response, next);
     if (userData) {
-      // create refresh token
+      if(userData.image == undefined) response.status(400).json({ "message": "you should Complete Your data" });
       const { accessToken, refreshToken } = createToken(userData);
-      // TOOD: store refreshToken in dataBase (member Model)
       const hashToken = await bcrypt.hash(refreshToken, salt);
       await MemberSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
+      response.status(200).json({ accessToken, refreshToken });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.setData = async (request, response, next) => {
+  try {
+    const userData = await checkMailAndPassword(ManagersSchema, request, response, next);
+    if (userData) {
+      if(userData.image != undefined) response.status(400).json({ "message": "Your data is Complete Please Login" });
+      ManagersSchema.updateOne(
+        { _id: userData._id },
+        { $set: { image: request.file.path, password: bcrypt.hashSync(request.body.newpassword, salt) } }
+      );
+      const { accessToken, refreshToken } = createToken(userData);
+      const hashToken = await bcrypt.hash(refreshToken, salt);
+      await ManagersSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
       response.status(200).json({ accessToken, refreshToken });
     }
   } catch (error) {

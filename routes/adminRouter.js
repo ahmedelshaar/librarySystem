@@ -18,7 +18,7 @@ const fileFilter = (req, file, callBack) => {
 };
 const storage = multer.diskStorage({
   destination: (req, file, callBack) => {
-    callBack(null, path.join(__dirname, "../images/admins"));
+    callBack(null, path.join(__dirname, "..","images","admins"));
   },
   filename: (req, file, callBack) => {
     let extension = path.extname(file.originalname);
