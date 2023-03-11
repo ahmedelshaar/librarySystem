@@ -18,7 +18,7 @@ router
 router
   .route("/books/borrow")
   .post(bookValidations.borrowBookValidator, validator, isBanned, bookController.borrowBook)
-  .delete(bookValidations.borrowBookValidator, validator, bookController.returnBorrowedBook);
+  .delete(bookValidations.returnValidator, validator, bookController.returnBorrowedBook);
 
 // permession emp
 router
@@ -44,7 +44,6 @@ router.route("/categories").get((request, response, next) => {
 //     .get(bookController.getBooksByAuthor) //get all reading books for member
 //     .post(bookController.getBooksByAuthor); // add read request to user
 
-router.route("/books/read").post(bookValidations.readingBookValidator, validator, bookController.readBook);
 
 router.route("/author/:authorName").post(bookController.getBooksByAuthor);
 // ###### Emp

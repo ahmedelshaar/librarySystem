@@ -119,17 +119,29 @@ exports.getBooksByAuthor = (request, response, next) => {
 // to be improved
 exports.borrowBook = (req, res, next) => {
 	// to be continued
-	// 1 if member is borrowing same book
-	// 
-	// 2 count reading books from log then add the rest to available
-	// 3 check if book is available
-	// 4 check if member is exist
-	
+	// 1 count reading books from log then add the rest to available
+	let member_id = req.body.member_id;
+	let book_id = req.body.book_id;
+	let expectedDate = req.body.expectedDate;
+	let today = new Date(Date.now()).toISOString().split("T")[0];
+	// Check for Late Book reading
+	LogSchema.find({book:book_id,status:"read",returned_date: "",createdAt:{$lte:today}})
+	.then(data=>{
+		if (!data.length) return {modifiedCount:0};
+		
+		return LogSchema.updateMany(
+			{book:book_id,status:"read",returned_date: "",createdAt:{$lte:today}}
+			,{returned_date:Date.now()}
+		)
+	})
+	.then(data=>{
+		if (!data.modifiedCount) return true
 
-  let member_id = req.body.member_id;
-  let book_id = req.body.book_id;
-  let expectedDate = req.body.expectedDate;
-  MemberSchema.findOne({ _id: member_id }, { _id: 1 })
+		return BookSchema.updateMany({ _id: book_id },{$inc:{Avilable:data.modifiedCount}});
+	}).then(data=>{
+	return MemberSchema.findOne({ _id: member_id }, { _id: 1 })
+	})
+	// MemberSchema.findOne({ _id: member_id }, { _id: 1 })
     .then((data) => {
       if (!data) throw new Error("member is not found");
       // console.log(data);
