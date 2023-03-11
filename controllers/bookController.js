@@ -122,9 +122,9 @@ exports.borrowBook = (req, res, next) => {
 	// 1 if member is borrowing same book
 	// 
 	// 2 count reading books from log then add the rest to available
-	//
-	//
-	//
+	// 3 check if book is available
+	// 4 check if member is exist
+	
 
 
 	let member_id = req.body.member_id
@@ -207,6 +207,7 @@ exports.returnBorrowedBook = (req, res, next) => {
 			)
 	})
 	.then(data=>{
+		if (data.modifiedCount == 0) throw new Error("no books currenty borrowed to this member");
 		return BookSchema.updateMany({_id:book_id},{$inc:{Avilable:1,borrowedCopies:-1}})
 	})
 	.then(data=>{
