@@ -2,9 +2,12 @@ const express = require("express");
 const validator = require("../validation/validationMW");
 const bookValidations = require("../validation/bookValidations");
 const bookController = require("../controllers/bookController");
-const router = express.Router();
 
+const {isBanned} = require("../middlewares/checks")
+const {isEmployee} = require("../middlewares/authorizationMw")
 const { categories } = require("../Core/Static/categories");
+
+const router = express.Router();
 
 router
   .route("/books")
@@ -20,6 +23,23 @@ router
 router.route("/categories").get((request, response, next) => {
   response.status(200).json({ data: categories }); // categories for Book Schema
 });
+
+//permission member get member ID from auth token
+// /members/books/boodID?method=borrR
+// borrow | read 
+// body {member_id,}
+// router.route("books/read")
+//     .get(bookController.getBooksByAuthor) //get all reading books for member
+//     .post(bookController.getBooksByAuthor); // add read request to user
+
+// permession emp
+router.route("/books/borrow")
+    // .get(bookController.getBooks) // get all borrowed 
+    // .post(isEmployee,bookValidations.borrowBookValidator, validator,isBanned, bookController.borrowBook)
+    .post(bookValidations.borrowBookValidator, validator,isBanned, bookController.borrowBook)
+    // .delete(isEmployee,bookValidations.borrowBookValidator, validator, bookController.returnBorrowBook)
+
+
 router.route("/author/:authorName").post(bookController.getBooksByAuthor);
 // ###### Emp
 // F

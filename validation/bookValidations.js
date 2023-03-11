@@ -27,3 +27,19 @@ exports.patchValidator =[
     param("id").isInt().withMessage("ID should be Number").toInt(),
     ...[exports.postValidator.map(elem=>elem.optional())]
 ];
+
+exports.borrowBookValidator = [
+    body("member_id").isInt().withMessage("Member ID should be Number").toInt(),
+    body("book_id").isInt().withMessage("Book ID should be Number").toInt(),
+    body("expectedDate").isISO8601().withMessage("expectedDate should be A valid Date").toDate(),
+];
+
+
+
+
+
+
+
+
+
+
