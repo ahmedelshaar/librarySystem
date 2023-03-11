@@ -44,17 +44,17 @@ exports.searchByName = (req, res, next) => {
 };
 
 exports.addMember = (req, res, next) => {
-  if (req.file && req.file.path) {
-    req.body.image = req.file.filename;
-  }
+  // if (req.file && req.file.path) {
+  //   req.body.image = req.file.filename;
+  // }
   new MemberSchema({
     full_name: req.body.full_name,
     password: bcrypt.hashSync(req.body.password, salt),
     email: req.body.email,
-    image: req.body.image,
-    phone_number: req.body.phone_number,
-    birth_date: req.body.birth_date, // year-month-day => 1996-02-01
-    address: req.body.address,
+    // image: req.body.image,
+    // phone_number: req.body.phone_number,
+    // birth_date: req.body.birth_date, // year-month-day => 1996-02-01
+    // address: req.body.address,
   })
     .save()
     .then((data) => {
@@ -76,11 +76,14 @@ exports.updateMember = (req, res, next) => {
       next(new Error("Member Not Found"));
     } else {
       let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
-      if (req.file && req.file.path) {
-        // fs.unlinkSync(data.image);
+
+      if (req.file && req.file.path && data.image != null) {
         fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
+        // if (path.join(__dirname, "..", "images", `${data.image}`))
+        // fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
         // req.body.image = req.file.path;
       }
+      ``;
       return MemberSchema.updateOne(
         {
           _id: req.body.id,
@@ -89,8 +92,7 @@ exports.updateMember = (req, res, next) => {
           $set: {
             full_name: req.body.full_name,
             password: hashedPass,
-            email: req.body.email,
-            image: req.file.path,
+            image: req.file.filename,
             phone_number: req.body.phone_number,
             birth_date: req.body.birth_date, // year-month-day => 1996-02-01
             address: req.body.address,
@@ -98,6 +100,7 @@ exports.updateMember = (req, res, next) => {
         }
       )
         .then((data) => {
+          console.log(data);
           res.status(200).json({ data: "Updated" });
         })
         .catch((error) => {
