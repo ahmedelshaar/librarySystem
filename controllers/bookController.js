@@ -111,15 +111,96 @@ exports.updateBook = (req, res, next) => {
     });
 };
 
-exports.getBooksByAuthor = (request, response, next) => {
-  bookApi.getBookByAuthor(request.params.authorName);
-  console.log(request.params.authorName);
+exports.getBooksByAuthor = (req, res, next) => {
+  // BookSchema.find({ author: req.params.name },{title:1,publisher:1,Avilable:1,borrowedCopies:1,NoOfCopies:1,author:1})
+  BookSchema.find({ author: req.params.name },{__v:0,createdAt:0,updatedAt:0})
+    .then((data) => {
+      res.status(200).json({ data });
+    })
+    .catch((error) => {
+      return null;
+    });
 };
+
+exports.getBooksByPublisher = (req, res, next) => {
+  BookSchema.find({ publisher: req.params.name },{__v:0,createdAt:0,updatedAt:0})
+    .then((data) => {
+      res.status(200).json({ data });
+    })
+    .catch((error) => {
+      return null;
+    });
+};
+exports.getBooksByTitle = (req, res, next) => {
+  BookSchema.find({ title: req.params.name },{__v:0,createdAt:0,updatedAt:0})
+    .then((data) => {
+      res.status(200).json({ data });
+    })
+    .catch((error) => {
+      return null;
+    });
+};
+exports.getAvailableBooks = (req, res, next) => {
+  BookSchema.find({ Avilable: {$gte:1} },{__v:0,createdAt:0,updatedAt:0})
+    .then((data) => {
+      res.status(200).json({ data });
+    })
+    .catch((error) => {
+      return null;
+    });
+};
+exports.getBorrowingBooks = (req, res, next) => {
+	LogSchema.find({ status:"borrow",returned_date:"" },{__v:0,createdAt:0,updatedAt:0})
+	// .populate({path:"member",select:{full_name:1}})
+	.populate('member','full_name')
+	.populate('book','title')
+	// .populate({path:"managers",select:{firstName:1,lastName:1}})
+    .then((data) => {
+      res.status(200).json({ data });
+    })
+    .catch((error) => {
+      return null;
+    });
+};
+exports.getLateBooks = (req, res, next) => {
+	let today = new Date(Date.now()).toISOString().split("T")[0]
+	// let today = new Date("2025-01-01").toISOString().split("T")[0]
+	LogSchema.find({ status:"borrow",returned_date:"",expected_date:{$lt:today} },{__v:0,createdAt:0,updatedAt:0})
+	// .populate({path:"member",select:{full_name:1}})
+	.populate('member emp book','full_name title firstName lastName')
+    .then((data) => {
+      res.status(200).json({ data });
+    })
+    .catch((error) => {
+      return null;
+    });
+};
+exports.getNewBooks = (req, res, next) => {
+	// let OneMonthAgo = new Date(new Date().setMonth(new Date().getMonth() - 1));
+	let OneMonthAgo = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split("T")[0];
+	// bigger of [last login || 30 days ago] for user
+	BookSchema.find({ createdAt: {$gte:OneMonthAgo} },{__v:0,createdAt:0,updatedAt:0})
+	  .then((data) => {
+		res.status(200).json({ data });
+	  })
+	  .catch((error) => {
+		return null;
+	  });
+  };
+
 
 // to be improved
 exports.borrowBook = (req, res, next) => {
-	// to be continued
-	// 1 count reading books from log then add the rest to available
+	// Happy scenario
+  // 1 count reading books from log then add the rest to available if no return date until today
+  // 2 check if the member is valid
+  // 3 check if the book is valid
+  // 4 check if the book is available
+  // 5 check if the member is borrowing the same book
+  // 6 send the log transaction 
+  // 7 update the book available and borrowed count
+  // 8 return the available count and success respond
+  
 	let member_id = req.body.member_id;
 	let book_id = req.body.book_id;
 	let expectedDate = req.body.expectedDate;
@@ -171,7 +252,7 @@ exports.borrowBook = (req, res, next) => {
       return LogSchema.create({
         member: member_id,
         book: book_id,
-        emp: req.id,
+        emp: req.id||1,
         status: "borrow",
         expected_date: expectedDate,
       });
@@ -191,6 +272,9 @@ exports.borrowBook = (req, res, next) => {
 };
 
 // to be improved
+// return borrow
+// check if return date is larger than now
+// ban for one week
 exports.returnBorrowedBook = (req, res, next) => {
 	let member_id = req.body.member_id
 	let book_id = req.body.book_id
@@ -212,6 +296,7 @@ exports.returnBorrowedBook = (req, res, next) => {
 			)
 	})
 	.then(data=>{
+    console.log(data);
 		if (data.modifiedCount == 0) throw new Error("no books currenty borrowed to this member");
 		return BookSchema.updateMany({_id:book_id},{$inc:{Avilable:1,borrowedCopies:-1}})
 	})
@@ -227,9 +312,7 @@ exports.returnBorrowedBook = (req, res, next) => {
 	)
 }
 
-// return borrow
-// check if return date is larger than now
-// ban for one week
+
 exports.readBook = (req, res, next) => {
   let member_id = req.body.member_id;
   let book_id = req.body.book_id;
@@ -240,8 +323,8 @@ exports.readBook = (req, res, next) => {
     })
     .then((data) => {
       if (!data) throw new Error("book is not found");
-      if (data.Avilable > 1) {
-        // check if member is borrowing same book
+      if (data.Avilable >= 1) {
+        // check if member is reading same book
         return LogSchema.findOne(
           {
             member: member_id,
@@ -311,3 +394,57 @@ exports.returnReadedBook = (req, res, next) => {
       next(error);
     });
 };
+exports.currentBorrowedBooks = (req,res,next)=>{
+	LogSchema.find({status:"borrow",returned_date:"",member:req.id},{__v:0,createdAt:0,updatedAt:0})
+	.populate('member emp book','full_name title firstName lastName')
+		.then(data=>{
+			res.status(200).json({data:data})
+		})
+		.catch(error=>{
+			next(error)
+		})
+
+}
+
+
+
+
+
+
+
+
+
+// Do it
+exports.getMemberBorrowedBooks = (req, res, next) => {
+
+	LogSchema.aggregate([
+		{
+		  $match: {
+			'status': {$eq: "borrow"}
+		  }
+		},
+		{
+		  /* group by year and month of the subscription event */
+		  $group: {
+			_id: {
+			  year: {
+				$year: '$createdAt'
+			  },
+			  month: {
+				$month: '$createdAt'
+			  }
+			},
+		  }
+		},
+		{
+		  $sort: {
+			'_id.year': -1,
+			'_id.month': -1
+		  }
+		},
+		{
+		  $limit: 10,
+		},
+	  ])
+
+}

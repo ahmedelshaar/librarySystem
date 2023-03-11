@@ -29,7 +29,7 @@ const logSchema = new mongoose.Schema({
     //Numbers
     member:{type:Number,required:true,ref:"members"},
     book:{type:Number,required:true,ref:"books"},
-    emp:{type:Number,required:false,ref:"emps"}, // employee responsible of borrowing // optional incase of reading
+    emp:{type:Number,required:false,ref:"managers"}, // employee responsible of borrowing // optional incase of reading
     // Strings
     status:{type:String,enum:["read","borrow"],required:true}, // read,borrow
     returned_date:Date, // set to Date when borrow status is done
