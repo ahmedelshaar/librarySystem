@@ -25,23 +25,21 @@ const MemberSchema = mongoose.Schema(
     },
     image: {
       type: String,
-      required: [true, "Please Upload Image"],
     },
     phone_number: {
       type: String,
       match: [/^01[0125][0-9]{8}$/, "Please Enter Valid Phone Number"],
-      required: [true, "Please Enter Phone Number"],
     },
     birth_date: {
       type: Date,
-      required: [true, "Please Enter Your Birth Date"],
       trim: true,
     },
-    address: { type: AddressSchema, required: true },
+    address: { type: AddressSchema },
     last_login: {
       type: Date,
       default: Date.now(),
     },
+    ban_date: { type: Date },
   },
   {
     timestamps: {

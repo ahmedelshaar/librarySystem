@@ -24,6 +24,7 @@ exports.getEmployeeById = (req, res, next) => {
     .findOne(
       {
         _id: req.params.id,
+        role: "employee",
       },
       { password: 0 }
     )
@@ -36,6 +37,9 @@ exports.getEmployeeById = (req, res, next) => {
 };
 
 exports.seacrchEmployee = (req, res, next) => {
+  const term = req.body.term.trim().split(" ");
+  const firstName = "^" + term[0];
+  const lastName = "^" + (term[1] ?? firstName);
   managersSchema
     .find(
       {
@@ -43,8 +47,8 @@ exports.seacrchEmployee = (req, res, next) => {
           { role: "employee" },
           {
             $or: [
-              { firstName: { $regex: req.body.firstName, $options: "i" } },
-              { lastName: { $regex: req.body.lastName, $options: "i" } },
+              { firstName: { $regex: firstName, $options: "i" } },
+              { lastName: { $regex: lastName, $options: "i" } },
             ],
           },
         ],
@@ -60,6 +64,9 @@ exports.seacrchEmployee = (req, res, next) => {
 };
 
 exports.autoComplete = (req, res, next) => {
+  const term = req.body.term.trim().split(" ");
+  const firstName = "^" + term[0];
+  const lastName = "^" + (term[1] ?? firstName);
   managersSchema
     .find(
       {
@@ -67,8 +74,8 @@ exports.autoComplete = (req, res, next) => {
           { role: "employee" },
           {
             $or: [
-              { firstName: { $regex: "^" + req.body.firstName, $options: "i" } },
-              { lastName: { $regex: "^" + req.body.lastName, $options: "i" } },
+              { firstName: { $regex: firstName, $options: "i" } },
+              { lastName: { $regex: lastName, $options: "i" } },
             ],
           },
         ],
@@ -89,7 +96,6 @@ exports.addEmployee = (req, res, next) => {
     lastName: req.body.lastName,
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, salt),
-    birthDate: req.body.birthDate,
     hireDate: req.body.hireDate,
     salary: req.body.salary,
     role: "employee",
@@ -120,12 +126,15 @@ exports.updateEmployee = (req, res, next) => {
         if (req.body.id != req.id) {
           throw new Error("You can't update other employee");
         }
+        delete req.body.email;
         delete req.body.salary;
         delete req.body.role;
       }
-
-      if (req.file) {
-        fs.unlinkSync(path.join(__dirname, `../images/employee/${data.image}`));
+      if (req.role == "admin") {
+        delete req.body.role;
+      }
+      if (req.file && data.image) {
+        fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
       }
 
       return managersSchema.updateOne(
@@ -137,6 +146,7 @@ exports.updateEmployee = (req, res, next) => {
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             password: password,
+            email: req.body.email,
             birthDate: req.body.birthDate,
             image: req.file.filename,
             salary: req.body.salary,
@@ -154,14 +164,15 @@ exports.updateEmployee = (req, res, next) => {
 };
 
 exports.deleteEmployee = (req, res, next) => {
-  let count = managersSchema
+  managersSchema
     .findOne({ _id: req.body.id, role: "employee" })
-    .countDocuments()
     .then((data) => {
       if (!data) {
         throw new Error("Employee not found");
       } else {
-        fs.unlinkSync(path.join(__dirname, `../images/employee/${data.image}`));
+        if (data.image) {
+          fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
+        }
         return managersSchema.deleteOne({ _id: req.body.id });
       }
     })

@@ -6,21 +6,7 @@ exports.postValidation = [
   body("password")
     .isString()
     .withMessage("Password Must Be Hybird")
-    .isLength({ Min: 4 })
-    .withMessage("Password must be > 8"),
-  body("image").optional().isString().withMessage("Invalid image"),
-  body("phone_number").isString().withMessage("Invalid Phone Number"),
-  body("birth_date").isDate().withMessage("Invalid Date"),
-  body("address").isObject().withMessage("Address is Invalid"),
-  body("address.city").isString().withMessage("Invalid City"),
-  body("address.street").isString().withMessage("Invalid Street"),
-  body("address.building").isInt().withMessage("Invalid Building Number"),
-  body("full_name").isString().withMessage("Invalid Name"),
-  body("email").trim().normalizeEmail().isEmail().withMessage("Invalid Email"),
-  body("password")
-    .isString()
-    .withMessage("Password Must Be Hybird")
-    .isLength({ Min: 4 })
+    .isLength({ Min: 8 })
     .withMessage("Password must be > 8"),
   body("image").optional().isString().withMessage("Invalid image"),
   body("phone_number").isString().withMessage("Invalid Phone Number"),
@@ -37,7 +23,7 @@ exports.patchValidation = [
     .optional()
     .isString()
     .withMessage("Password Must Be Hybird")
-    .isLength({ Min: 4 })
+    .isLength({ Min: 8 })
     .withMessage("Password must be > 8"),
   body("image").optional().isString().withMessage("Invalid image"),
   body("phone_number").optional().isString().withMessage("Invalid Phone Number"),
@@ -49,6 +35,5 @@ exports.patchValidation = [
 ];
 
 exports.checkId = [body("id").isNumeric().withMessage("Invalid Member ID")];
-exports.checkID = [param("id").isNumeric().withMessage("Invalid Member ID")];
 
 exports.validateSearchMember = [body("full_name").isString().withMessage("Invalid Name")];

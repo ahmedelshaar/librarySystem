@@ -25,7 +25,7 @@ const managersSchema = mongoose.Schema(
     },
     birthDate: {
       type: Date,
-      required: [true, "You need to enter birth date"],
+      required: false,
     },
     hireDate: {
       type: Date,

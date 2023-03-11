@@ -12,7 +12,7 @@ const salt = bcrypt.genSaltSync(saltRounds);
 // Get all Admins
 exports.getAllAdmins = (req, res, next) => {
   managersSchema
-    .find({ role: "admin" })
+    .find({ role: "admin" }, { password: 0 })
     .then((data) => {
       res.status(200).json({ data });
     })
@@ -25,7 +25,7 @@ exports.getAllAdmins = (req, res, next) => {
 exports.getAdminById = (req, res, next) => {
   if ((req.role == "admin" && req.params.id == req.id) || req.role == "super-admin") {
     managersSchema
-      .findOne({ _id: req.params.id, role: "admin" })
+      .findOne({ _id: req.params.id, role: "admin" }, { password: 0 })
       .then((data) => {
         if (!data) {
           throw new Error("Admin not found");
@@ -48,10 +48,8 @@ exports.addAdmin = (req, res, next) => {
     lastName: req.body.lastName,
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, salt),
-    birthDate: req.body.birthDate,
     hireDate: req.body.hireDate,
     salary: req.body.salary,
-    image: req.file.filename, //should be deleted
     role: "admin",
   });
   newAdmin
@@ -83,7 +81,7 @@ exports.updateAdmin = (req, res, next) => {
           }
         }
         if (req.file) {
-          fs.unlinkSync(path.join(__dirname, `../images/admins/${data.image}`));
+          fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
         }
         return managersSchema.updateOne(
           {
@@ -119,7 +117,7 @@ exports.deleteAdmin = (req, res, next) => {
         throw new Error("Admin not found");
       } else {
         if (data.image) {
-          fs.unlinkSync(path.join(__dirname, `../images/admins/${data.image}`));
+          fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
         }
         return managersSchema.deleteOne({ _id: req.body.id });
       }
@@ -131,15 +129,3 @@ exports.deleteAdmin = (req, res, next) => {
       next(err);
     });
 };
-
-// search by email
-// exports.searchAdminByEmail = (req, res, next) => {
-//   managersSchema
-//     .find({ email: { $regex: req.body.email }, role: "admin" })
-//     .then((data) => {
-//       res.status(200).json({ data });
-//     })
-//     .catch((err) => {
-//       next(err);
-//     });
-// };

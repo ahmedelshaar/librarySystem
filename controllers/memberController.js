@@ -21,6 +21,7 @@ exports.getAllMembers = (req, res, next) => {
 exports.getMembers = (req, res, next) => {
   MemberSchema.findById(req.params.id)
     .then((data) => {
+      // console.log(data + "Hi");
       if (data == null) {
         next(new Error("Member Not Found"));
       } else {
@@ -44,7 +45,7 @@ exports.searchByName = (req, res, next) => {
 
 exports.addMember = (req, res, next) => {
   if (req.file && req.file.path) {
-    req.body.image = req.file.path;
+    req.body.image = req.file.filename;
   }
   new MemberSchema({
     full_name: req.body.full_name,
@@ -61,7 +62,7 @@ exports.addMember = (req, res, next) => {
     })
     .catch((error) => {
       if (error.message.includes("E11000")) {
-        error.message = "This Email Already Exists try with another email";
+        error.message = "This Email Allready Exists";
       }
       next(error);
     });
@@ -69,15 +70,16 @@ exports.addMember = (req, res, next) => {
 
 exports.updateMember = (req, res, next) => {
   MemberSchema.findOne({
-    _id: req.params.id,
+    _id: req.body.id,
   }).then((data) => {
     if (!data) {
       next(new Error("Member Not Found"));
     } else {
       let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
       if (req.file && req.file.path) {
-        fs.unlinkSync(data.image);
-        req.body.image = req.file.path;
+        // fs.unlinkSync(data.image);
+        fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
+        // req.body.image = req.file.path;
       }
       return MemberSchema.updateOne(
         {
@@ -87,7 +89,8 @@ exports.updateMember = (req, res, next) => {
           $set: {
             full_name: req.body.full_name,
             password: hashedPass,
-            image: req.body.image,
+            email: req.body.email,
+            image: req.file.path,
             phone_number: req.body.phone_number,
             birth_date: req.body.birth_date, // year-month-day => 1996-02-01
             address: req.body.address,
@@ -112,7 +115,8 @@ exports.deleteMember = (req, res, next) => {
       next(new Error("Member Not Found"));
     } else {
       if (data.image) {
-        fs.unlinkSync(data.image);
+        // fs.unlinkSync(data.image);
+        fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
       }
       return MemberSchema.deleteOne({ _id: req.body.id })
         .then((data) => {
