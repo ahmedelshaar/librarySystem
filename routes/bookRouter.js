@@ -14,6 +14,14 @@ router
   .get(bookController.getAllBooks)
   .post(bookValidations.postValidator, validator, bookController.addBook);
 
+// permession emp
+router.route("/books/borrow")
+    // .get(bookController.getBooks) // get all borrowed 
+    // .post(isEmployee,bookValidations.borrowBookValidator, validator,isBanned, bookController.borrowBook)
+    .post(bookValidations.borrowBookValidator, validator,isBanned, bookController.borrowBook)
+    .delete(bookValidations.borrowBookValidator, validator, bookController.returnBorrowedBook)
+
+
 router
   .route("/books/:id")
   .get(bookValidations.getValidator, validator, bookController.getBookByID)
@@ -32,12 +40,6 @@ router.route("/categories").get((request, response, next) => {
 //     .get(bookController.getBooksByAuthor) //get all reading books for member
 //     .post(bookController.getBooksByAuthor); // add read request to user
 
-// permession emp
-router.route("/books/borrow")
-    // .get(bookController.getBooks) // get all borrowed 
-    // .post(isEmployee,bookValidations.borrowBookValidator, validator,isBanned, bookController.borrowBook)
-    .post(bookValidations.borrowBookValidator, validator,isBanned, bookController.borrowBook)
-    // .delete(isEmployee,bookValidations.borrowBookValidator, validator, bookController.returnBorrowBook)
 
 
 router.route("/author/:authorName").post(bookController.getBooksByAuthor);

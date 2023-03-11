@@ -32,8 +32,8 @@ const logSchema = new mongoose.Schema({
     emp:{type:Number,required:false,ref:"emps"}, // employee responsible of borrowing // optional incase of reading
     // Strings
     status:{type:String,enum:["read","borrow"],required:true}, // read,borrow
-    returned_date:{type:Date,default:0}, // set to Date when borrow status is done
-    expected_date: {type:Date,required: true} // set to Date when borrow status is done
+    returned_date:Date, // set to Date when borrow status is done
+    expected_date: {type:Date,required: false} // set to Date when borrow status is done
 }, { timestamps: true });
 
 // AutoIncrements
