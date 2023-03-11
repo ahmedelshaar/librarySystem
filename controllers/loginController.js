@@ -56,8 +56,8 @@ exports.loginAdministration = async (request, response, next) => {
   try {
     const userData = await checkMailAndPassword(ManagersSchema, request, response, next);
     if (userData) {
-      if(userData.image == undefined) response.status(400).json({ "message": "You should Complete Your data" });
-      const { accessToken, refreshToken } = createToken(userData);
+      if (userData.image == undefined) response.status(400).json({ message: "You should Complete Your data" });
+      const { accessToken, refreshToken } = await createToken(userData);
       const hashToken = await bcrypt.hash(refreshToken, salt);
       await ManagersSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
       response.status(200).json({ accessToken, refreshToken });
@@ -71,7 +71,7 @@ exports.login = async (request, response, next) => {
   try {
     const userData = await checkMailAndPassword(MemberSchema, request, response, next);
     if (userData) {
-      if(userData.image == undefined) response.status(400).json({ "message": "you should Complete Your data" });
+      if (userData.image == undefined) response.status(400).json({ message: "you should Complete Your data" });
       const { accessToken, refreshToken } = createToken(userData);
       const hashToken = await bcrypt.hash(refreshToken, salt);
       await MemberSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
@@ -86,15 +86,24 @@ exports.setData = async (request, response, next) => {
   try {
     const userData = await checkMailAndPassword(ManagersSchema, request, response, next);
     if (userData) {
-      if(userData.image != undefined) response.status(400).json({ "message": "Your data is Complete Please Login" });
+      if (userData.image != undefined) response.status(400).json({ message: "Your data is Complete Please Login" });
       ManagersSchema.updateOne(
         { _id: userData._id },
-        { $set: { image: request.file.path, password: bcrypt.hashSync(request.body.newpassword, salt) } }
-      );
-      const { accessToken, refreshToken } = createToken(userData);
-      const hashToken = await bcrypt.hash(refreshToken, salt);
-      await ManagersSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
-      response.status(200).json({ accessToken, refreshToken });
+        {
+          $set: {
+            image: request.file.filename,
+            password: bcrypt.hashSync(request.body.newpassword, salt),
+            birthDate: request.body.birthDate,
+          },
+        }
+      ).then(async (data) => {
+        if (data.modifiedCount == 1) {
+          // const { accessToken, refreshToken } = createToken(userData);
+          // const hashToken = await bcrypt.hash(refreshToken, salt);
+          // await ManagersSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
+          response.status(200).json({ msg: "login!!!" });
+        }
+      });
     }
   } catch (error) {
     next(error);

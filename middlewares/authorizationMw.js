@@ -2,7 +2,8 @@ exports.isSuperAdmin = (request, response, next) => {
   if (request.role == "super-admin") {
     next();
   } else {
-    throw new Error("not permitted");
+    console.log(request)
+        throw new Error("not permitted");
   }
 };
 

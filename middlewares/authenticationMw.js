@@ -8,8 +8,10 @@ module.exports = (request, response, next) => {
   try {
     const authHeader = request.get["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
-
+    console.log( request.get["authorization"]);
+    console.log("tokeeeen",token);
     decode = jwt.verify(token, process.env.SECRET_KEY);
+    console.log("decode",decode);
   } catch (error) {
     error.message = "Not Authorized";
     error.status = 403;

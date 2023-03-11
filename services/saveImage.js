@@ -1,7 +1,7 @@
 const multer = require("multer");
 const path = require("path");
 
-module.exports = function() {
+module.exports = function(folderName) {
   const fileFilter = (req, file, callBack) => {
     if (file.mimetype === "image/jpeg" || file.mimetype === "image/png" || file.mimetype == "image/jpeg") {
       callBack(null, true);

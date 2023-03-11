@@ -12,6 +12,7 @@ const adminRouter = require("./routes/adminRouter");
 const employeeRouter = require("./routes/employeeRouter");
 const bookRouter = require("./routes/bookRouter");
 const memberRouter = require("./routes/memberRouter");
+const sender = require("./services/sender");
 
 const app = express();
 // ========= server =========
@@ -19,7 +20,7 @@ mongoose.set("strictQuery", true);
 mongoose
 .connect(process.env.MongoUrl)
 .then(() => {
-  console.log("DB connected");
+  sender();
   app.listen(process.env.PORT || 8080, () => console.log(`listening on http://localhost:${process.env.PORT}`));
 })
 .catch((error) => console.log(`DB connection error ${error}`));

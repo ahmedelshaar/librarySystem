@@ -7,6 +7,6 @@ const routes = new Router();
 
 routes.post("/login/administration", validator.loginValidation, validationMiddleware, loginAdministration);
 routes.post("/login", validator.loginValidation, validationMiddleware, login);
-routes.post("/setData", saveImage, validator.setData, validationMiddleware, setData)
+routes.post("/setData", saveImage("admins"), validator.setData, validationMiddleware, setData)
 
 module.exports = routes;

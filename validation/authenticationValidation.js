@@ -1,19 +1,20 @@
 const { check } = require("express-validator");
 exports.loginValidation = [
-    check("email").isEmail()
-    .withMessage(" not valid email"),
+  check("email").isEmail().withMessage(" not valid email"),
 
-    check("password").isAlphanumeric()
+  check("password")
+    .isAlphanumeric()
     .withMessage(" should be any char")
-    .isLength({min:8})
+    .isLength({ min: 8 })
     .withMessage("min 5 chars")
     .matches(/\d/)
-    .withMessage('must contain a number'),
+    .withMessage("must contain a number"),
 ];
 
 exports.setData = [
-    check("email").isEmail().withMessage(" not valid email"),
-    check("password").isLength({min: 8}).withMessage(" not valid password"),
-    check("newpassword").isLength({min: 8}).withMessage(" not valid newpassword"),
-    // check("image").isString().withMessage(" not valid image"),
-]
+  check("email").isEmail().withMessage(" not valid email"),
+  check("password").isLength({ min: 8 }).withMessage(" not valid password"),
+  check("newpassword").isLength({ min: 8 }).withMessage(" not valid newpassword"),
+  check("birthDate").isDate().withMessage("Not valid birthDate"),
+  // check("image").isString().withMessage(" not valid image"),
+];
