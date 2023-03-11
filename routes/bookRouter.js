@@ -43,6 +43,11 @@ router.route("/books/borrowing").get(bookController.getBorrowingBooks);
 router.route("/books/late").get(bookController.getLateBooks);
 router.route("/books/new").get(bookController.getNewBooks);
 
+
+
+
+
+
 //https://gist.github.com/adnan-i/d82a956d67c153b5efc8
 //https://devpress.csdn.net/mongodb/63048fae7e6682346619bc31.html
 // router.route("/books/mostborrowed/:year").get(bookController.getNewBooks);
@@ -54,6 +59,19 @@ router.route("/books/new").get(bookController.getNewBooks);
 // e- Current borrowed books and return date and number of borrowed times for any book.(with warning with late returned books )
 router.route("/books/currentborrow").get(bookController.currentBorrowedBooks);
 
+// Members
+// b- List of reading books in current month , this page will have capability of showing reading books filtered by month and year
+// c- List of borrowed books in current month , this page will have capability of showing borrowed books filtered by month and year
+// d- New arrived books => /books/new
+// f- Search for any book in the library filtered by year , category , publisher , author and availability 
+
+
+
+
+
+
+
+
 router
   .route("/books/:id")
   .get(bookValidations.getValidator, validator, bookController.getBookByID)
@@ -61,10 +79,4 @@ router
   .delete(bookValidations.deleteValidator, validator, bookController.deleteBook);
 
 
-
-// Members
-// b- List of reading books in current month , this page will have capability of showing reading books filtered by month and year
-// c- List of borrowed books in current month , this page will have capability of showing borrowed books filtered by month and year
-// d- New arrived books => /books/new
-// f- Search for any book in the library filtered by year , category , publisher , author and availability 
 module.exports = router;
