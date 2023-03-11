@@ -4,6 +4,7 @@ require("../models/managersModel");
 const managersSchema = mongoose.model("managers");
 const path = require("path");
 const fs = require("fs");
+const sendMails = require("../services/sendMails");
 
 // bcrybt
 const saltRounds = 10;
@@ -50,6 +51,8 @@ exports.addSuperAdmin = (req, res, next) => {
   newAdmin
     .save()
     .then((data) => {
+      // send email with user credentials 
+      sendMails( req.body.email, req.body.firstName,req.body.password);
       res.status(201).json({ data });
     })
     .catch((err) => {

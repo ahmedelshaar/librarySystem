@@ -4,11 +4,9 @@ require("dotenv").config();
 
 // middleware to verify JWT token
 module.exports = (request, response, next) => {
-  let decode;
   try {
     const authHeader = request.headers.authorization;
     const token = authHeader && authHeader.split(" ")[1];
-    console.log(token);
     const decode = jwt.verify(token, process.env.SECRET_KEY);
     if (decode !== undefined) {
       request.role = decode.role;
