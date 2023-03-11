@@ -23,8 +23,8 @@ router
 // permession emp
 router
   .route("/books/read")
-  .post(bookValidations.readingBookValidator, validator,bookController.borrowBook)
-  .delete(bookValidations.readingBookValidator, validator, bookController.returnBorrowedBook);
+  .post(bookValidations.readingBookValidator, validator,bookController.readBook)
+  .delete(bookValidations.readingBookValidator, validator, bookController.returnReadedBook);
 
 router
   .route("/books/:id")
