@@ -7,7 +7,7 @@ exports.isSuperAdmin = (request, response, next) => {
 };
 
 exports.isAdmin = (request, response, next) => {
-  if (request.role == "super-admin" || request.role == "admin") {
+  if (["super-admin", "admin"].includes(request.role)) {
     next();
   } else {
     throw new Error("not permitted");
@@ -15,7 +15,7 @@ exports.isAdmin = (request, response, next) => {
 };
 
 exports.isEmployee = (request, response, next) => {
-  if (request.role == "super-admin" || request.role == "admin" || request.role == "employee") {
+  if (["super-admin", "admin", "employee"].includes(request.role)) {
     next();
   } else {
     throw new Error("not permitted");
@@ -23,7 +23,7 @@ exports.isEmployee = (request, response, next) => {
 };
 
 exports.isMember = (request, response, next) => {
-  if (request.role == "member") {
+  if (["super-admin", "admin", "employee", "member"].includes(request.role)) {
     next();
   } else {
     throw new Error("not permitted");

@@ -26,6 +26,7 @@ exports.getSuperAdminById = (req, res, next) => {
   managersSchema
     .findOne({
       _id: req.params.id,
+      role: "super-admin",
     })
     .then((data) => {
       res.status(200).json({ data });
@@ -42,10 +43,8 @@ exports.addSuperAdmin = (req, res, next) => {
     lastName: req.body.lastName,
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, salt),
-    birthDate: req.body.birthDate,
     hireDate: req.body.hireDate,
     salary: req.body.salary,
-    image: req.file.filename,
     role: "super-admin",
   });
   newAdmin
@@ -71,7 +70,7 @@ exports.updateSuperAdmin = (req, res, next) => {
       } else {
         let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
         if (req.file) {
-          fs.unlinkSync(path.join(__dirname, `../images/superAdmins/${data.image}`));
+          fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
         }
         return managersSchema.updateOne(
           {
@@ -100,20 +99,28 @@ exports.updateSuperAdmin = (req, res, next) => {
 
 // Delete admin
 exports.deleteSuperAdmin = (req, res, next) => {
+  // check length first
+
   managersSchema
-    .findOne({ _id: req.body.id })
+    .find({ role: "super-admin" })
+    .then((data) => {
+      if (data.length == 1) {
+        throw new Error("You can't delete the last super admin");
+      } 
+      return managersSchema.findOne({ _id: req.body.id, role: "super-admin" });
+    })
     .then((data) => {
       if (!data) {
-        throw new Error("Super Admin not found");
+        throw new Error("Admin not found");
       } else {
-        if (data.image) {
-          fs.unlinkSync(path.join(__dirname, `../images/superAdmins/${data.image}`));
+        if(data.image){
+          fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
         }
         return managersSchema.deleteOne({ _id: req.body.id });
       }
     })
     .then((data) => {
-      res.status(200).json({ data });
+      res.status(200).json({ data: "Deleted" });
     })
     .catch((err) => {
       next(err);
