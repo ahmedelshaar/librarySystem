@@ -3,8 +3,8 @@ const validator = require("../validation/validationMW");
 const bookValidations = require("../validation/bookValidations");
 const bookController = require("../controllers/bookController");
 
-const {isBanned} = require("../middlewares/checks")
-const {isEmployee} = require("../middlewares/authorizationMw")
+const { isBanned } = require("../middlewares/checks");
+const { isEmployee } = require("../middlewares/authorizationMw");
 const { categories } = require("../Core/Static/categories");
 
 const router = express.Router();
@@ -15,12 +15,16 @@ router
   .post(bookValidations.postValidator, validator, bookController.addBook);
 
 // permession emp
-router.route("/books/borrow")
-    // .get(bookController.getBooks) // get all borrowed 
-    // .post(isEmployee,bookValidations.borrowBookValidator, validator,isBanned, bookController.borrowBook)
-    .post(bookValidations.borrowBookValidator, validator,isBanned, bookController.borrowBook)
-    .delete(bookValidations.borrowBookValidator, validator, bookController.returnBorrowedBook)
+router
+  .route("/books/borrow")
+  .post(bookValidations.borrowBookValidator, validator, isBanned, bookController.borrowBook)
+  .delete(bookValidations.borrowBookValidator, validator, bookController.returnBorrowedBook);
 
+// permession emp
+router
+  .route("/books/read")
+  .post(bookValidations.readingBookValidator, validator,bookController.borrowBook)
+  .delete(bookValidations.readingBookValidator, validator, bookController.returnBorrowedBook);
 
 router
   .route("/books/:id")
@@ -34,16 +38,13 @@ router.route("/categories").get((request, response, next) => {
 
 //permission member get member ID from auth token
 // /members/books/boodID?method=borrR
-// borrow | read 
+// borrow | read
 // body {member_id,}
 // router.route("books/read")
 //     .get(bookController.getBooksByAuthor) //get all reading books for member
 //     .post(bookController.getBooksByAuthor); // add read request to user
 
-
-router.route("/books/read")
-    .post(bookValidations.readingBookValidator, validator, bookController.readBook)
-
+router.route("/books/read").post(bookValidations.readingBookValidator, validator, bookController.readBook);
 
 router.route("/author/:authorName").post(bookController.getBooksByAuthor);
 // ###### Emp
@@ -68,5 +69,5 @@ router.route("/author/:authorName").post(bookController.getBooksByAuthor);
 // members/:id/readingbooks => filtered by month - year [body]
 // members/:id/currentborrowed => filtered by month - year [body]
 // /books query string [year , category ,publisher , author and availability]
-//  /books 
+//  /books
 module.exports = router;
