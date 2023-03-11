@@ -5,6 +5,9 @@ const cors = require("cors");
 const logger = require("morgan");
 const fs = require("fs");
 
+const authenticator = require("./middlewares/authenticationMw");
+
+
 // import Routes
 const LoginRoute = require("./routes/authenticationRouter");
 const superAdminRouter = require("./routes/superAdminRouter");
@@ -35,6 +38,7 @@ app.use(express.urlencoded({ extended: false, limit: "2mb" }));
 //login
 app.use(LoginRoute);
 //routing
+app.use(authenticator); // authentication layer 
 app.use(superAdminRouter);
 app.use(adminRouter);
 app.use(employeeRouter);
