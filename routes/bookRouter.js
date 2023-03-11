@@ -39,6 +39,9 @@ router.route("/books/borrow")
     .post(bookValidations.borrowBookValidator, validator,isBanned, bookController.borrowBook)
     // .delete(isEmployee,bookValidations.borrowBookValidator, validator, bookController.returnBorrowBook)
 
+router.route("/books/read")
+    .post(bookValidations.readingBookValidator, validator, bookController.readBook)
+
 
 router.route("/author/:authorName").post(bookController.getBooksByAuthor);
 // ###### Emp

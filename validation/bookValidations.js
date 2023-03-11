@@ -34,6 +34,11 @@ exports.borrowBookValidator = [
     body("expectedDate").isISO8601().withMessage("expectedDate should be A valid Date").toDate(),
 ];
 
+exports.readingBookValidator = [
+    body("member_id").isInt().withMessage("Member ID should be Number").toInt(),
+    body("book_id").isInt().withMessage("Book ID should be Number").toInt(),
+];
+
 
 
 
