@@ -17,6 +17,6 @@ router
   .patch(saveImage("superAdmins"), validateUpdateAdmin, validateMW, superAdminController.updateSuperAdmin)
   .delete(superAdminController.deleteSuperAdmin);
 //Get by id
-router.route("/superAdmin/:id").get(validateParam, validateMW, superAdminController.getSuperAdminById);
+router.route("/superAdmin/:id").get(isSuperAdmin, validateParam, validateMW, superAdminController.getSuperAdminById);
 // Export router
 module.exports = router;

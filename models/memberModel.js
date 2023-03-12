@@ -36,7 +36,7 @@ const MemberSchema = mongoose.Schema(
       required: [true, "Please Enter Your Birth Date"],
       trim: true,
     },
-    address: { type: AddressSchema, required: true },
+    address: { type: AddressSchema, required: false },
     last_login: {
       type: Date,
       default: Date.now(),

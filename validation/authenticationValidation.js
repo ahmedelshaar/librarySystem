@@ -11,10 +11,16 @@ exports.loginValidation = [
     .withMessage("must contain a number"),
 ];
 
-exports.setData = [
+exports.activationAdministration = [
   check("email").isEmail().withMessage(" not valid email"),
   check("password").isLength({ min: 8 }).withMessage(" not valid password"),
   check("newpassword").isLength({ min: 8 }).withMessage(" not valid newpassword"),
   check("birthDate").isDate().withMessage("Not valid birthDate"),
-  // check("image").isString().withMessage(" not valid image"),
+];
+
+exports.activation = [
+  check("email").isEmail().withMessage(" not valid email"),
+  check("password").isLength({ min: 8 }).withMessage(" not valid password"),
+  check("newpassword").isLength({ min: 8 }).withMessage(" not valid newpassword"),
+  check("birthDate").isDate().withMessage("Not valid birthDate"),
 ];

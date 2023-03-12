@@ -72,7 +72,7 @@ exports.updateSuperAdmin = (req, res, next) => {
         throw new Error("Admin not found");
       } else {
         let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
-        if (req.file) {
+        if (req.file && data.image) {
           fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
         }
         return managersSchema.updateOne(
@@ -102,8 +102,6 @@ exports.updateSuperAdmin = (req, res, next) => {
 
 // Delete admin
 exports.deleteSuperAdmin = (req, res, next) => {
-  // check length first
-
   managersSchema
     .find({ role: "super-admin" })
     .then((data) => {
@@ -115,7 +113,7 @@ exports.deleteSuperAdmin = (req, res, next) => {
     .then((data) => {
       if (!data) {
         throw new Error("Admin not found");
-      } else {
+      } else { 
         if (data.image) {
           fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
         }
