@@ -28,26 +28,19 @@ const checkMailAndPassword = async (model, request, response, next) => {
 };
 
 const createToken = (userData) => {
-  const accessToken = jwt.sign(
-    {
-      id: userData._id,
-      email: userData.email,
-      role: userData.role,
-    },
-    process.env.SECRET_KEY,
-    { expiresIn: "24h" }
-  );
+  const data = {
+    id: userData._id,
+    email: userData.email,
+    role: userData.role,
+  };
+  if (userData.role == undefined) {
+    data["role"] = "member";
+    data["last_login"] = userData.last_login;
+  }
+  const accessToken = jwt.sign(data, process.env.SECRET_KEY, { expiresIn: "24h" });
 
   // create refresh token
-  const refreshToken = jwt.sign(
-    {
-      id: userData._id,
-      email: userData.email,
-      role: userData.role,
-    },
-    process.env.SECRET_KEY,
-    { expiresIn: "7d" }
-  );
+  const refreshToken = jwt.sign(data, process.env.SECRET_KEY, { expiresIn: "7d" });
   return { accessToken, refreshToken };
 };
 
@@ -73,7 +66,7 @@ exports.login = async (request, response, next) => {
       if (userData.image == undefined) response.status(400).json({ message: "you should Complete Your data" });
       const { accessToken, refreshToken } = createToken(userData);
       const hashToken = await bcrypt.hash(refreshToken, salt);
-      await MemberSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
+      await MemberSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken, last_login: Date.now() } });
       response.status(200).json({ accessToken, refreshToken });
     }
   } catch (error) {
@@ -85,21 +78,21 @@ exports.activationAdministration = async (request, response, next) => {
   try {
     const userData = await checkMailAndPassword(ManagersSchema, request, response, next);
     if (userData) {
-      if (userData.image != undefined) response.status(400).json({ message: "Your data is Complete Please Login" });
-      ManagersSchema.updateOne(
-        { _id: userData._id },
-        {
-          $set: {
-            image: request.file.filename,
-            password: bcrypt.hashSync(request.body.newpassword, salt),
-            birthDate: request.body.birthDate,
-          },
-        }
-      ).then(async (data) => {
-        if (data.modifiedCount == 1) {
-          response.status(200).json({ msg: "login!!!" });
-        }
-      });
+      if (userData.image != undefined) {
+        response.status(400).json({ message: "Your data is Complete Please Login" });
+      } else {
+        await ManagersSchema.updateOne(
+          { _id: userData._id },
+          {
+            $set: {
+              image: request.file.filename,
+              password: bcrypt.hashSync(request.body.newpassword, salt),
+              birthDate: request.body.birthDate,
+            },
+          }
+        );
+        response.status(200).json({ msg: "login!!!" });
+      }
     }
   } catch (error) {
     next(error);
@@ -110,25 +103,25 @@ exports.activation = async (request, response, next) => {
   try {
     const userData = await checkMailAndPassword(MemberSchema, request, response, next);
     if (userData) {
-      if (userData.image != undefined) response.status(400).json({ message: "Your data is Complete Please Login" });
-      MemberSchema.updateOne(
-        { _id: userData._id },
-        {
-          $set: {
-            image: request.file.filename,
-            password: bcrypt.hashSync(request.body.newpassword, salt),
-            birthDate: request.body.birthDate,
-            address: request.body.address
-          },
-        }
-      ).then(async (data) => {
-        if (data.modifiedCount == 1) {
-          response.status(200).json({ msg: "login!!!" });
-        }
-      });
+      if (userData.image != undefined) {
+        response.status(400).json({ message: "Your data is Complete Please Login" });
+      } else {
+        await MemberSchema.updateOne(
+          { _id: userData._id },
+          {
+            $set: {
+              image: request.file.filename,
+              password: bcrypt.hashSync(request.body.newpassword, salt),
+              address: request.body.address,
+              phone_number: req.body.phone_number,
+              birth_date: req.body.birth_date,
+            },
+          }
+        );
+      }
+      response.status(200).json({ msg: "login!!!" });
     }
   } catch (error) {
     next(error);
   }
 };
-

@@ -21,9 +21,8 @@ exports.getAllMembers = (req, res, next) => {
 exports.getMembers = (req, res, next) => {
   MemberSchema.findById(req.params.id)
     .then((data) => {
-      // console.log(data + "Hi");
       if (data == null) {
-        next(new Error("Member Not Found"));
+        throw new Error("Member Not Found");
       } else {
         res.status(200).json({ data });
       }
@@ -33,18 +32,21 @@ exports.getMembers = (req, res, next) => {
     });
 };
 
+exports.searchByName = (req, res, next) => {
+  MemberSchema.find({ full_name: { $regex: "^" + req.body.full_name } })
+    .then((data) => {
+      res.status(200).json({ data });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
 exports.addMember = (req, res, next) => {
-  if (req.file && req.file.path) {
-    req.body.image = req.file.path;
-  }
   new MemberSchema({
     full_name: req.body.full_name,
     password: bcrypt.hashSync(req.body.password, salt),
     email: req.body.email,
-    image: req.body.image,
-    phone_number: req.body.phone_number,
-    birth_date: req.body.birth_date, // year-month-day => 1996-02-01
-    address: req.body.address,
   })
     .save()
     .then((data) => {
@@ -52,10 +54,7 @@ exports.addMember = (req, res, next) => {
     })
     .catch((error) => {
       if (error.message.includes("E11000")) {
-        return res.status(500).json({
-          message: "This Email Already Exists try with another email",
-          success: false,
-        });
+        error.message = "This Email Allready Exists";
       }
       next(error);
     });
@@ -66,13 +65,12 @@ exports.updateMember = (req, res, next) => {
     _id: req.body.id,
   }).then((data) => {
     if (!data) {
-      next(new Error("Member Not Found"));
+      throw new Error("Member Not Found");
     } else {
       let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
-      if (req.file && req.file.path) {
-        // fs.unlinkSync(data.image);
+
+      if (req.file && data.image != null) {
         fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
-        // req.body.image = req.file.path;
       }
       return MemberSchema.updateOne(
         {
@@ -82,22 +80,20 @@ exports.updateMember = (req, res, next) => {
           $set: {
             full_name: req.body.full_name,
             password: hashedPass,
-            email: req.body.email,
-            image: req.file.path,
+            image: req.file?.filename??undefined,
             phone_number: req.body.phone_number,
-            birth_date: req.body.birth_date, // year-month-day => 1996-02-01
+            birth_date: req.body.birth_date,
             address: req.body.address,
           },
         }
       )
-        .then((data) => {
-          res.status(200).json({ data: "Updated" });
-        })
-        .catch((error) => {
-          next(error);
-        });
     }
-  });
+  }).then((data) => {
+    res.status(200).json({ data: "Updated" });
+  })
+  .catch((error) => {
+    next(error);
+  });;
 };
 
 exports.deleteMember = (req, res, next) => {
@@ -105,19 +101,17 @@ exports.deleteMember = (req, res, next) => {
     _id: req.body.id,
   }).then((data) => {
     if (!data) {
-      next(new Error("Member Not Found"));
+      throw new Error("Member Not Found");
     } else {
       if (data.image) {
-        // fs.unlinkSync(data.image);
         fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
       }
       return MemberSchema.deleteOne({ _id: req.body.id })
-        .then((data) => {
-          res.status(200).json({ data: "Deleted" });
-        })
-        .catch((error) => {
-          next(error);
-        });
     }
+  }).then((data) => {
+    res.status(200).json({ data: "Deleted" });
+  })
+  .catch((error) => {
+    next(error);
   });
 };

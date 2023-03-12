@@ -6,7 +6,7 @@ exports.loginValidation = [
     .isAlphanumeric()
     .withMessage(" should be any char")
     .isLength({ min: 8 })
-    .withMessage("min 5 chars")
+    .withMessage("min 8 chars")
     .matches(/\d/)
     .withMessage("must contain a number"),
 ];

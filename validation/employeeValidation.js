@@ -7,7 +7,6 @@ exports.validateAddEmployee = [
   body("lastName").isAlpha().isLength({ min: 3 }).withMessage(" Must be at least 3 characters long String"),
   body("email").isEmail().withMessage(" Must be a valid email"),
   body("password").isLength({ min: 8 }).withMessage(" Must be at least 8 characters long"),
-  body("birthDate").isDate().withMessage(" Must be a valid date"),
   body("hireDate").isDate().withMessage(" Must be a valid date"),
   body("salary").isInt({ min: 0 }).withMessage(" Must be an Integer")
 ];

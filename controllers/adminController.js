@@ -95,7 +95,7 @@ exports.updateAdmin = (req, res, next) => {
               password: hashedPass,
               birthDate: req.body.birthDate,
               salary: req.body.salary,
-              image: req.file.filename,
+              image: req.file?.filename ?? undefined,
               role: req.body.role,
             },
           }

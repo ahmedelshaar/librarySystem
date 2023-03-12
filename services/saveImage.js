@@ -1,7 +1,7 @@
 const multer = require("multer");
 const path = require("path");
 
-module.exports = function(folderName) {
+module.exports = function (folderName) {
   const fileFilter = (req, file, callBack) => {
     if (file.mimetype === "image/jpeg" || file.mimetype === "image/png" || file.mimetype == "image/jpeg") {
       callBack(null, true);
@@ -25,4 +25,4 @@ module.exports = function(folderName) {
   const upload = multer({ limits: { fileSize: 1024 * 1024 * 2 }, storage: storage, fileFilter: fileFilter });
 
   return upload.single("image");
-}
+};

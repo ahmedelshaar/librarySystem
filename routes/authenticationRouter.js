@@ -7,7 +7,13 @@ const routes = new Router();
 
 routes.post("/login/administration", validator.loginValidation, validationMiddleware, loginAdministration);
 routes.post("/login", validator.loginValidation, validationMiddleware, login);
-// routes.post("/activation", saveImage("firstImage"), validator.activation, validationMiddleware, activation)
-routes.post("/activation/administration", saveImage("firstImage"), validator.activationAdministration, validationMiddleware, activationAdministration)
+routes.post("/activation", saveImage("firstImage"), validator.activation, validationMiddleware, activation);
+routes.post(
+  "/activation/administration",
+  saveImage("firstImage"),
+  validator.activationAdministration,
+  validationMiddleware,
+  activationAdministration
+);
 
 module.exports = routes;

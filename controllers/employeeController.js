@@ -148,7 +148,7 @@ exports.updateEmployee = (req, res, next) => {
             password: password,
             email: req.body.email,
             birthDate: req.body.birthDate,
-            image: req.file.filename,
+            image: req.file?.filename,
             salary: req.body.salary,
             role: req.body.role,
           },
@@ -170,7 +170,7 @@ exports.deleteEmployee = (req, res, next) => {
       if (!data) {
         throw new Error("Employee not found");
       } else {
-        if(data.image){
+        if (data.image) {
           fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
         }
         return managersSchema.deleteOne({ _id: req.body.id });

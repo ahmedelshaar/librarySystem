@@ -17,6 +17,7 @@ const MemberSchema = mongoose.Schema(
       unique: [true, "This Email Already Exists try with another email"],
       match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, "Please Enter a valid email address"],
       required: [true, "Please Enter Your Email"],
+      immutable: true,
     },
     password: {
       type: String,
@@ -24,27 +25,24 @@ const MemberSchema = mongoose.Schema(
     },
     image: {
       type: String,
-      required: [true, "Please Upload Image"],
+      required: false,
     },
     phone_number: {
       type: String,
       match: [/^01[0125][0-9]{8}$/, "Please Enter Valid Phone Number"],
-      required: [true, "Please Enter Phone Number"],
+      required: false,
     },
     birth_date: {
       type: Date,
-      required: [true, "Please Enter Your Birth Date"],
       trim: true,
+      required: false,
     },
     address: { type: AddressSchema, required: false },
     last_login: {
       type: Date,
-      default: Date.now(),
-    },
-    token: {
-      type: String,
       required: false,
     },
+    ban_date: { type: Date, required: false },
   },
   {
     timestamps: {

@@ -87,7 +87,7 @@ exports.updateSuperAdmin = (req, res, next) => {
               password: hashedPass,
               birthDate: req.body.birthDate,
               salary: req.body.salary,
-              image: req.file.filename,
+              image: req.file?.filename,
               role: req.body.role,
             },
           }
