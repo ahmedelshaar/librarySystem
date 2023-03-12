@@ -410,9 +410,18 @@ exports.searchBooks = (req,res,next)=>{
   let findBy = {};
   console.log(req.query);
   Object.keys(req.query).forEach(key => {
-    if (permittedQueries.includes(key))
+    if (permittedQueries.includes(key) && req.query[key])
       findBy[key] = req.query[key];
   });
+  
+  if (findBy.year){
+    
+    findBy.publishingDate = {
+      $lt:new Date(new Date(`${Number(findBy.year)+1}-01-01`)).toISOString().split("T")[0],
+      $gte:new Date(new Date(`${findBy.year}-01-01`)).toISOString().split("T")[0]
+    }
+    delete findBy['year'];
+  }
   console.log(findBy);
   BookSchema.find(findBy).then(data=>{
     res.status(200).json({data});
