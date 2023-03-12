@@ -410,7 +410,7 @@ exports.currentBorrowedBooks = (req, res, next) => {
           emp:"$emp",
           book:"$book",
           createdAt:"$createdAt"
-        }gi
+        }
 			},
 		},{
       $project:{
