@@ -9,10 +9,15 @@ const router = express.Router();
 
 router
   .route("/members")
-  .get(isEmployee, memberValidation.checkId, controller.getAllMembers)
-  .post(isEmployee, saveImage("members"), memberValidation.postValidation, validation, controller.addMember)
-  .delete(isEmployee, saveImage("members"), memberValidation.checkId, validation, controller.deleteMember)
-  .patch(isMember, saveImage("members"), memberValidation.patchValidation, validation, controller.updateMember);
+  // .get(isEmployee, memberValidation.checkId, controller.getAllMembers)
+  // .post(isEmployee, saveImage("members"), memberValidation.postValidation, validation, controller.addMember)
+  // .delete(isEmployee, saveImage("members"), memberValidation.checkId, validation, controller.deleteMember)
+  // .patch(isMember, saveImage("members"), memberValidation.patchValidation, validation, controller.updateMember);
+
+  .get(memberValidation.checkId, controller.getAllMembers)
+  .post(saveImage("members"), memberValidation.postValidation, validation, controller.addMember)
+  .delete(saveImage("members"), memberValidation.checkId, validation, controller.deleteMember)
+  .patch(saveImage("members"), memberValidation.patchValidation, validation, controller.updateMember);
 
 router
   .route("/members/search")

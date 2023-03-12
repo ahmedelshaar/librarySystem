@@ -69,11 +69,20 @@ exports.updateMember = (req, res, next) => {
       next(new Error("Member Not Found"));
     } else {
       let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
-
-      if (req.file && req.file.path && data.image != null) {
-        fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
+      if (req.body.id != req.id) {
+        let error = new Error("Not Authenticated");
+        error.status = 401;
+        next(error);
       }
-      ``;
+      if (req.file && req.file.path && data.image != null) {
+        try {
+          if (fs.existsSync(path.join(__dirname, "..", "images", `${data.image}`))) {
+            fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
+          }
+        } catch (error) {
+          next(error);
+        }
+      }
       return MemberSchema.updateOne(
         {
           _id: req.body.id,
@@ -90,7 +99,6 @@ exports.updateMember = (req, res, next) => {
         }
       )
         .then((data) => {
-          console.log(data);
           res.status(200).json({ data: "Updated" });
         })
         .catch((error) => {
@@ -107,9 +115,16 @@ exports.deleteMember = (req, res, next) => {
     if (!data) {
       next(new Error("Member Not Found"));
     } else {
-      if (data.image) {
-        fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
+      // if (data.image) {
+      try {
+        if (fs.existsSync(path.join(__dirname, "..", "images", `${data.image}`))) {
+          fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
+        }
+      } catch (error) {
+        next(error);
       }
+      // fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
+      // }
       return MemberSchema.deleteOne({ _id: req.body.id })
         .then((data) => {
           res.status(200).json({ data: "Deleted" });

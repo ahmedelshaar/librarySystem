@@ -11,7 +11,7 @@ const router = express.Router();
 //Routes
 router
   .route("/superAdmin")
-  // .all(isSuperAdmin)
+  .all(isSuperAdmin)
   .get(superAdminController.getAllSuperAdmins)
   .post(saveImage("superAdmins"), validateAddAdmin, validateMW, superAdminController.addSuperAdmin)
   .patch(saveImage("superAdmins"), validateUpdateAdmin, validateMW, superAdminController.updateSuperAdmin)

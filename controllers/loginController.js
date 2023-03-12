@@ -89,12 +89,21 @@ exports.setData = async (request, response, next) => {
       if (userData.image != undefined) response.status(400).json({ message: "Your data is Complete Please Login" });
       ManagersSchema.updateOne(
         { _id: userData._id },
-        { $set: { image: request.file.path, password: bcrypt.hashSync(request.body.newpassword, salt) } }
-      );
-      const { accessToken, refreshToken } = createToken(userData);
-      const hashToken = await bcrypt.hash(refreshToken, salt);
-      await ManagersSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
-      response.status(200).json({ accessToken, refreshToken });
+        {
+          $set: {
+            image: request.file.filename,
+            password: bcrypt.hashSync(request.body.newpassword, salt),
+            birthDate: request.body.birthDate,
+          },
+        }
+      ).then(async (data) => {
+        if (data.modifiedCount == 1) {
+          // const { accessToken, refreshToken } = createToken(userData);
+          // const hashToken = await bcrypt.hash(refreshToken, salt);
+          // await ManagersSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
+          response.status(200).json({ msg: "login!!!" });
+        }
+      });
     }
   } catch (error) {
     next(error);

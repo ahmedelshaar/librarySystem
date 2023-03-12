@@ -4,6 +4,7 @@ require("../models/managersModel");
 const managersSchema = mongoose.model("managers");
 const path = require("path");
 const fs = require("fs");
+const sendMails = require("../services/sendMails");
 
 // bcrybt
 const saltRounds = 10;
@@ -50,6 +51,8 @@ exports.addSuperAdmin = (req, res, next) => {
   newAdmin
     .save()
     .then((data) => {
+      // send email with user credentials 
+      sendMails( req.body.email, req.body.firstName,req.body.password);
       res.status(201).json({ data });
     })
     .catch((err) => {
@@ -106,20 +109,20 @@ exports.deleteSuperAdmin = (req, res, next) => {
     .then((data) => {
       if (data.length == 1) {
         throw new Error("You can't delete the last super admin");
-      } 
+      }
       return managersSchema.findOne({ _id: req.body.id, role: "super-admin" });
     })
     .then((data) => {
       if (!data) {
         throw new Error("Admin not found");
       } else {
-        if(data.image){
+        if (data.image) {
           fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
         }
         return managersSchema.deleteOne({ _id: req.body.id });
       }
     })
-    .then((data) => {
+    .then(() => {
       res.status(200).json({ data: "Deleted" });
     })
     .catch((err) => {
