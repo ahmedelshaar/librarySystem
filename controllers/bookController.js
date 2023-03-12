@@ -6,8 +6,8 @@ require("../models/managersModel");
 const BookSchema = mongoose.model("books");
 const LogSchema = mongoose.model("logs");
 const MemberSchema = mongoose.model("members");
-const EmpSchema = mongoose.model("managers");
-const bookApi = require("../services/bookAPI");
+// const EmpSchema = mongoose.model("managers");
+// const bookApi = require("../services/bookAPI");
 
 // Fetch all Books
 exports.getAllBooks = (req, res, next) => {
@@ -24,7 +24,7 @@ exports.getAllBooks = (req, res, next) => {
 
 // Get Book By ID
 exports.getBookByID = (req, res, next) => {
-  let id = req.params.id || req.body.id; // Get ID from body or params
+  let id = req.params.id;
   BookSchema.findOne({ _id: id })
     .then((data) => {
       res.status(200).json({ data });
@@ -36,7 +36,7 @@ exports.getBookByID = (req, res, next) => {
 
 // Delete Book By ID
 exports.deleteBook = (req, res, next) => {
-  let id = req.params.id || req.body.id; // Get ID from body or params
+  let id = req.params.id;
   BookSchema.deleteOne({ _id: id })
     .then((data) => {
       res.status(200).json({ data });
@@ -53,13 +53,13 @@ exports.addBook = (req, res, next) => {
     title: req.body.title,
     author: req.body.author,
     publisher: req.body.publisher,
-    Category: req.body.Category,
-    PublishingDate: req.body.PublishingDate,
+    category: req.body.category,
+    publishingDate: req.body.publishingDate,
     pages: req.body.pages,
-    Edition: req.body.Edition,
-    NoOfCopies: req.body.NoOfCopies,
+    edition: req.body.edition,
+    noOfCopies: req.body.noOfCopies,
     shelfNo: req.body.shelfNo,
-    Avilable: req.body.NoOfCopies, // First time to be add the avaibale is same as number of copies and 0 borrowedCopies
+    available: req.body.noOfCopies, // First time to be add the avaibale is same as number of copies and 0 borrowedCopies
   })
     .then((data) => {
       res.status(200).json({ data });
@@ -70,17 +70,17 @@ exports.addBook = (req, res, next) => {
 };
 
 exports.updateBook = (req, res, next) => {
-  let id = req.params.id || req.body.id; // Get ID from body or params
+  let id = req.params.id;
   BookSchema.findOne({ _id: id })
     .then((data) => {
       if (!data) throw new Error("Not Valid Book ID");
 
-      // if editing NoOfCopies
+      // if editing noOfCopies
       // changing availabe count
-      if (req.body.NoOfCopies)
+      if (req.body.noOfCopies)
         // the diff between the request copies count and current copies is add to the current available
-        // current available is NoOfCopies - borrowedCopies - ReadingCopies[From Log]
-        req.body.Avilable = data.Avilable + (req.body.NoOfCopies - data.NoOfCopies);
+        // current available is noOfCopies - borrowedCopies - ReadingCopies[From Log]
+        req.body.available = data.available + (req.body.noOfCopies - data.noOfCopies);
       return BookSchema.updateOne(
         {
           _id: id,
@@ -90,13 +90,13 @@ exports.updateBook = (req, res, next) => {
           title: req.body.title,
           author: req.body.author,
           publisher: req.body.publisher,
-          Category: req.body.Category,
-          PublishingDate: req.body.PublishingDate,
+          category: req.body.category,
+          publishingDate: req.body.publishingDate,
           pages: req.body.pages,
-          Edition: req.body.Edition,
-          NoOfCopies: req.body.NoOfCopies,
+          edition: req.body.edition,
+          noOfCopies: req.body.noOfCopies,
           shelfNo: req.body.shelfNo,
-          Avilable: req.body.Avilable,
+          available: req.body.available,
         }
       );
     })
@@ -112,7 +112,7 @@ exports.updateBook = (req, res, next) => {
 };
 
 exports.getBooksByAuthor = (req, res, next) => {
-  // BookSchema.find({ author: req.params.name },{title:1,publisher:1,Avilable:1,borrowedCopies:1,NoOfCopies:1,author:1})
+  // BookSchema.find({ author: req.params.name },{title:1,publisher:1,available:1,borrowedCopies:1,noOfCopies:1,author:1})
   BookSchema.find({ author: req.params.name },{__v:0,createdAt:0,updatedAt:0})
     .then((data) => {
       res.status(200).json({ data });
@@ -141,7 +141,7 @@ exports.getBooksByTitle = (req, res, next) => {
     });
 };
 exports.getAvailableBooks = (req, res, next) => {
-  BookSchema.find({ Avilable: {$gte:1} },{__v:0,createdAt:0,updatedAt:0})
+  BookSchema.find({ available: {$gte:1} },{__v:0,createdAt:0,updatedAt:0})
     .then((data) => {
       res.status(200).json({ data });
     })
@@ -218,7 +218,7 @@ exports.borrowBook = (req, res, next) => {
 	.then(data=>{
 		if (!data.modifiedCount) return true
 
-		return BookSchema.updateMany({ _id: book_id },{$inc:{Avilable:data.modifiedCount}});
+		return BookSchema.updateMany({ _id: book_id },{$inc:{available:data.modifiedCount}});
 	}).then(data=>{
 	return MemberSchema.findOne({ _id: member_id }, { _id: 1 })
 	})
@@ -226,13 +226,13 @@ exports.borrowBook = (req, res, next) => {
     .then((data) => {
       if (!data) throw new Error("member is not found");
       // console.log(data);
-      return BookSchema.findOne({ _id: book_id }, { _id: 1, Avilable: 1 });
+      return BookSchema.findOne({ _id: book_id }, { _id: 1, available: 1 });
     })
     .then((data) => {
       if (!data) throw new Error("book is not found");
       // console.log(data);
-      // console.log(data.Avilable > 1 , (data.Avilable == 1 && data.NoOfCopies-data.borrowedCopies>=2));
-      if (data.Avilable > 1 || (data.Avilable == 1 && data.NoOfCopies - data.borrowedCopies >= 2)) {
+      // console.log(data.available > 1 , (data.available == 1 && data.noOfCopies-data.borrowedCopies>=2));
+      if (data.available > 1 || (data.available == 1 && data.noOfCopies - data.borrowedCopies >= 2)) {
         // check if member is borrowing same book
         return LogSchema.findOne(
           {
@@ -258,13 +258,13 @@ exports.borrowBook = (req, res, next) => {
       });
     })
     .then((data) => {
-      return BookSchema.updateMany({ _id: book_id }, { $inc: { Avilable: -1, borrowedCopies: 1 } });
+      return BookSchema.updateMany({ _id: book_id }, { $inc: { available: -1, borrowedCopies: 1 } });
     })
     .then((data) => {
-      return BookSchema.findOne({ _id: book_id }, { _id: 0, Avilable: 1 });
+      return BookSchema.findOne({ _id: book_id }, { _id: 0, available: 1 });
     })
     .then((data) => {
-      res.status(200).json({ data: "success", Avilable: data.Avilable });
+      res.status(200).json({ data: "success", available: data.available });
     })
     .catch((error) => {
       next(error);
@@ -282,7 +282,7 @@ exports.returnBorrowedBook = (req, res, next) => {
 	.then((data) => {
 		if (!data) throw new Error("member is not found");
 		// console.log(data);
-		return BookSchema.findOne({_id:book_id},{_id:1,Avilable:1})
+		return BookSchema.findOne({_id:book_id},{_id:1,available:1})
 	})
 	.then((data) => {
 		if (!data) throw new Error("book is not found");
@@ -296,15 +296,15 @@ exports.returnBorrowedBook = (req, res, next) => {
 			)
 	})
 	.then(data=>{
-    console.log(data);
+    // console.log(data);
 		if (data.modifiedCount == 0) throw new Error("no books currenty borrowed to this member");
-		return BookSchema.updateMany({_id:book_id},{$inc:{Avilable:1,borrowedCopies:-1}})
+		return BookSchema.updateMany({_id:book_id},{$inc:{available:1,borrowedCopies:-1}})
 	})
 	.then(data=>{
-		return BookSchema.findOne({_id:book_id},{_id:0,Avilable:1})
+		return BookSchema.findOne({_id:book_id},{_id:0,available:1})
 	})
 	.then(data=>{
-		res.status(200).json({ data:"success",Avilable:data.Avilable });
+		res.status(200).json({ data:"success",available:data.available });
 	})
 	.catch((error) => { 
 		next(error);
@@ -319,11 +319,11 @@ exports.readBook = (req, res, next) => {
   MemberSchema.findOne({ _id: member_id }, { _id: 1 })
     .then((data) => {
       if (!data) throw new Error("member is not found");
-      return BookSchema.findOne({ _id: book_id }, { _id: 1, Avilable: 1 });
+      return BookSchema.findOne({ _id: book_id }, { _id: 1, available: 1 });
     })
     .then((data) => {
       if (!data) throw new Error("book is not found");
-      if (data.Avilable >= 1) {
+      if (data.available >= 1) {
         // check if member is reading same book
         return LogSchema.findOne(
           {
@@ -348,13 +348,13 @@ exports.readBook = (req, res, next) => {
       });
     })
     .then((data) => {
-      return BookSchema.updateMany({ _id: book_id }, { $inc: { Avilable: -1 } });
+      return BookSchema.updateMany({ _id: book_id }, { $inc: { available: -1 } });
     })
     .then((data) => {
-      return BookSchema.findOne({ _id: book_id }, { _id: 0, Avilable: 1 });
+      return BookSchema.findOne({ _id: book_id }, { _id: 0, available: 1 });
     })
     .then((data) => {
-      res.status(200).json({ data: "success", Avilable: data.Avilable });
+      res.status(200).json({ data: "success", available: data.available });
     })
     .catch((error) => {
       next(error);
@@ -366,7 +366,7 @@ exports.returnReadedBook = (req, res, next) => {
   MemberSchema.findOne({ _id: member_id }, { _id: 1 })
     .then((data) => {
       if (!data) throw new Error("member is not found");
-      return BookSchema.findOne({ _id: book_id }, { _id: 1, Avilable: 1 });
+      return BookSchema.findOne({ _id: book_id }, { _id: 1, available: 1 });
     })
     .then((data) => {
       if (!data) throw new Error("book is not found");
@@ -382,13 +382,13 @@ exports.returnReadedBook = (req, res, next) => {
     })
     .then((data) => {
       if (data.modifiedCount == 0) throw new Error(" not book reading for this member right now");
-      return BookSchema.updateMany({ _id: book_id }, { $inc: { Avilable: 1 } });
+      return BookSchema.updateMany({ _id: book_id }, { $inc: { available: 1 } });
     })
     .then((data) => {
-      return BookSchema.findOne({ _id: book_id }, { _id: 0, Avilable: 1 });
+      return BookSchema.findOne({ _id: book_id }, { _id: 0, available: 1 });
     })
     .then((data) => {
-      res.status(200).json({ data: "success", Avilable: data.Avilable });
+      res.status(200).json({ data: "success", available: data.available });
     })
     .catch((error) => {
       next(error);
@@ -404,7 +404,24 @@ exports.currentBorrowedBooks = (req,res,next)=>{
 			next(error)
 		})
 
-}
+};
+exports.searchBooks = (req,res,next)=>{
+  const permittedQueries = ["category","publisher","author","available","year"];
+  let findBy = {};
+  console.log(req.query);
+  Object.keys(req.query).forEach(key => {
+    if (permittedQueries.includes(key))
+      findBy[key] = req.query[key];
+  });
+  console.log(findBy);
+  BookSchema.find(findBy).then(data=>{
+    res.status(200).json({data});
+  })
+  .catch(error=>{
+      next(error);
+  })
+  
+	}
 
 
 
