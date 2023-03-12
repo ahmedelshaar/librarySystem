@@ -44,17 +44,10 @@ exports.searchByName = (req, res, next) => {
 };
 
 exports.addMember = (req, res, next) => {
-  // if (req.file && req.file.path) {
-  //   req.body.image = req.file.filename;
-  // }
   new MemberSchema({
     full_name: req.body.full_name,
     password: bcrypt.hashSync(req.body.password, salt),
     email: req.body.email,
-    // image: req.body.image,
-    // phone_number: req.body.phone_number,
-    // birth_date: req.body.birth_date, // year-month-day => 1996-02-01
-    // address: req.body.address,
   })
     .save()
     .then((data) => {
@@ -79,9 +72,6 @@ exports.updateMember = (req, res, next) => {
 
       if (req.file && req.file.path && data.image != null) {
         fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
-        // if (path.join(__dirname, "..", "images", `${data.image}`))
-        // fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
-        // req.body.image = req.file.path;
       }
       ``;
       return MemberSchema.updateOne(
@@ -118,7 +108,6 @@ exports.deleteMember = (req, res, next) => {
       next(new Error("Member Not Found"));
     } else {
       if (data.image) {
-        // fs.unlinkSync(data.image);
         fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
       }
       return MemberSchema.deleteOne({ _id: req.body.id })
