@@ -50,9 +50,13 @@ router.route("/books/new").get(bookController.getNewBooks);
 
 //https://gist.github.com/adnan-i/d82a956d67c153b5efc8
 //https://devpress.csdn.net/mongodb/63048fae7e6682346619bc31.html
-// router.route("/books/mostborrowed/:year").get(bookController.getNewBooks);
-// router.route("/books/mostreading/:year").get(bookController.getNewBooks);
+router.route("/books/mostborrowed").get(bookController.mostBorrowedBooks);
+router.route("/books/mostborrowed/:year").get(bookController.mostBorrowedBooks);
+router.route("/books/mostreading").get(bookController.mostReadingBooks);
+router.route("/books/mostreading/:year").get(bookController.mostReadingBooks);
 
+
+// Members
 
 
 /////////////// history???????
@@ -61,10 +65,16 @@ router.route("/books/currentborrow").get(bookController.currentBorrowedBooks);
 // f- Search for any book in the library filtered by year , category , publisher , author and availability
 router.route("/books/search").get(bookController.searchBooks);
 
-// Members
-// b- List of reading books in current month , this page will have capability of showing reading books filtered by month and year
 // c- List of borrowed books in current month , this page will have capability of showing borrowed books filtered by month and year
-// d- New arrived books => /books/new
+router.route("/books/history/borrowed").get(bookController.memberBorrowedBooks);
+router.route("/books/history/borrowed/:year").get(bookController.memberBorrowedBooks);
+// router.route("/books/history/borrowed/:year/:month").get(bookController.memberBorrowedBooks);
+
+// b- List of reading books in current month , this page will have capability of showing reading books filtered by month and year
+router.route("/books/history/reading").get(bookController.memberReadingBooks);
+router.route("/books/history/reading/:year").get(bookController.memberReadingBooks);
+// router.route("/books/history/borrowed/:year/:month").get(bookController.memberReadingBooks);
+
  
 
 

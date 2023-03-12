@@ -131,6 +131,7 @@ exports.getBooksByPublisher = (req, res, next) => {
 			return null;
 		});
 };
+
 exports.getBooksByTitle = (req, res, next) => {
 	BookSchema.find({ title: req.params.name }, { __v: 0, createdAt: 0, updatedAt: 0 })
 		.then((data) => {
@@ -140,6 +141,7 @@ exports.getBooksByTitle = (req, res, next) => {
 			return null;
 		});
 };
+
 exports.getAvailableBooks = (req, res, next) => {
 	BookSchema.find({ available: { $gte: 1 } }, { __v: 0, createdAt: 0, updatedAt: 0 })
 		.then((data) => {
@@ -149,6 +151,7 @@ exports.getAvailableBooks = (req, res, next) => {
 			return null;
 		});
 };
+
 exports.getBorrowingBooks = (req, res, next) => {
 	LogSchema.find({ status: 'borrow', returned_date: '' }, { __v: 0, createdAt: 0, updatedAt: 0 })
 		// .populate({path:"member",select:{full_name:1}})
@@ -162,6 +165,7 @@ exports.getBorrowingBooks = (req, res, next) => {
 			return null;
 		});
 };
+
 exports.getLateBooks = (req, res, next) => {
 	let today = new Date(Date.now()).toISOString().split('T')[0];
 	// let today = new Date("2025-01-01").toISOString().split("T")[0]
@@ -178,10 +182,13 @@ exports.getLateBooks = (req, res, next) => {
 			return null;
 		});
 };
+
 exports.getNewBooks = (req, res, next) => {
 	// let OneMonthAgo = new Date(new Date().setMonth(new Date().getMonth() - 1));
 	let OneMonthAgo = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0];
-	// bigger of [last login || 30 days ago] for user
+	// bigger of [last login || 30 days ago] for member
+	if (req.role && req.role == "member" && req.lastLogin && Number(req.lastLogin) < new Date(OneMonthAgo).getTime())
+		OneMonthAgo = req.lastLogin;
 	BookSchema.find({ createdAt: { $gte: OneMonthAgo } }, { __v: 0, createdAt: 0, updatedAt: 0 })
 		.then((data) => {
 			res.status(200).json({ data });
@@ -362,6 +369,7 @@ exports.readBook = (req, res, next) => {
 			next(error);
 		});
 };
+
 exports.returnReadedBook = (req, res, next) => {
 	let member_id = req.body.member_id;
 	let book_id = req.body.book_id;
@@ -396,6 +404,7 @@ exports.returnReadedBook = (req, res, next) => {
 			next(error);
 		});
 };
+
 exports.currentBorrowedBooks = (req, res, next) => {
 	LogSchema.aggregate([
 		{
@@ -434,7 +443,7 @@ exports.currentBorrowedBooks = (req, res, next) => {
 				_id: 0,
 				status: 1,
 				createdAt: 1,
-        expected_date:1,
+        		expected_date:1,
 				book_details: { _id: 1, title: 1 },
 				member_details: { _id: 1, full_name: 1 },
 				employee_details: { _id: 1, firstName: 1 },
@@ -451,7 +460,7 @@ exports.currentBorrowedBooks = (req, res, next) => {
 		{
 			$group: {
 				_id: '$book_details.title',
-        number_of_borrowed:{$sum:1},
+        		number_of_borrowed:{$sum:1},
 				book_details: { $push: '$$ROOT' },
 			},
 		}
@@ -463,10 +472,11 @@ exports.currentBorrowedBooks = (req, res, next) => {
 			console.log(err);
 		});
 };
+
 exports.searchBooks = (req,res,next)=>{
   const permittedQueries = ["category","publisher","author","available","year"];
   let findBy = {};
-  console.log(req.query);
+//   console.log(req.query);
   Object.keys(req.query).forEach(key => {
     if (permittedQueries.includes(key) && req.query[key])
       findBy[key] = req.query[key];
@@ -480,16 +490,241 @@ exports.searchBooks = (req,res,next)=>{
     }
     delete findBy['year'];
   }
-  console.log(findBy);
+//   console.log(findBy);
   BookSchema.find(findBy).then(data=>{
     res.status(200).json({data});
   })
   .catch(error=>{
       next(error);
-  })
-  
+  })  
+};
+
+
+
+exports.mostBorrowedBooks = (req,res,next)=>{
+	let condition = {
+		status: 'borrow',
+	}
+	if (req.params && Number(req.params.year)){
+    
+		condition.createdAt = {
+			// $lt:new Date(new Date(new Date(`${Number(req.params.year)+1}-01-01`)).toISOString().split("T")[0]),
+			// $gte:new Date(new Date(new Date(`${req.params.year}-01-01`)).toISOString().split("T")[0])
+		  	 $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)),
+		 	 $gte:new Date(new Date(`${Number(req.params.year)}-01-01`)),
+		  
+		}
+	  }
+	// console.log(condition);
+	LogSchema.aggregate([
+		{
+			$match: condition
+		},
+		{
+			$group: {
+				_id: '$book',
+				count:{$sum:1},
+			},
+		},
+		{
+			$limit:10
+		},
+		{
+			$sort:{
+				count:-1
+			}
+		},
+		{
+			$lookup: {
+				from: 'books',
+				localField: '_id',
+				foreignField: '_id',
+				as: 'book',
+			},
+		},
+		{
+			$project: {
+				_id:1,
+				count:1,
+				book: { title: 1,category:1 ,author:1,publisher:1,publishingDate:1,edition:1},
+			}
+		}
+	]).then(data=>{
+		res.status(200).json({data});
+	})
+	.catch(error=>{
+		next(error);
+	})	
+};
+
+exports.mostReadingBooks = (req,res,next)=>{
+	let condition = {
+		status: 'read',
+	}
+	if (req.params && Number(req.params.year)){
+    
+		condition.createdAt = {
+		//   $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)).toISOString().split("T")[0],
+		//   $gte:new Date(new Date(`${req.params.year}-01-01`)).toISOString().split("T")[0]
+		 	 $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)),
+		 	 $gte:new Date(new Date(`${Number(req.params.year)}-01-01`)),
+		}
+	  }
+	// console.log(condition);
+	LogSchema.aggregate([
+		{
+			$match: condition
+		},
+		{
+			$group: {
+				_id: '$book',
+				count:{$sum:1},
+			},
+		},
+		{
+			$limit:10
+		},
+		{
+			$sort:{
+				count:-1
+			}
+		},
+		{
+			$lookup: {
+				from: 'books',
+				localField: '_id',
+				foreignField: '_id',
+				as: 'book',
+			},
+		},
+		{
+			$project: {
+				_id:1,
+				count:1,
+				book: { title: 1,category:1 ,author:1,publisher:1,publishingDate:1,edition:1},
+			}
+		}
+	]).then(data=>{
+		res.status(200).json({data});
+	})
+	.catch(error=>{
+		next(error);
+	})	
+};
+
+// need to add months filter thou
+exports.memberBorrowedBooks = (req,res,next)=>{
+	let condition = {
+		status: 'borrow',
+		member:req.id||1,
+		createdAt: {
+			// 1st of next month
+			$lt:new Date(new Date(new Date().toISOString().split("T")[0].split("-")[0]).setMonth(new Date().getMonth()+1)),
+			// 1st of this month
+			$gte:new Date(new Date(new Date().toISOString().split("T")[0].split("-")[0]).setMonth(new Date().getMonth())),
+		}
 	}
 
+	if (req.params && Number(req.params.year)){
+		condition.createdAt = {
+			// $lt:new Date(new Date(new Date(`${Number(req.params.year)+1}-01-01`)).toISOString().split("T")[0]),
+			// $gte:new Date(new Date(new Date(`${req.params.year}-01-01`)).toISOString().split("T")[0])
+		  	 $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)),
+		 	 $gte:new Date(new Date(`${Number(req.params.year)}-01-01`)),
+		}
+	}
+	console.log(condition);
+	LogSchema.aggregate([
+		{
+			$match:condition
+		},
+		{
+			$group: {
+				_id: '$book',
+				count:{$sum:1},
+			}
+		},
+		{
+			$lookup: {
+				from: 'books',
+				localField: '_id',
+				foreignField: '_id',
+				as: 'book',
+			},
+		},
+		{
+			$project: {
+				_id:1,
+				count:1,
+				book: { title: 1,category:1 ,author:1,publisher:1,publishingDate:1,edition:1},
+			}
+		}
+		
+	
+	]).then(data=>{
+		res.status(200).json({data});
+	})
+	.catch(error=>{
+		next(error);
+	})	
+};
+
+// need to add months filter thou
+exports.memberReadingBooks = (req,res,next)=>{
+	let condition = {
+		status: 'read',
+		member:req.id||1,
+		createdAt: {
+			// 1st of next month
+			$lt:new Date(new Date(new Date().toISOString().split("T")[0].split("-")[0]).setMonth(new Date().getMonth()+1)),
+			// 1st of this month
+			$gte:new Date(new Date(new Date().toISOString().split("T")[0].split("-")[0]).setMonth(new Date().getMonth())),
+		}
+	}
+
+	if (req.params && Number(req.params.year)){
+		condition.createdAt = {
+			// $lt:new Date(new Date(new Date(`${Number(req.params.year)+1}-01-01`)).toISOString().split("T")[0]),
+			// $gte:new Date(new Date(new Date(`${req.params.year}-01-01`)).toISOString().split("T")[0])
+		  	 $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)),
+		 	 $gte:new Date(new Date(`${Number(req.params.year)}-01-01`)),
+		}
+	}
+	console.log(condition);
+	LogSchema.aggregate([
+		{
+			$match:condition
+		},
+		{
+			$group: {
+				_id: '$book',
+				count:{$sum:1},
+			}
+		},
+		{
+			$lookup: {
+				from: 'books',
+				localField: '_id',
+				foreignField: '_id',
+				as: 'book',
+			},
+		},
+		{
+			$project: {
+				_id:1,
+				count:1,
+				book: { title: 1,category:1 ,author:1,publisher:1,publishingDate:1,edition:1},
+			}
+		}
+		
+	
+	]).then(data=>{
+		res.status(200).json({data});
+	})
+	.catch(error=>{
+		next(error);
+	})	
+};
 
 
 
@@ -498,6 +733,8 @@ exports.searchBooks = (req,res,next)=>{
 
 
 
+
+// Rubbish
 // Do it
 exports.getMemberBorrowedBooks = (req, res, next) => {
 	LogSchema.aggregate([
