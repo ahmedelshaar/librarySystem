@@ -58,13 +58,14 @@ router.route("/books/new").get(bookController.getNewBooks);
 /////////////// history???????
 // e- Current borrowed books and return date and number of borrowed times for any book.(with warning with late returned books )
 router.route("/books/currentborrow").get(bookController.currentBorrowedBooks);
+router.route("/books/search").get(bookController.searchBooks);
 
 // Members
 // b- List of reading books in current month , this page will have capability of showing reading books filtered by month and year
 // c- List of borrowed books in current month , this page will have capability of showing borrowed books filtered by month and year
 // d- New arrived books => /books/new
 // f- Search for any book in the library filtered by year , category , publisher , author and availability 
-
+// /books/search?year,cat,publisher,author,available
 
 
 

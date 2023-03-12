@@ -10,14 +10,14 @@ const bookSchema = new mongoose.Schema({
     title:{type:String,required:true},
     author:{type:String,required:true},
     publisher:{type:String,required:true},
-    Category:{type:String,required:true,enum:categories},
+    category:{type:String,required:true,enum:categories},
     //Number
-    PublishingDate:{type:Date,required:true},
-    Edition:{type:Number,required:true},
+    publishingDate:{type:Date,required:true},
+    edition:{type:Number,required:true},
     pages:{type:Number,required:true},
-    NoOfCopies:{type:Number,required:true},
+    noOfCopies:{type:Number,required:true},
     shelfNo:{type:Number,required:true},
-    Avilable:{type:Number,required:true}, // can read copies [ No of copies - borrowed ] changing during runtime
+    available:{type:Number,required:true}, // can read copies [ No of copies - borrowed ] changing during runtime
     //Extra
     borrowedCopies:{type:Number,required:true,default:0},
     // readingCopies:{type:Number,required:false,default:0}, // can be found from available and borrowed copies
