@@ -21,9 +21,8 @@ exports.getAllMembers = (req, res, next) => {
 exports.getMembers = (req, res, next) => {
   MemberSchema.findById(req.params.id)
     .then((data) => {
-      // console.log(data + "Hi");
       if (data == null) {
-        next(new Error("Member Not Found"));
+        throw new Error("Member Not Found");
       } else {
         res.status(200).json({ data });
       }
@@ -66,21 +65,18 @@ exports.updateMember = (req, res, next) => {
     _id: req.body.id,
   }).then((data) => {
     if (!data) {
-      next(new Error("Member Not Found"));
+      throw new Error("Member Not Found");
     } else {
-      let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
       if (req.body.id != req.id) {
+        // throw new Error("Not Authenticated");
         let error = new Error("Not Authenticated");
         error.status = 401;
         next(error);
       }
+      let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
       if (req.file && req.file.path && data.image != null) {
-        try {
-          if (fs.existsSync(path.join(__dirname, "..", "images", `${data.image}`))) {
-            fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
-          }
-        } catch (error) {
-          next(error);
+        if (fs.existsSync(path.join(__dirname, "..", "images", `${data.image}`))) {
+          fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
         }
       }
       return MemberSchema.updateOne(
@@ -93,7 +89,7 @@ exports.updateMember = (req, res, next) => {
             password: hashedPass,
             image: req.file.filename,
             phone_number: req.body.phone_number,
-            birth_date: req.body.birth_date, // year-month-day => 1996-02-01
+            birth_date: req.body.birth_date,
             address: req.body.address,
           },
         }
@@ -115,16 +111,10 @@ exports.deleteMember = (req, res, next) => {
     if (!data) {
       next(new Error("Member Not Found"));
     } else {
-      // if (data.image) {
-      try {
-        if (fs.existsSync(path.join(__dirname, "..", "images", `${data.image}`))) {
-          fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
-        }
-      } catch (error) {
-        next(error);
+      if (fs.existsSync(path.join(__dirname, "..", "images", `${data.image}`))) {
+        fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
       }
-      // fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
-      // }
+
       return MemberSchema.deleteOne({ _id: req.body.id })
         .then((data) => {
           res.status(200).json({ data: "Deleted" });

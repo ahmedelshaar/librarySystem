@@ -5,6 +5,8 @@ const cors = require("cors");
 const logger = require("morgan");
 const fs = require("fs");
 
+const authenticator = require("./middlewares/authenticationMw");
+
 // import Routes
 const LoginRoute = require("./routes/authenticationRouter");
 const superAdminRouter = require("./routes/superAdminRouter");
@@ -22,6 +24,7 @@ mongoose
   .then(() => {
     console.log("DB connected");
     app.listen(process.env.PORT || 8080, () => console.log(`listening on http://localhost:${process.env.PORT}`));
+    sender();
   })
   .catch((error) => console.log(`DB connection error ${error}`));
 
@@ -34,6 +37,7 @@ app.use(express.urlencoded({ extended: false, limit: "2mb" }));
 
 //login
 app.use(LoginRoute);
+app.use(authenticator); // authentication layer
 //routing
 app.use(superAdminRouter);
 app.use(adminRouter);

@@ -80,7 +80,7 @@ exports.updateAdmin = (req, res, next) => {
             throw new Error("You are not authorized to update this admin data");
           }
         }
-        if (req.file) {
+        if (req.file && data.image) {
           fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
         }
         return managersSchema.updateOne(
@@ -95,7 +95,7 @@ exports.updateAdmin = (req, res, next) => {
               password: hashedPass,
               birthDate: req.body.birthDate,
               salary: req.body.salary,
-              image: req.file.filename,
+              image: req.file?.filename ?? undefined,
               role: req.body.role,
             },
           }
@@ -116,6 +116,7 @@ exports.deleteAdmin = (req, res, next) => {
       if (!data) {
         throw new Error("Admin not found");
       } else {
+        //Check if image send in request
         if (data.image) {
           fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
         }

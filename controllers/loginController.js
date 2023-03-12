@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
-const saveImage = require("../services/saveImage");
 // bcrybt
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
@@ -29,26 +28,19 @@ const checkMailAndPassword = async (model, request, response, next) => {
 };
 
 const createToken = (userData) => {
-  const accessToken = jwt.sign(
-    {
-      id: userData._id,
-      email: userData.email,
-      role: userData.role,
-    },
-    process.env.SECRET_KEY,
-    { expiresIn: "24h" }
-  );
+  const data = {
+    id: userData._id,
+    email: userData.email,
+    role: userData.role,
+  };
+  if (userData.role == undefined) {
+    data["role"] = "member";
+    data["last_login"] = userData.last_login;
+  }
+  const accessToken = jwt.sign(data, process.env.SECRET_KEY, { expiresIn: "24h" });
 
   // create refresh token
-  const refreshToken = jwt.sign(
-    {
-      id: userData._id,
-      email: userData.email,
-      role: userData.role,
-    },
-    process.env.SECRET_KEY,
-    { expiresIn: "7d" }
-  );
+  const refreshToken = jwt.sign(data, process.env.SECRET_KEY, { expiresIn: "7d" });
   return { accessToken, refreshToken };
 };
 
@@ -57,7 +49,7 @@ exports.loginAdministration = async (request, response, next) => {
     const userData = await checkMailAndPassword(ManagersSchema, request, response, next);
     if (userData) {
       if (userData.image == undefined) response.status(400).json({ message: "You should Complete Your data" });
-      const { accessToken, refreshToken } = createToken(userData);
+      const { accessToken, refreshToken } = await createToken(userData);
       const hashToken = await bcrypt.hash(refreshToken, salt);
       await ManagersSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
       response.status(200).json({ accessToken, refreshToken });
@@ -74,7 +66,7 @@ exports.login = async (request, response, next) => {
       if (userData.image == undefined) response.status(400).json({ message: "you should Complete Your data" });
       const { accessToken, refreshToken } = createToken(userData);
       const hashToken = await bcrypt.hash(refreshToken, salt);
-      await MemberSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
+      await MemberSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken, last_login: Date.now() } });
       response.status(200).json({ accessToken, refreshToken });
     }
   } catch (error) {
@@ -82,28 +74,52 @@ exports.login = async (request, response, next) => {
   }
 };
 
-exports.setData = async (request, response, next) => {
+exports.activationAdministration = async (request, response, next) => {
   try {
     const userData = await checkMailAndPassword(ManagersSchema, request, response, next);
     if (userData) {
-      if (userData.image != undefined) response.status(400).json({ message: "Your data is Complete Please Login" });
-      ManagersSchema.updateOne(
-        { _id: userData._id },
-        {
-          $set: {
-            image: request.file.filename,
-            password: bcrypt.hashSync(request.body.newpassword, salt),
-            birthDate: request.body.birthDate,
-          },
-        }
-      ).then(async (data) => {
-        if (data.modifiedCount == 1) {
-          // const { accessToken, refreshToken } = createToken(userData);
-          // const hashToken = await bcrypt.hash(refreshToken, salt);
-          // await ManagersSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
-          response.status(200).json({ msg: "login!!!" });
-        }
-      });
+      if (userData.image != undefined) {
+        response.status(400).json({ message: "Your data is Complete Please Login" });
+      } else {
+        await ManagersSchema.updateOne(
+          { _id: userData._id },
+          {
+            $set: {
+              image: request.file.filename,
+              password: bcrypt.hashSync(request.body.newpassword, salt),
+              birthDate: request.body.birthDate,
+            },
+          }
+        );
+        response.status(200).json({ msg: "login!!!" });
+      }
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.activation = async (request, response, next) => {
+  try {
+    const userData = await checkMailAndPassword(MemberSchema, request, response, next);
+    if (userData) {
+      if (userData.image != undefined) {
+        response.status(400).json({ message: "Your data is Complete Please Login" });
+      } else {
+        await MemberSchema.updateOne(
+          { _id: userData._id },
+          {
+            $set: {
+              image: request.file.filename,
+              password: bcrypt.hashSync(request.body.newpassword, salt),
+              address: request.body.address,
+              phone_number: request.body.phone_number,
+              birth_date: request.body.birth_date,
+            },
+          }
+        );
+      }
+      response.status(200).json({ msg: "login!!!" });
     }
   } catch (error) {
     next(error);

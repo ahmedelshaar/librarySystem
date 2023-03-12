@@ -1,5 +1,4 @@
 const mailer = require("nodemailer");
-// Send new admin,emp or member added their credintials and link to complete regestiration
 module.exports = (recieverMail, recieverName, acountPassword) => {
   const transporter = mailer.createTransport({
     host: "smtp.gmail.com",
@@ -13,7 +12,7 @@ module.exports = (recieverMail, recieverName, acountPassword) => {
   const mailOptions = {
     from: process.env.APP_EMAIL,
     to: recieverMail,
-    subject: "New Member Registration",
+    subject: "New Registration",
     text: `Hello ${recieverName},\n\nYou have successfully registered as a new member.
     \n\n your mail is : ${recieverMail} \n\n
      your password is :${acountPassword}`,

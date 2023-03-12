@@ -6,10 +6,8 @@ exports.validateAddAdmin = [
   body("lastName").isString().withMessage(" Must be a String"),
   body("email").isEmail().withMessage(" Must be a valid email"),
   body("password").isLength({ min: 4 }).withMessage(" Must be at least 4 characters long"),
-  body("birthDate").isDate().withMessage(" Must be a valid date").toDate(),
   body("hireDate").isDate().withMessage(" Must be a valid date").toDate(),
   body("salary").isInt().withMessage(" Must be an Integer").toInt(),
-  body("role").isIn(["super-admin", "admin"]).withMessage("Enter a Valid role"),
 ];
 
 //Validation for updating admin

@@ -21,33 +21,29 @@ const MemberSchema = mongoose.Schema(
     },
     password: {
       type: String,
+      minlength: [8, "Password must be at least 8 characters long"],
       required: [true, "Please Enter Your Password"],
     },
     image: {
       type: String,
       required: false,
-      default: null,
     },
     phone_number: {
       type: String,
       match: [/^01[0125][0-9]{8}$/, "Please Enter Valid Phone Number"],
       required: false,
-      default: null,
     },
     birth_date: {
       type: Date,
       trim: true,
       required: false,
-      default: null,
     },
-    address: { type: AddressSchema },
+    address: { type: AddressSchema, required: false },
     last_login: {
       type: Date,
-      default: Date.now(),
       required: false,
-      default: null,
     },
-    ban_date: { type: Date, required: false, default: null },
+    ban_date: { type: Date, required: false },
   },
   {
     timestamps: {

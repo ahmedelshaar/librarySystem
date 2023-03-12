@@ -148,7 +148,7 @@ exports.updateEmployee = (req, res, next) => {
             password: password,
             email: req.body.email,
             birthDate: req.body.birthDate,
-            image: req.file.filename,
+            image: req.file?.filename,
             salary: req.body.salary,
             role: req.body.role,
           },
