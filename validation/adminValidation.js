@@ -10,6 +10,8 @@ exports.validateAddAdmin = [
   body("salary").isInt().withMessage(" Must be an Integer").toInt(),
 ];
 
+
+
 //Validation for updating admin
 exports.validateUpdateAdmin = [
   body("id").isInt().withMessage(" Must be an Integer").toInt(),
