@@ -4,7 +4,7 @@ const bookValidations = require("../validation/bookValidations");
 const bookController = require("../controllers/bookController");
 
 const { isBanned } = require("../middlewares/checks");
-const { isEmployee } = require("../middlewares/authorizationMw");
+const { isEmployee ,isMember } = require("../middlewares/authorizationMw");
 const { categories } = require("../Core/Static/categories");
 
 const router = express.Router();
@@ -15,45 +15,45 @@ router.route("/categories").get((req, res, next) => {
 
 router
   .route("/books")
-  .get(bookController.getAllBooks)
-  .post(bookValidations.postValidator, validator, bookController.addBook);
 
-// permission emp
-router
-  .route("/books/borrow")
-  .post(bookValidations.borrowBookValidator, validator, isBanned, bookController.borrowBook)
-  .delete(bookValidations.returnValidator, validator, bookController.returnBorrowedBook);
+  //E
+  .get(isEmployee,bookController.getAllBooks) 
+  .post(isEmployee,bookValidations.postValidator, validator, bookController.addBook);
 
-// permission emp
-router
-  .route("/books/read")
-  .post(bookValidations.readingBookValidator, validator,bookController.readBook)
-  .delete(bookValidations.readingBookValidator, validator, bookController.returnReadedBook);
-
-
-// permission emp
+// F
 router.route("/books/author/:name").get(bookController.getBooksByAuthor);
 router.route("/books/publisher/:name").get(bookController.getBooksByPublisher);
 router.route("/books/title/:name").get(bookController.getBooksByTitle);
 
-
-
+//G
 router.route("/books/available").get(bookController.getAvailableBooks);
 router.route("/books/borrowing").get(bookController.getBorrowingBooks);
-router.route("/books/late").get(bookController.getLateBooks);
+
+//H   +  /new Member //D
 router.route("/books/new").get(bookController.getNewBooks);
-
-
-
-
-
-
-//https://gist.github.com/adnan-i/d82a956d67c153b5efc8
-//https://devpress.csdn.net/mongodb/63048fae7e6682346619bc31.html
 router.route("/books/mostborrowed").get(bookController.mostBorrowedBooks);
 router.route("/books/mostborrowed/:year").get(bookController.mostBorrowedBooks);
 router.route("/books/mostreading").get(bookController.mostReadingBooks);
 router.route("/books/mostreading/:year").get(bookController.mostReadingBooks);
+
+
+// I + K
+router
+  .route("/books/borrow") 
+  .post(bookValidations.borrowBookValidator, validator, isBanned, bookController.borrowBook)
+  .delete(bookValidations.returnValidator, validator, bookController.returnBorrowedBook);
+
+//J
+router
+  .route("/books/read")
+  .post(isEmployee,bookValidations.readingBookValidator, validator,bookController.readBook)
+  .delete(isEmployee,bookValidations.readingBookValidator, validator, bookController.returnReadedBook); // return book from reading
+
+//L
+router.route("/books/late").get(bookController.getLateBooks);
+
+
+
 
 
 // Members
@@ -68,12 +68,12 @@ router.route("/books/search").get(bookController.searchBooks);
 // c- List of borrowed books in current month , this page will have capability of showing borrowed books filtered by month and year
 router.route("/books/history/borrowed").get(bookController.memberBorrowedBooks);
 router.route("/books/history/borrowed/:year").get(bookController.memberBorrowedBooks);
-// router.route("/books/history/borrowed/:year/:month").get(bookController.memberBorrowedBooks);
+router.route("/books/history/borrowed/:year/:month").get(bookController.memberBorrowedBooks);
 
 // b- List of reading books in current month , this page will have capability of showing reading books filtered by month and year
 router.route("/books/history/reading").get(bookController.memberReadingBooks);
 router.route("/books/history/reading/:year").get(bookController.memberReadingBooks);
-// router.route("/books/history/borrowed/:year/:month").get(bookController.memberReadingBooks);
+router.route("/books/history/reading/:year/:month").get(bookController.memberReadingBooks);
 
  
 
@@ -91,3 +91,8 @@ router
 
 
 module.exports = router;
+
+
+
+//https://gist.github.com/adnan-i/d82a956d67c153b5efc8
+//https://devpress.csdn.net/mongodb/63048fae7e6682346619bc31.html

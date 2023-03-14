@@ -111,75 +111,78 @@ exports.addEmployee = (req, res, next) => {
 };
 
 exports.updateEmployee = (req, res, next) => {
-	managersSchema
-		.findOne({
-			_id: req.body.id,
-			role: 'employee',
-		})
-		.then((data) => {
-			if (!data) {
-				throw new Error('Employee not found');
-			}
-			let password = req.body.password ? bcrypt.hashSync(req.body.password, salt) : undefined;
+  managersSchema
+    .findOne({
+      _id: req.params.id,
+      role: "employee",
+    })
+    .then((data) => {
+      if (!data) {
+        throw new Error("Employee not found");
+      }
+      let password = req.body.password ? bcrypt.hashSync(req.body.password, salt) : undefined;
 
-			if (req.role == 'employee') {
-				if (req.body.id != req.id) {
-					throw new Error("You can't update other employee");
-				}
-				delete req.body.email;
-				delete req.body.salary;
-				delete req.body.role;
-			}
-			if (req.role == 'admin') {
-				delete req.body.role;
-			}
-			if (req.file && data.image) {
-				fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
-			}
+      if (req.role == "employee") {
+        if (req.params.id != req.id) {
+          throw new Error("You can't update other employee");
+        }
+        delete req.body.email;
+        delete req.body.salary;
+        delete req.body.role;
+      }
+      if (req.role != "super-admin") {
+        delete req.body.role;
+      }
+      if(!data.image){
+        delete req.file;
+      }
+      if (req.file && data.image) {
+        fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
+      }
 
-			return managersSchema.updateOne(
-				{
-					_id: req.body.id,
-				},
-				{
-					$set: {
-						firstName: req.body.firstName,
-						lastName: req.body.lastName,
-						password: password,
-						email: req.body.email,
-						birthDate: req.body.birthDate,
-						image: req.file?.filename ,
-						salary: req.body.salary,
-						role: req.body.role,
-					},
-				}
-			);
-		})
-		.then((data) => {
-			res.status(200).json({ data });
-		})
-		.catch((err) => {
-			next(err);
-		});
+      return managersSchema.updateOne(
+        {
+          _id: req.params.id,
+        },
+        {
+          $set: {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            password: password,
+            email: req.body.email,
+            birthDate: req.body.birthDate,
+            image: req.file?.filename,
+            salary: req.body.salary,
+            role: req.body.role,
+          },
+        }
+      );
+    })
+    .then((data) => {
+      res.status(200).json({ data });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.deleteEmployee = (req, res, next) => {
-	managersSchema
-		.findOne({ _id: req.body.id, role: 'employee' })
-		.then((data) => {
-			if (!data) {
-				throw new Error('Employee not found');
-			} else {
-				if (data.image) {
-					fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
-				}
-				return managersSchema.deleteOne({ _id: req.body.id });
-			}
-		})
-		.then((data) => {
-			res.status(200).json({ data });
-		})
-		.catch((err) => {
-			next(err);
-		});
+  managersSchema
+    .findOne({ _id: req.params.id, role: "employee" })
+    .then((data) => {
+      if (!data) {
+        throw new Error("Employee not found");
+      } else {
+        if (data.image) {
+          fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
+        }
+        return managersSchema.deleteOne({ _id: req.params.id });
+      }
+    })
+    .then((data) => {
+      res.status(200).json({ data });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };

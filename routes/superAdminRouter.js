@@ -1,22 +1,25 @@
 //Requires
-const express = require("express");
-const superAdminController = require("../controllers/superAdminController");
-const { validateAddAdmin, validateUpdateAdmin, validateParam } = require("../validation/adminValidation");
-const validateMW = require("../validation/validationMW");
-const saveImage = require("../services/saveImage");
-const { isSuperAdmin } = require("../middlewares/authorizationMw");
+const express = require('express');
+const superAdminController = require('../controllers/superAdminController');
+const { validateAddManagers, validateUpdateManagers, validateGetById } = require('../validation/managersValidation');
+const validateMW = require('../validation/validationMW');
+const saveImage = require('../services/saveImage');
+const { isSuperAdmin } = require('../middlewares/authorizationMw');
 //Router obj
 const router = express.Router();
 
 //Routes
 router
-  .route("/superAdmin")
-  .all(isSuperAdmin)
-  .get(superAdminController.getAllSuperAdmins)
-  .post(saveImage("superAdmins"), validateAddAdmin, validateMW, superAdminController.addSuperAdmin)
-  .patch(saveImage("superAdmins"), validateUpdateAdmin, validateMW, superAdminController.updateSuperAdmin)
-  .delete(superAdminController.deleteSuperAdmin);
+	.route('/superAdmin')
+	.all(isSuperAdmin)
+	.get(superAdminController.getAllSuperAdmins)
+	.post(validateAddManagers, validateMW, superAdminController.addSuperAdmin);
 //Get by id
-router.route("/superAdmin/:id").get(isSuperAdmin, validateParam, validateMW, superAdminController.getSuperAdminById);
+router
+	.route('/superAdmin/:id')
+	.get(isSuperAdmin, validateGetById, validateMW, superAdminController.getSuperAdminById)
+	.patch(saveImage('superAdmins'), validateUpdateManagers, validateMW, superAdminController.updateSuperAdmin)
+	.delete(validateGetById, validateMW, superAdminController.deleteSuperAdmin);
+
 // Export router
 module.exports = router;
