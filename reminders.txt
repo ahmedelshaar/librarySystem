@@ -7,6 +7,11 @@
 
 // router.route("/books/mostborrowed/:year").get(bookController.getNewBooks);
 // router.route("/books/mostreading/:year").get(bookController.getNewBooks);
-// handle in update member email if role is member reject any other role is ok.
+
+
+// Handle activation field in members Schema (Done😁).
+// handle getMemberById Route (Done😁).
+// handle in update member email if role is member reject any other role is ok (Done😁).
+
 
 

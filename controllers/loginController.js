@@ -99,29 +99,28 @@ exports.activationAdministration = async (request, response, next) => {
 	}
 };
 
-exports.activation = async (request, response, next) => {
+exports.activation = async (req, res, next) => {
 	try {
-		console.log('userData');
-		const userData = await checkMailAndPassword(MemberSchema, request, response, next);
+		const userData = await checkMailAndPassword(MemberSchema, req, res, next);
 		if (userData) {
-			console.log(userData);
-			if (userData.image != undefined) {
-				response.status(400).json({ message: 'Your data is Complete Please Login' });
+			if (userData.activated == true) {
+				res.status(400).json({ message: 'This Member Already Activated, Please Login' });
 			} else {
 				await MemberSchema.updateOne(
 					{ _id: userData._id },
 					{
 						$set: {
-							image: request.file.filename,
-							password: bcrypt.hashSync(request.body.newpassword, salt),
-							address: request.body.address,
-							phone_number: request.body.phone_number,
-							birth_date: request.body.birth_date,
+							image: req.file.filename,
+							password: bcrypt.hashSync(req.body.newpassword, salt),
+							address: req.body.address,
+							phone_number: req.body.phone_number,
+							birth_date: req.body.birth_date,
+							activated: true,
 						},
 					}
 				);
 			}
-			response.status(200).json({ msg: 'login!!!' });
+			res.status(200).json({ msg: 'Actvation Completed, Login Now' });
 		}
 	} catch (error) {
 		next(error);

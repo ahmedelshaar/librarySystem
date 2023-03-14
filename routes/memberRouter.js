@@ -13,7 +13,7 @@ router
 	.post(isEmployee, memberValidation.postValidation, validation, controller.addMember);
 router
 	.route('/members/:id')
-	.get(isEmployee, memberValidation.checkId, controller.getAllMemberById)
+	.get(isMember, memberValidation.checkId, validation, controller.getAllMemberById)
 	.patch(isMember, saveImage('members'), memberValidation.patchValidation, validation, controller.updateMember)
 	.delete(isEmployee, memberValidation.checkId, validation, controller.deleteMember);
 
