@@ -68,12 +68,12 @@ router.route("/books/search").get(bookController.searchBooks);
 // c- List of borrowed books in current month , this page will have capability of showing borrowed books filtered by month and year
 router.route("/books/history/borrowed").get(bookController.memberBorrowedBooks);
 router.route("/books/history/borrowed/:year").get(bookController.memberBorrowedBooks);
-// router.route("/books/history/borrowed/:year/:month").get(bookController.memberBorrowedBooks);
+router.route("/books/history/borrowed/:year/:month").get(bookController.memberBorrowedBooks);
 
 // b- List of reading books in current month , this page will have capability of showing reading books filtered by month and year
 router.route("/books/history/reading").get(bookController.memberReadingBooks);
 router.route("/books/history/reading/:year").get(bookController.memberReadingBooks);
-// router.route("/books/history/borrowed/:year/:month").get(bookController.memberReadingBooks);
+router.route("/books/history/reading/:year/:month").get(bookController.memberReadingBooks);
 
  
 
