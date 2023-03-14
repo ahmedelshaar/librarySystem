@@ -9,6 +9,22 @@ const BookSchema = mongoose.model('books');
 const LogSchema = mongoose.model('logs');
 const MemberSchema = mongoose.model('members');
 
+// Get All Logs for today
+exports.log = (req, res, next) => {
+	// let today= moment();
+	// let findBy = {};
+	
+	LogSchema.find()
+	.populate('member emp book', 'full_name title firstName lastName')
+		.then((data) => {
+			res.status(200).json({ data });
+		})
+		.catch((error) => {
+			next(error);
+		});
+};
+
+
 // Fetch all Books
 exports.getAllBooks = (req, res, next) => {
 	BookSchema.find({})

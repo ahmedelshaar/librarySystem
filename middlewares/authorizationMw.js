@@ -29,3 +29,10 @@ exports.isMember = (request, response, next) => {
 		throw new Error('not permitted');
 	}
 };
+exports.isMemberOnly = (request, response, next) => {
+	if (['member'].includes(request.role)) {
+		next();
+	} else {
+		throw new Error('this route is for members only.');
+	}
+};
