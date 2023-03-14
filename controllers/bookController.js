@@ -8,8 +8,6 @@ require('../models/managersModel');
 const BookSchema = mongoose.model('books');
 const LogSchema = mongoose.model('logs');
 const MemberSchema = mongoose.model('members');
-// const EmpSchema = mongoose.model("managers");
-// const bookApi = require("../services/bookAPI");
 
 // Fetch all Books
 exports.getAllBooks = (req, res, next) => {
@@ -169,11 +167,12 @@ exports.getBorrowingBooks = (req, res, next) => {
 };
 
 exports.getLateBooks = (req, res, next) => {
-	let today = new Date(Date.now()).toISOString().split('T')[0];
+	let today = moment().toISOString();
+	// let today = new Date(Date.now()).toISOString().split('T')[0];
 	// let today = new Date("2025-01-01").toISOString().split("T")[0]
 	LogSchema.find(
 		{ status: 'borrow', returned_date: '', expected_date: { $lt: today } },
-		{ __v: 0, createdAt: 0, updatedAt: 0 }
+		{ __v: 0,_id: 0, createdAt: 0, updatedAt: 0 }
 	)
 		// .populate({path:"member",select:{full_name:1}})
 		.populate('member emp book', 'full_name title firstName lastName')
@@ -187,10 +186,15 @@ exports.getLateBooks = (req, res, next) => {
 
 exports.getNewBooks = (req, res, next) => {
 	// let OneMonthAgo = new Date(new Date().setMonth(new Date().getMonth() - 1));
-	let OneMonthAgo = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0];
+	// let OneMonthAgo = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0];
+	let OneMonthAgo = moment().subtract(1,"month").toISOString();
 	// bigger of [last login || 30 days ago] for member
-	if (req.role && req.role == "member" && req.lastLogin && Number(req.lastLogin) < new Date(OneMonthAgo).getTime())
-		OneMonthAgo = req.lastLogin;
+	if (
+		req.role && req.role == "member" 
+		&& Number(req.lastLogin) 
+		&& Number(req.lastLogin) < new Date(OneMonthAgo).getTime()
+		)
+			OneMonthAgo = req.lastLogin;
 	BookSchema.find({ createdAt: { $gte: OneMonthAgo } }, { __v: 0, createdAt: 0, updatedAt: 0 })
 		.then((data) => {
 			res.status(200).json({ data });
@@ -215,7 +219,8 @@ exports.borrowBook = (req, res, next) => {
 	let member_id = req.body.member_id;
 	let book_id = req.body.book_id;
 	let expectedDate = req.body.expectedDate;
-	let today = new Date(Date.now()).toISOString().split('T')[0];
+	// let today = new Date(Date.now()).toISOString().split('T')[0];
+	let today = moment().toISOString();
 	// Check for Late Book reading
 	LogSchema.find({ book: book_id, status: 'read', returned_date: '', createdAt: { $lte: today } })
 		.then((data) => {
@@ -298,18 +303,21 @@ exports.returnBorrowedBook = (req, res, next) => {
 		})
 		.then((data) => {
 			if (!data) throw new Error('book is not found');
-		return LogSchema.findOne({
-			member: member_id,
-			book: book_id,
-			status: 'borrow',
-			returned_date: '', // No return Date yet
-		})
+
+			return LogSchema.findOne({
+				member: member_id,
+				book: book_id,
+				status: 'borrow',
+				returned_date: '', // No return Date yet
+			})
 		})
 		.then((data)=>{
-			console.log(data)
-			const date = moment(data.expected_date);
-			if (moment(date, moment.ISO_8601).isValid() && !date.isBefore(moment())) {
-				console.log("baned until ",moment().add(7,'d').format('YYYY-MM-DD'),date);
+			if (!data) throw new Error('no books currenty borrowed to this member');
+			// console.log(data)
+			const expected_date = moment(data.expected_date);
+			// console.log(expected_date)
+			if (expected_date.isValid() && expected_date.isBefore(moment())) {
+				console.log("baned until ",moment().add(7,'d').format('YYYY-MM-DD'),expected_date.format('YYYY-MM-DD'));
 				return MemberSchema.updateOne({_id:member_id},{ban_date:moment().add(7,'d').format('YYYY-MM-DD')})
 			}
 			return true;
@@ -501,12 +509,18 @@ exports.searchBooks = (req,res,next)=>{
       findBy[key] = req.query[key];
   });
   
-  if (findBy.year){
-    
+  if (Number(findBy.year)){
+	// must be string or it will call timestamp constructor
+    let year = moment(String(findBy.year)) 
+	// console.log(findBy.year,year);
     findBy.publishingDate = {
-      $lt:new Date(new Date(`${Number(findBy.year)+1}-01-01`)).toISOString().split("T")[0],
-      $gte:new Date(new Date(`${findBy.year}-01-01`)).toISOString().split("T")[0]
+    //   $lt:new Date(new Date(`${Number(findBy.year)+1}-01-01`)).toISOString().split("T")[0],
+    //   $gte:new Date(new Date(`${findBy.year}-01-01`)).toISOString().split("T")[0]
+		$gte:year.toISOString(),	
+		$lt:year.add(1,"year").toISOString(),
+		
     }
+	// console.log(findBy.publishingDate)
     delete findBy['year'];
   }
 //   console.log(findBy);
@@ -524,13 +538,17 @@ exports.mostBorrowedBooks = (req,res,next)=>{
 	let condition = {
 		status: 'borrow',
 	}
+	// If /mostborrowed/:year
 	if (req.params && Number(req.params.year)){
-    
+		// must be string or it will call timestamp constructor
+		let year = moment(String(req.params.year)) 
 		condition.createdAt = {
 			// $lt:new Date(new Date(new Date(`${Number(req.params.year)+1}-01-01`)).toISOString().split("T")[0]),
 			// $gte:new Date(new Date(new Date(`${req.params.year}-01-01`)).toISOString().split("T")[0])
-		  	 $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)),
-		 	 $gte:new Date(new Date(`${Number(req.params.year)}-01-01`)),
+		  	//  $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)),
+		 	//  $gte:new Date(new Date(`${Number(req.params.year)}-01-01`)),
+			  $gte:year.toDate(),	
+			  $lt:year.add(1,"year").toDate(),
 		  
 		}
 	  }
@@ -581,12 +599,15 @@ exports.mostReadingBooks = (req,res,next)=>{
 		status: 'read',
 	}
 	if (req.params && Number(req.params.year)){
-    
+    	// must be string or it will call timestamp constructor
+		let year = moment(String(req.params.year)) 
 		condition.createdAt = {
 		//   $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)).toISOString().split("T")[0],
 		//   $gte:new Date(new Date(`${req.params.year}-01-01`)).toISOString().split("T")[0]
-		 	 $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)),
-		 	 $gte:new Date(new Date(`${Number(req.params.year)}-01-01`)),
+		 	//  $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)),
+		 	//  $gte:new Date(new Date(`${Number(req.params.year)}-01-01`)),
+			  $gte:year.toDate(),	
+			  $lt:year.add(1,"year").toDate(),
 		}
 	  }
 	// console.log(condition);
@@ -635,21 +656,30 @@ exports.mostReadingBooks = (req,res,next)=>{
 exports.memberBorrowedBooks = (req,res,next)=>{
 	let condition = {
 		status: 'borrow',
-		member:req.id||1,
-		createdAt: {
-			// 1st of next month
-			$lt:new Date(new Date(new Date().toISOString().split("T")[0].split("-")[0]).setMonth(new Date().getMonth()+1)),
-			// 1st of this month
-			$gte:new Date(new Date(new Date().toISOString().split("T")[0].split("-")[0]).setMonth(new Date().getMonth())),
+		member:req.id||2,
+	}
+	// if month and year exists
+	if (req.params && Number(req.params.year) && Number(req.params.month)){
+		// let date = moment(`${req.params.year}-${req.params.month}`) 
+		let date = moment().year(Number(req.params.year)).month(Number(req.params.month)-1) //month is zero based
+		condition.createdAt = {
+			  $gte:date.startOf("month").toDate(),	
+			  $lt:date.add(1,"month").startOf("month").toDate(),
 		}
 	}
-
-	if (req.params && Number(req.params.year)){
+	// if year exists
+	else if (req.params && Number(req.params.year)){
+		// must be string or it will call timestamp constructor
+		let date = moment(String(req.params.year)) 
 		condition.createdAt = {
-			// $lt:new Date(new Date(new Date(`${Number(req.params.year)+1}-01-01`)).toISOString().split("T")[0]),
-			// $gte:new Date(new Date(new Date(`${req.params.year}-01-01`)).toISOString().split("T")[0])
-		  	 $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)),
-		 	 $gte:new Date(new Date(`${Number(req.params.year)}-01-01`)),
+			$gte:date.toDate(),	
+			$lt:date.add(1,"year").toDate(),
+		}
+	}
+	else{
+		condition.createdAt= {
+			$gte:moment().startOf("month").toDate(),
+			$lt:moment().add(1,"month").startOf("month").toDate(),
 		}
 	}
 	console.log(condition);
@@ -692,21 +722,30 @@ exports.memberBorrowedBooks = (req,res,next)=>{
 exports.memberReadingBooks = (req,res,next)=>{
 	let condition = {
 		status: 'read',
-		member:req.id||1,
-		createdAt: {
-			// 1st of next month
-			$lt:new Date(new Date(new Date().toISOString().split("T")[0].split("-")[0]).setMonth(new Date().getMonth()+1)),
-			// 1st of this month
-			$gte:new Date(new Date(new Date().toISOString().split("T")[0].split("-")[0]).setMonth(new Date().getMonth())),
+		member:req.id||2,
+	}
+	// if month and year exists
+	if (req.params && Number(req.params.year) && Number(req.params.month)){
+		// let date = moment(`${req.params.year}-${req.params.month}`) 
+		let date = moment().year(Number(req.params.year)).month(Number(req.params.month)-1) //month is zero based
+		condition.createdAt = {
+			  $gte:date.startOf("month").toDate(),	
+			  $lt:date.add(1,"month").startOf("month").toDate(),
 		}
 	}
-
-	if (req.params && Number(req.params.year)){
+	// if year exists
+	else if (req.params && Number(req.params.year)){
+		// must be string or it will call timestamp constructor
+		let date = moment(String(req.params.year)) 
 		condition.createdAt = {
-			// $lt:new Date(new Date(new Date(`${Number(req.params.year)+1}-01-01`)).toISOString().split("T")[0]),
-			// $gte:new Date(new Date(new Date(`${req.params.year}-01-01`)).toISOString().split("T")[0])
-		  	 $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)),
-		 	 $gte:new Date(new Date(`${Number(req.params.year)}-01-01`)),
+			$gte:date.toDate(),	
+			$lt:date.add(1,"year").toDate(),
+		}
+	}
+	else{
+		condition.createdAt= {
+			$gte:moment().startOf("month").toDate(),
+			$lt:moment().add(1,"month").startOf("month").toDate(),
 		}
 	}
 	console.log(condition);
@@ -745,44 +784,3 @@ exports.memberReadingBooks = (req,res,next)=>{
 	})	
 };
 
-
-
-
-
-
-
-
-
-// Rubbish
-// Do it
-exports.getMemberBorrowedBooks = (req, res, next) => {
-	LogSchema.aggregate([
-		{
-			$match: {
-				status: { $eq: 'borrow' },
-			},
-		},
-		{
-			/* group by year and month of the subscription event */
-			$group: {
-				_id: {
-					year: {
-						$year: '$createdAt',
-					},
-					month: {
-						$month: '$createdAt',
-					},
-				},
-			},
-		},
-		{
-			$sort: {
-				'_id.year': -1,
-				'_id.month': -1,
-			},
-		},
-		{
-			$limit: 10,
-		},
-	]);
-};

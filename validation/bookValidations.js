@@ -3,17 +3,17 @@ const moment = require('moment');
 const { body, param, query } = require('express-validator');
 const { categories } = require('../Core/Static/categories');
 
-const isIsoDateInRange = (value, { minDate, maxDate }) => {
-	if (!moment(value, moment.ISO_8601).isValid()) {
+const isIsoDateInRange = (value, { minDate, maxDate } ) => {
+	if ( !moment(value, moment.ISO_8601).isValid() ) {
 		throw new Error('Invalid date format');
 	}
 
 	const date = moment(value);
-	if (minDate && moment(minDate, moment.ISO_8601).isValid() && date.isBefore(moment(minDate))) {
+	if (minDate && date.isSameOrBefore(moment(minDate))) {
 		throw new Error(`Date must be on or after ${minDate}`);
 	}
 
-	if (maxDate && moment(maxDate, moment.ISO_8601).isValid() && date.isAfter(moment(maxDate))) {
+	if (maxDate && date.isSameOrAfter(moment(maxDate))) {
 		throw new Error(`Date must be on or before ${maxDate}`);
 	}
 
@@ -21,9 +21,14 @@ const isIsoDateInRange = (value, { minDate, maxDate }) => {
 };
 
 const checkAfterToday = (value) => {
-	const minDate = new Date().toISOString(); // default to UNIX epoch
-	// const maxDate = req.body.maxDate; // can be null
-	return isIsoDateInRange(value, { minDate });
+	const minDate = new Date().toISOString(); 
+	const maxDate = moment().add(1,"month").toISOString();
+	return isIsoDateInRange(value, { minDate,maxDate });
+};
+const checkBeforeToday = (value) => {
+	const minDate = null;
+	const maxDate = new Date().toISOString();
+	return isIsoDateInRange(value, { minDate,maxDate });
 };
 
 exports.getValidator = exports.deleteValidator = [param('id').isInt().withMessage('Id should be Number').toInt()];
@@ -35,7 +40,10 @@ exports.postValidator = [
 	body('publisher').isLength({ min: 3 }).withMessage('publisher should be String and min length 3').trim(),
 	body('category').isIn(categories).withMessage(`Category should be in [${categories}]`).trim(),
 	// Date
-	body('publishingDate').isISO8601().withMessage('PublishingDate should be A valid Date').toDate(),
+	body('publishingDate')
+		// .isISO8601().withMessage('PublishingDate should be A valid Date')
+		.custom(checkBeforeToday)
+		.toDate(),
 	// Numbers
 	body('edition').isInt({ min: 1 }).withMessage('Edition should be Number').toInt(),
 	body('pages').isInt({ min: 1 }).withMessage('Edition should be Number').toInt(),
