@@ -15,44 +15,45 @@ router.route("/categories").get((req, res, next) => {
 
 router
   .route("/books")
-  .get(isEmployee,bookController.getAllBooks)
+
+  //E
+  .get(isEmployee,bookController.getAllBooks) 
   .post(isEmployee,bookValidations.postValidator, validator, bookController.addBook);
-// permission emp
+
+// F
+router.route("/books/author/:name").get(bookController.getBooksByAuthor);
+router.route("/books/publisher/:name").get(bookController.getBooksByPublisher);
+router.route("/books/title/:name").get(bookController.getBooksByTitle);
+
+//G
+router.route("/books/available").get(bookController.getAvailableBooks);
+router.route("/books/borrowing").get(bookController.getBorrowingBooks);
+
+//H   +  /new Member //D
+router.route("/books/new").get(bookController.getNewBooks);
+router.route("/books/mostborrowed").get(bookController.mostBorrowedBooks);
+router.route("/books/mostborrowed/:year").get(bookController.mostBorrowedBooks);
+router.route("/books/mostreading").get(bookController.mostReadingBooks);
+router.route("/books/mostreading/:year").get(bookController.mostReadingBooks);
+
+
+// I + K
 router
-  .route("/books/borrow")
+  .route("/books/borrow") 
   .post(bookValidations.borrowBookValidator, validator, isBanned, bookController.borrowBook)
   .delete(bookValidations.returnValidator, validator, bookController.returnBorrowedBook);
 
-// permission emp
+//J
 router
   .route("/books/read")
   .post(isEmployee,bookValidations.readingBookValidator, validator,bookController.readBook)
   .delete(isEmployee,bookValidations.readingBookValidator, validator, bookController.returnReadedBook); // return book from reading
 
-
-// permission emp
-router.route("/books/author/:name").get(bookController.getBooksByAuthor);
-router.route("/books/publisher/:name").get(bookController.getBooksByPublisher);
-router.route("/books/title/:name").get(bookController.getBooksByTitle);
-
-
-
-router.route("/books/available").get(bookController.getAvailableBooks);
-router.route("/books/borrowing").get(bookController.getBorrowingBooks);
+//L
 router.route("/books/late").get(bookController.getLateBooks);
-router.route("/books/new").get(bookController.getNewBooks);
 
 
 
-
-
-
-//https://gist.github.com/adnan-i/d82a956d67c153b5efc8
-//https://devpress.csdn.net/mongodb/63048fae7e6682346619bc31.html
-router.route("/books/mostborrowed").get(bookController.mostBorrowedBooks);
-router.route("/books/mostborrowed/:year").get(bookController.mostBorrowedBooks);
-router.route("/books/mostreading").get(bookController.mostReadingBooks);
-router.route("/books/mostreading/:year").get(bookController.mostReadingBooks);
 
 
 // Members
@@ -90,3 +91,8 @@ router
 
 
 module.exports = router;
+
+
+
+//https://gist.github.com/adnan-i/d82a956d67c153b5efc8
+//https://devpress.csdn.net/mongodb/63048fae7e6682346619bc31.html

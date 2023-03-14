@@ -8,8 +8,6 @@ require('../models/managersModel');
 const BookSchema = mongoose.model('books');
 const LogSchema = mongoose.model('logs');
 const MemberSchema = mongoose.model('members');
-// const EmpSchema = mongoose.model("managers");
-// const bookApi = require("../services/bookAPI");
 
 // Fetch all Books
 exports.getAllBooks = (req, res, next) => {
@@ -298,18 +296,21 @@ exports.returnBorrowedBook = (req, res, next) => {
 		})
 		.then((data) => {
 			if (!data) throw new Error('book is not found');
-		return LogSchema.findOne({
-			member: member_id,
-			book: book_id,
-			status: 'borrow',
-			returned_date: '', // No return Date yet
-		})
+
+			return LogSchema.findOne({
+				member: member_id,
+				book: book_id,
+				status: 'borrow',
+				returned_date: '', // No return Date yet
+			})
 		})
 		.then((data)=>{
-			console.log(data)
-			const date = moment(data.expected_date);
-			if (moment(date, moment.ISO_8601).isValid() && !date.isBefore(moment())) {
-				console.log("baned until ",moment().add(7,'d').format('YYYY-MM-DD'),date);
+			if (!data) throw new Error('no books currenty borrowed to this member');
+			// console.log(data)
+			const expected_date = moment(data.expected_date);
+			// console.log(expected_date)
+			if (expected_date.isValid() && expected_date.isBefore(moment())) {
+				console.log("baned until ",moment().add(7,'d').format('YYYY-MM-DD'),expected_date.format('YYYY-MM-DD'));
 				return MemberSchema.updateOne({_id:member_id},{ban_date:moment().add(7,'d').format('YYYY-MM-DD')})
 			}
 			return true;
@@ -745,44 +746,3 @@ exports.memberReadingBooks = (req,res,next)=>{
 	})	
 };
 
-
-
-
-
-
-
-
-
-// Rubbish
-// Do it
-exports.getMemberBorrowedBooks = (req, res, next) => {
-	LogSchema.aggregate([
-		{
-			$match: {
-				status: { $eq: 'borrow' },
-			},
-		},
-		{
-			/* group by year and month of the subscription event */
-			$group: {
-				_id: {
-					year: {
-						$year: '$createdAt',
-					},
-					month: {
-						$month: '$createdAt',
-					},
-				},
-			},
-		},
-		{
-			$sort: {
-				'_id.year': -1,
-				'_id.month': -1,
-			},
-		},
-		{
-			$limit: 10,
-		},
-	]);
-};

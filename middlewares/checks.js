@@ -5,14 +5,15 @@ const MemberSchema = mongoose.model('members');
 exports.isBanned = (req, res, next) => {
 	MemberSchema.findById(req.body.member_id)
     .then((data) => {
-		if (data.ban_date) {
-			const date = moment(data.ban_date);
-			if (moment(date, moment.ISO_8601).isValid() && !date.isBefore(moment())) {
-				next();
-			}else{
+		// console.log(data);
+		if (
+			data.ban_date 
+			&& moment(data.ban_date, moment.ISO_8601).isValid() 
+			&& moment(data.ban_date).isSameOrAfter(moment())
+			)
                throw new Error(`user is baned to ${data.ban_date}`);
-            }
-		}else next();
+		else 
+			next();
 	})
     .catch((err)=>{
         next(err);
