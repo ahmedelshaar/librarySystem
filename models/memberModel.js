@@ -17,7 +17,6 @@ const MemberSchema = mongoose.Schema(
       unique: [true, "This Email Already Exists try with another email"],
       match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, "Please Enter a valid email address"],
       required: [true, "Please Enter Your Email"],
-      immutable: true,
     },
     password: {
       type: String,

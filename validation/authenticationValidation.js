@@ -1,6 +1,6 @@
 const { check } = require('express-validator');
 exports.loginValidation = [
-	check('email').isEmail().withMessage(' not valid email'),
+	check('email').isEmail().withMessage(' not valid email').normalizeEmail(),
 
 	check('password')
 		.isAlphanumeric()

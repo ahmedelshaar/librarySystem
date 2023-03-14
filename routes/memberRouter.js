@@ -10,9 +10,12 @@ const router = express.Router();
 router
 	.route('/members')
 	.get(isEmployee, memberValidation.checkId, controller.getAllMembers)
-	.post(isEmployee, saveImage('members'), memberValidation.postValidation, validation, controller.addMember)
-	.delete(isEmployee, saveImage('members'), memberValidation.checkId, validation, controller.deleteMember)
-	.patch(isMember, saveImage('members'), memberValidation.patchValidation, validation, controller.updateMember);
+	.post(isEmployee, memberValidation.postValidation, validation, controller.addMember);
+router
+	.route('/members/:id')
+	.get(isEmployee, memberValidation.checkId, controller.getAllMemberById)
+	.patch(isMember, saveImage('members'), memberValidation.patchValidation, validation, controller.updateMember)
+	.delete(isEmployee, memberValidation.checkId, validation, controller.deleteMember);
 
 router
 	.route('/members/search')

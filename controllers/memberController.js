@@ -18,7 +18,7 @@ exports.getAllMembers = (req, res, next) => {
 		});
 };
 
-exports.getMembers = (req, res, next) => {
+exports.getAllMemberById = (req, res, next) => {
 	MemberSchema.findById(req.params.id)
 		.then((data) => {
 			if (data == null) {
@@ -62,13 +62,13 @@ exports.addMember = (req, res, next) => {
 
 exports.updateMember = (req, res, next) => {
 	MemberSchema.findOne({
-		_id: req.body.id,
+		_id: req.params.id,
 	})
 		.then((data) => {
 			if (!data) {
 				throw new Error('Member Not Found');
 			} else {
-				if (req.body.id != req.id) {
+				if (req.params.id != req.id) {
 					// throw new Error("Not Authenticated");
 					let error = new Error('Not Authenticated');
 					error.status = 401;
@@ -82,7 +82,7 @@ exports.updateMember = (req, res, next) => {
 				}
 				return MemberSchema.updateOne(
 					{
-						_id: req.body.id,
+						_id: req.params.id,
 					},
 					{
 						$set: {
@@ -109,7 +109,7 @@ exports.updateMember = (req, res, next) => {
 
 exports.deleteMember = (req, res, next) => {
 	MemberSchema.findOne({
-		_id: req.body.id,
+		_id: req.params.id,
 	}).then((data) => {
 		if (!data) {
 			next(new Error('Member Not Found'));
@@ -119,7 +119,7 @@ exports.deleteMember = (req, res, next) => {
 				fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
 			}
 
-			return MemberSchema.deleteOne({ _id: req.body.id })
+			return MemberSchema.deleteOne({ _id: req.params.id })
 				.then((data) => {
 					res.status(200).json({ data: 'Deleted' });
 				})

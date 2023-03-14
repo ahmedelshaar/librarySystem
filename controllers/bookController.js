@@ -1,4 +1,6 @@
+const moment = require('moment');
 const mongoose = require('mongoose');
+
 require('../models/bookSchema');
 require('../models/memberModel');
 require('../models/managersModel');
@@ -296,6 +298,23 @@ exports.returnBorrowedBook = (req, res, next) => {
 		})
 		.then((data) => {
 			if (!data) throw new Error('book is not found');
+		return LogSchema.findOne({
+			member: member_id,
+			book: book_id,
+			status: 'borrow',
+			returned_date: '', // No return Date yet
+		})
+		})
+		.then((data)=>{
+			console.log(data)
+			const date = moment(data.expected_date);
+			if (moment(date, moment.ISO_8601).isValid() && !date.isBefore(moment())) {
+				console.log("baned until ",moment().add(7,'d').format('YYYY-MM-DD'),date);
+				return MemberSchema.updateOne({_id:member_id},{ban_date:moment().add(7,'d').format('YYYY-MM-DD')})
+			}
+			return true;
+		})
+		.then((data)=>{
 			return LogSchema.updateMany(
 				{
 					member: member_id,

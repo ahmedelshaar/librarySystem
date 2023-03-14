@@ -113,7 +113,7 @@ exports.addEmployee = (req, res, next) => {
 exports.updateEmployee = (req, res, next) => {
   managersSchema
     .findOne({
-      _id: req.body.id,
+      _id: req.params.id,
       role: "employee",
     })
     .then((data) => {
@@ -123,15 +123,18 @@ exports.updateEmployee = (req, res, next) => {
       let password = req.body.password ? bcrypt.hashSync(req.body.password, salt) : undefined;
 
       if (req.role == "employee") {
-        if (req.body.id != req.id) {
+        if (req.params.id != req.id) {
           throw new Error("You can't update other employee");
         }
         delete req.body.email;
         delete req.body.salary;
         delete req.body.role;
       }
-      if (req.role == "admin") {
+      if (req.role != "super-admin") {
         delete req.body.role;
+      }
+      if(!data.image){
+        delete req.file;
       }
       if (req.file && data.image) {
         fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
@@ -139,7 +142,7 @@ exports.updateEmployee = (req, res, next) => {
 
       return managersSchema.updateOne(
         {
-          _id: req.body.id,
+          _id: req.params.id,
         },
         {
           $set: {
@@ -165,7 +168,7 @@ exports.updateEmployee = (req, res, next) => {
 
 exports.deleteEmployee = (req, res, next) => {
   managersSchema
-    .findOne({ _id: req.body.id, role: "employee" })
+    .findOne({ _id: req.params.id, role: "employee" })
     .then((data) => {
       if (!data) {
         throw new Error("Employee not found");
@@ -173,7 +176,7 @@ exports.deleteEmployee = (req, res, next) => {
         if (data.image) {
           fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
         }
-        return managersSchema.deleteOne({ _id: req.body.id });
+        return managersSchema.deleteOne({ _id: req.params.id });
       }
     })
     .then((data) => {

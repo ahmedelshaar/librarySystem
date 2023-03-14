@@ -4,7 +4,7 @@ const bookValidations = require("../validation/bookValidations");
 const bookController = require("../controllers/bookController");
 
 const { isBanned } = require("../middlewares/checks");
-const { isEmployee } = require("../middlewares/authorizationMw");
+const { isEmployee ,isMember } = require("../middlewares/authorizationMw");
 const { categories } = require("../Core/Static/categories");
 
 const router = express.Router();
@@ -15,9 +15,8 @@ router.route("/categories").get((req, res, next) => {
 
 router
   .route("/books")
-  .get(bookController.getAllBooks)
-  .post(bookValidations.postValidator, validator, bookController.addBook);
-
+  .get(isEmployee,bookController.getAllBooks)
+  .post(isEmployee,bookValidations.postValidator, validator, bookController.addBook);
 // permission emp
 router
   .route("/books/borrow")
@@ -27,8 +26,8 @@ router
 // permission emp
 router
   .route("/books/read")
-  .post(bookValidations.readingBookValidator, validator,bookController.readBook)
-  .delete(bookValidations.readingBookValidator, validator, bookController.returnReadedBook);
+  .post(isEmployee,bookValidations.readingBookValidator, validator,bookController.readBook)
+  .delete(isEmployee,bookValidations.readingBookValidator, validator, bookController.returnReadedBook); // return book from reading
 
 
 // permission emp

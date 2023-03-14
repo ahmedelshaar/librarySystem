@@ -64,7 +64,7 @@ exports.addSuperAdmin = (req, res, next) => {
 exports.updateSuperAdmin = (req, res, next) => {
   managersSchema
     .findOne({
-      _id: req.body.id,
+      _id: req.params.id,
       role: "super-admin",
     })
     .then((data) => {
@@ -77,7 +77,7 @@ exports.updateSuperAdmin = (req, res, next) => {
         }
         return managersSchema.updateOne(
           {
-            _id: req.body.id,
+            _id: req.params.id,
           },
           {
             $set: {
@@ -108,7 +108,7 @@ exports.deleteSuperAdmin = (req, res, next) => {
       if (data.length == 1) {
         throw new Error("You can't delete the last super admin");
       }
-      return managersSchema.findOne({ _id: req.body.id, role: "super-admin" });
+      return managersSchema.findOne({ _id: req.params.id, role: "super-admin" });
     })
     .then((data) => {
       if (!data) {
@@ -117,7 +117,7 @@ exports.deleteSuperAdmin = (req, res, next) => {
         if (data.image) {
           fs.unlinkSync(path.join(__dirname, "..", "images", `${data.image}`));
         }
-        return managersSchema.deleteOne({ _id: req.body.id });
+        return managersSchema.deleteOne({ _id: req.params.id });
       }
     })
     .then(() => {

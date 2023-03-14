@@ -37,7 +37,7 @@ app.use(express.urlencoded({ extended: false, limit: "2mb" }));
 
 //login
 app.use(LoginRoute);
-app.use(authenticator); // authentication layer
+//app.use(authenticator); // authentication layer
 //routing
 app.use(superAdminRouter);
 app.use(adminRouter);
