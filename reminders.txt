@@ -12,6 +12,7 @@
 // Handle activation field in members Schema (Done😁).
 // handle getMemberById Route (Done😁).
 // handle in update member email if role is member reject any other role is ok (Done😁).
+// handle Member Auto Complete
 
 
 

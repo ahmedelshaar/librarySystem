@@ -36,4 +36,7 @@ exports.patchValidation = [
 
 exports.checkId = [param('id').isNumeric().withMessage('Invalid Member ID')];
 
-exports.validateSearchMember = [body('full_name').isString().withMessage('Invalid Name')];
+exports.validateSearchMember = [
+	body('full_name').optional().isString().withMessage('Invalid Name'),
+	body('email').optional().isString().withMessage('Invalid Email').normalizeEmail().trim(),
+];

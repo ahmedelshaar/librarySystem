@@ -19,6 +19,10 @@ router
 
 router
 	.route('/members/search')
-	.post(isEmployee, memberValidation.validateSearchMember, validation, controller.searchByName);
+	.post(isEmployee, memberValidation.validateSearchMember, validation, controller.searchMember);
+
+router
+	.route('/members/autocomplete')
+	.post(isEmployee, memberValidation.validateSearchMember, validation, controller.autocompleteMember);
 
 module.exports = router;

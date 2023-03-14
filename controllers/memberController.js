@@ -36,8 +36,24 @@ exports.getAllMemberById = (req, res, next) => {
 		});
 };
 
-exports.searchByName = (req, res, next) => {
-	MemberSchema.find({ full_name: { $regex: '^' + req.body.full_name } })
+exports.searchMember = (req, res, next) => {
+	MemberSchema.find(
+		{ $or: [{ full_name: { $regex: '^' + req.body.full_name } }, { email: { $regex: '^' + req.body.email } }] },
+		{ password: 0 }
+	)
+		.then((data) => {
+			res.status(200).json({ data });
+		})
+		.catch((err) => {
+			next(err);
+		});
+};
+
+exports.autocompleteMember = (req, res, next) => {
+	MemberSchema.find(
+		{ $or: [{ full_name: { $regex: '^' + req.body.full_name } }, { email: { $regex: '^' + req.body.email } }] },
+		{ full_name: 1, email: 1 }
+	)
 		.then((data) => {
 			res.status(200).json({ data });
 		})
