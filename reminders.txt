@@ -18,4 +18,4 @@
 // handle Member Auto Complete (Done😁)
 
 // handle activation column on Manager route (Done😁)
-
+// handled newpassword not to be as the old one in  firstLogin (Done😁)
