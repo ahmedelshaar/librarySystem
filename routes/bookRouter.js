@@ -13,7 +13,7 @@ router.route("/categories").get((req, res, next) => {
   res.status(200).json({ data: categories }); // categories for Book Schema
 });
 // reports
-router.route("/reports").get(bookController.log); // categories for Book Schema
+router.route("/reports").get(isAdmin,bookController.log); // categories for Book Schema
 
 
 router
