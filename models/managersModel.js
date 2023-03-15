@@ -53,6 +53,11 @@ const managersSchema = mongoose.Schema(
 			type: Date,
 			required: false,
 		},
+		activated: {
+			type: Boolean,
+			required: false,
+			default: false,
+		},
 	},
 	{ timestamps: true }
 );
