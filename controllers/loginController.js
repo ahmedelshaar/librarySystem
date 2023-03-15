@@ -49,7 +49,10 @@ exports.loginAdministration = async (request, response, next) => {
 	try {
 		const userData = await checkMailAndPassword(ManagersSchema, request, response, next);
 		if (userData) {
-			if (userData.image == undefined) response.status(400).json({ message: 'You should Complete Your data' });
+			// if (userData.image == undefined) response.status(400).json({ message: 'You should Complete Your data' });
+			if (userData.role != 'super-admin' && userData.activated == false) {
+				response.status(400).json({ message: 'You should Complete Your data' });
+			}
 			const { accessToken, refreshToken } = await createToken(userData);
 			const hashToken = await bcrypt.hash(refreshToken, salt);
 			await ManagersSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
@@ -66,10 +69,13 @@ exports.login = async (request, response, next) => {
 		if (userData) {
 			if (userData.activated == false) response.status(400).json({ message: 'you should Complete Your data' });
 			// if (userData.image == undefined) response.status(400).json({ message: 'you should Complete Your data' });
-			else{
+			else {
 				const { accessToken, refreshToken } = createToken(userData);
 				const hashToken = await bcrypt.hash(refreshToken, salt);
-				await MemberSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken, last_login: Date.now() } });
+				await MemberSchema.updateOne(
+					{ _id: userData._id },
+					{ $set: { token: hashToken, last_login: Date.now() } }
+				);
 				response.status(200).json({ accessToken, refreshToken });
 			}
 		}
@@ -82,7 +88,9 @@ exports.activationAdministration = async (request, response, next) => {
 	try {
 		const userData = await checkMailAndPassword(ManagersSchema, request, response, next);
 		if (userData) {
-			if (userData.image != undefined) {
+			// if (userData.image != undefined) {
+			// response.status(400).json({ message: 'Your data is Complete Please Login' });
+			if (userData.role != 'super-admin' && userData.activated == true) {
 				response.status(400).json({ message: 'Your data is Complete Please Login' });
 			} else {
 				await ManagersSchema.updateOne(
@@ -92,6 +100,7 @@ exports.activationAdministration = async (request, response, next) => {
 							image: request.file.filename,
 							password: bcrypt.hashSync(request.body.newpassword, salt),
 							birthDate: request.body.birthDate,
+							activated: true,
 						},
 					}
 				);
@@ -110,8 +119,8 @@ exports.activation = async (req, res, next) => {
 			if (userData.activated == true) {
 				res.status(400).json({ message: 'This Member Already Activated, Please Login' });
 			} else {
-				if (bcrypt.compareSync(req.body.newpassword,userData.password))
-					throw new Error('new Password must not be the same as the old one.')
+				if (bcrypt.compareSync(req.body.newpassword, userData.password))
+					throw new Error('new Password must not be the same as the old one.');
 				await MemberSchema.updateOne(
 					{ _id: userData._id },
 					{

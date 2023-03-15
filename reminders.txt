@@ -17,5 +17,5 @@
 // handle in update member email if role is member reject any other role is ok (Done😁).
 // handle Member Auto Complete (Done😁)
 
-
+// handle activation column on Manager route (Done😁)
 
