@@ -2,6 +2,7 @@ const { request, response } = require('express');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const e = require('express');
 require('dotenv').config();
 // bcrybt
 const saltRounds = 10;
@@ -16,7 +17,7 @@ const checkMailAndPassword = async (model, request, response, next) => {
 	try {
 		let data = await model.findOne({ email: request.body.email });
 		if (data == null) {
-			throw new Error('this user is not found');
+			throw new Error('either mail or password is wrong');
 		} else {
 			let matched = await bcrypt.compare(request.body.password, data.password);
 			if (!matched) throw new Error('either mail or password is wrong');
@@ -63,11 +64,14 @@ exports.login = async (request, response, next) => {
 	try {
 		const userData = await checkMailAndPassword(MemberSchema, request, response, next);
 		if (userData) {
-			if (userData.image == undefined) response.status(400).json({ message: 'you should Complete Your data' });
-			const { accessToken, refreshToken } = createToken(userData);
-			const hashToken = await bcrypt.hash(refreshToken, salt);
-			await MemberSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken, last_login: Date.now() } });
-			response.status(200).json({ accessToken, refreshToken });
+			if (userData.activated == false) response.status(400).json({ message: 'you should Complete Your data' });
+			// if (userData.image == undefined) response.status(400).json({ message: 'you should Complete Your data' });
+			else{
+				const { accessToken, refreshToken } = createToken(userData);
+				const hashToken = await bcrypt.hash(refreshToken, salt);
+				await MemberSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken, last_login: Date.now() } });
+				response.status(200).json({ accessToken, refreshToken });
+			}
 		}
 	} catch (error) {
 		next(error);
@@ -106,6 +110,8 @@ exports.activation = async (req, res, next) => {
 			if (userData.activated == true) {
 				res.status(400).json({ message: 'This Member Already Activated, Please Login' });
 			} else {
+				if (bcrypt.compareSync(req.body.newpassword,userData.password))
+					throw new Error('new Password must not be the same as the old one.')
 				await MemberSchema.updateOne(
 					{ _id: userData._id },
 					{
