@@ -15,7 +15,7 @@ const adminRouter = require('./routes/adminRouter');
 const employeeRouter = require('./routes/employeeRouter');
 const bookRouter = require('./routes/bookRouter');
 const memberRouter = require('./routes/memberRouter');
-const sender = require('./services/sender');
+require('./services/sender');
 
 const app = express();
 // ========= server =========
@@ -25,7 +25,7 @@ mongoose
 	.then(() => {
 		console.log('DB connected');
 		app.listen(process.env.PORT || 8080, () => console.log(`listening on http://localhost:${process.env.PORT}`));
-		sender();
+		// sender();
 	})
 	.catch((error) => console.log(`DB connection error ${error}`));
 

@@ -13,12 +13,14 @@ const router = express.Router();
 router
 	.route('/admin')
 	.get(isSuperAdmin, adminController.getAllAdmins)
-	.post(isSuperAdmin, saveImage('admins'), validateAddManagers, validateMW, adminController.addAdmin)
-	.patch(isAdmin, saveImage('admins'), validateUpdateManagers, validateMW, adminController.updateAdmin)
-	.delete(isSuperAdmin, adminController.deleteAdmin);
+	.post(isSuperAdmin, saveImage('admins'), validateAddManagers, validateMW, adminController.addAdmin);
 
 // Get Admin by ID
-router.route('/admin/:id').get(isAdmin, validateGetById, validateMW, adminController.getAdminById);
+router
+	.route('/admin/:id')
+	.get(isAdmin, validateGetById, validateMW, adminController.getAdminById)
+	.patch(isAdmin, saveImage('admins'), validateUpdateManagers, validateMW, adminController.updateAdmin)
+	.delete(isSuperAdmin, adminController.deleteAdmin);
 
 // Export router
 module.exports = router;
