@@ -29,7 +29,11 @@ exports.getEmployeeById = (req, res, next) => {
 			{ password: 0 }
 		)
 		.then((data) => {
-			res.status(200).json({ data: data });
+			if (req.params.id != req.id && req.role == 'employee') {
+				throw new Error('Not Premitted');
+			} else {
+				res.status(200).json({ data: data });
+			}
 		})
 		.catch((err) => {
 			next(err);
@@ -121,7 +125,7 @@ exports.updateEmployee = (req, res, next) => {
 				throw new Error('Employee not found');
 			}
 			let password = req.body.password ? bcrypt.hashSync(req.body.password, salt) : undefined;
-
+			console.log(req.id);
 			if (req.role == 'employee') {
 				if (req.params.id != req.id) {
 					throw new Error("You can't update other employee");
