@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const moment = require('moment');
 const mongoose = require('mongoose');
 
@@ -11,13 +13,15 @@ const MemberSchema = mongoose.model('members');
 
 // Get All Logs for today
 exports.log = (req, res, next) => {
-	// let today= moment();
-	// let findBy = {};
-	
-	LogSchema.find()
+	// LogSchema.find()
+	LogSchema.find({ date: { $gte: moment().startOf('day').toDate(), $lte: moment().endOf('day').toDate() } })
 	.populate('member emp book', 'full_name title firstName lastName')
 		.then((data) => {
 			res.status(200).json({ data });
+			fs.writeFile(path.join(__dirname, '..', 'logs',`log-${moment().format('YYYY-MM-DD')}.json`), JSON.stringify(data), (err) => {
+				if (err) console.log(err);
+				else console.log('The file has been saved!');
+			});
 		})
 		.catch((error) => {
 			next(error);

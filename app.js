@@ -4,6 +4,7 @@ require('dotenv').config({ path: './.env' });
 const cors = require('cors');
 const logger = require('morgan');
 const fs = require('fs');
+require('./services/folderValidations');
 
 const authenticator = require('./middlewares/authenticationMw');
 
