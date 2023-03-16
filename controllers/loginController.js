@@ -120,7 +120,7 @@ exports.activation = async (req, res, next) => {
 			} else {
 				if (bcrypt.compareSync(req.body.newpassword, userData.password))
 					throw new Error('new Password must not be the same as the old one.');
-				if (req.file && req.file.path) req.body.image = req.file.filename;
+				// if (req.file && req.file.path) req.body.image = req.file.filename;
 				await MemberSchema.updateOne(
 					{ _id: userData._id },
 					{

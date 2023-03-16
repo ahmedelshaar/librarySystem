@@ -89,15 +89,15 @@ exports.updateMember = (req, res, next) => {
 				throw new Error('Member Not Found');
 			} else {
 				if (req.role == 'member' && req.params.id != req.id) {
-					let error = new Error('Not Authenticated');
+					let error = new Error('Not Authorized');
 					error.status = 401;
 					throw error;
 				} else if (req.role == 'member' && req.params.id == req.id) {
 					delete req.body.email;
 				}
 				let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
-				if (req.file && req.file.path && data.image != null) {
-					if (fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
+				if (req.file && req.file.path) {
+					if (data.image != null && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
 						fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
 					}
 					req.body.image = req.file.filename;

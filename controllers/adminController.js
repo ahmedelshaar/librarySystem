@@ -74,7 +74,7 @@ exports.updateAdmin = (req, res, next) => {
 			} else {
 				let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
 				if (req.role == 'admin') {
-					if (req.body.id == req.id) {
+					if (req.params.id == req.id) {
 						delete req.body.email;
 						delete req.body.salary;
 						delete req.body.role;
@@ -90,7 +90,7 @@ exports.updateAdmin = (req, res, next) => {
 				}
 				return managersSchema.updateOne(
 					{
-						_id: req.body.id,
+						_id: req.params.id,
 					},
 					{
 						$set: {
