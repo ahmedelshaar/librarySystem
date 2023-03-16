@@ -9,12 +9,25 @@ const membersSchema = mongoose.model('members');
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
 
-module.exports = async () => {
+(async () => {
+	console.log('sending data to DB.');
 	let count = await managersSchema.countDocuments();
 	if (count > 0) {
 		return;
 	}
+	await new managersSchema({
+		firstName: 'root',
+		lastName: 'root',
+		email: 'root@root.com',
+		password: bcrypt.hashSync('12345678', salt),
+		hireDate: Date.now(),
+		activated: true,
+		role: 'root',
+		salary: 20000,
+	}).save();
+
 	for (let i = 1; i < 4; i++) {
+		console.log(i);
 		await new managersSchema({
 			firstName: 'super',
 			lastName: 'admin',
@@ -49,6 +62,4 @@ module.exports = async () => {
 			manager: 'manager',
 		}).save();
 	}
-};
-
-const curentMonth = new Date().getMonth()
+})();

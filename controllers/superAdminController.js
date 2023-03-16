@@ -75,6 +75,12 @@ exports.updateSuperAdmin = (req, res, next) => {
 				if (req.file && data.image) {
 					fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
 				}
+				// sper admin can't update his salary and email
+				if (req.role == 'super-admin') {
+					delete req.body.salary;
+					delete req.body.email;
+					delete req.body.role;
+				}
 				return managersSchema.updateOne(
 					{
 						_id: req.params.id,
@@ -102,14 +108,16 @@ exports.updateSuperAdmin = (req, res, next) => {
 
 // Delete admin
 exports.deleteSuperAdmin = (req, res, next) => {
+	managersSchema;
+	// .find({ role: 'super-admin' })
+	// .then((data) => {
+	// 	if (data.length == 1) {
+	// 		throw new Error("You can't delete the last super admin");
+	// 	}
+	// 	return
 	managersSchema
-		.find({ role: 'super-admin' })
-		.then((data) => {
-			if (data.length == 1) {
-				throw new Error("You can't delete the last super admin");
-			}
-			return managersSchema.findOne({ _id: req.params.id, role: 'super-admin' });
-		})
+		.findOne({ _id: req.params.id, role: 'super-admin' })
+		// })
 		.then((data) => {
 			if (!data) {
 				throw new Error('Admin not found');

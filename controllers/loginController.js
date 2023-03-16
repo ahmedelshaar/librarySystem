@@ -17,10 +17,10 @@ const checkMailAndPassword = async (model, req, res, next) => {
 	try {
 		let data = await model.findOne({ email: req.body.email });
 		if (data == null) {
-			throw new Error('either mail or password is wrong');
+			throw new Error('either mail or password is wrong 1');
 		} else {
 			let matched = await bcrypt.compare(req.body.password, data.password);
-			if (!matched) throw new Error('either mail or password is wrong');
+			if (!matched) throw new Error('either mail or password is wrong 2');
 		}
 		return data;
 	} catch (error) {
@@ -49,14 +49,14 @@ exports.loginAdministration = async (req, res, next) => {
 	try {
 		const userData = await checkMailAndPassword(ManagersSchema, req, res, next);
 		if (userData) {
-			// if (userData.image == undefined) res.status(400).json({ message: 'You should Complete Your data' });
-			if (userData.role != 'super-admin' && userData.activated == false) {
+			if (userData.role != 'root' && userData.activated == false) {
 				res.status(400).json({ message: 'You should Complete Your data' });
+			} else {
+				const { accessToken, refreshToken } = await createToken(userData);
+				const hashToken = await bcrypt.hash(refreshToken, salt);
+				await ManagersSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
+				res.status(200).json({ accessToken, refreshToken });
 			}
-			const { accessToken, refreshToken } = await createToken(userData);
-			const hashToken = await bcrypt.hash(refreshToken, salt);
-			await ManagersSchema.updateOne({ _id: userData._id }, { $set: { token: hashToken } });
-			res.status(200).json({ accessToken, refreshToken });
 		}
 	} catch (error) {
 		next(error);
@@ -68,7 +68,6 @@ exports.login = async (req, res, next) => {
 		const userData = await checkMailAndPassword(MemberSchema, req, res, next);
 		if (userData) {
 			if (userData.activated == false) res.status(400).json({ message: 'you should Complete Your data' });
-			// if (userData.image == undefined) res.status(400).json({ message: 'you should Complete Your data' });
 			else {
 				const { accessToken, refreshToken } = createToken(userData);
 				const hashToken = await bcrypt.hash(refreshToken, salt);
@@ -88,9 +87,7 @@ exports.activationAdministration = async (req, res, next) => {
 	try {
 		const userData = await checkMailAndPassword(ManagersSchema, req, res, next);
 		if (userData) {
-			// if (userData.image != undefined) {
-			// res.status(400).json({ message: 'Your data is Complete Please Login' });
-			if (userData.role != 'super-admin' && userData.activated == true) {
+			if (userData.role != 'root' && userData.activated == true) {
 				res.status(400).json({ message: 'Your data is Complete Please Login' });
 			} else {
 				if (bcrypt.compareSync(req.body.newpassword, userData.password))
@@ -106,7 +103,7 @@ exports.activationAdministration = async (req, res, next) => {
 						},
 					}
 				);
-				res.status(200).json({ msg: 'login!!!' });
+				res.status(200).json({ msg: 'logged In Successfully.' });
 			}
 		}
 	} catch (error) {

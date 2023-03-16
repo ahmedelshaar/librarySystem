@@ -67,7 +67,7 @@ exports.addAdmin = (req, res, next) => {
 // Update admin data
 exports.updateAdmin = (req, res, next) => {
 	managersSchema
-		.findOne({ _id: req.body.id, role: 'admin' })
+		.findOne({ _id: req.params.id, role: 'admin' })
 		.then((data) => {
 			if (!data) {
 				throw new Error('Admin not found');
@@ -81,6 +81,9 @@ exports.updateAdmin = (req, res, next) => {
 					} else {
 						throw new Error('You are not authorized to update this admin data');
 					}
+				}
+				if (req.role == 'super-admin' && req.body.role == 'root') {
+					throw new Error("You can't upgrate to root role");
 				}
 				if (req.file && data.image) {
 					fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
@@ -113,7 +116,7 @@ exports.updateAdmin = (req, res, next) => {
 // Delete admin
 exports.deleteAdmin = (req, res, next) => {
 	managersSchema
-		.findOne({ _id: req.body.id, role: 'admin' })
+		.findOne({ _id: req.params.id, role: 'admin' })
 		.then((data) => {
 			if (!data) {
 				throw new Error('Admin not found');
