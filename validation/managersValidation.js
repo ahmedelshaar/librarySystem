@@ -1,7 +1,7 @@
 const { body, param } = require('express-validator');
 
 exports.validateGetById = [param('id').isInt().withMessage('Id should be Number').toInt()];
-const roles = ['super-admin','admin','employee'] ;
+const roles = ['super-admin', 'admin', 'employee'];
 
 exports.validateAddManagers = [
 	body('firstName')
@@ -51,7 +51,7 @@ exports.validateUpdateManagers = [
 		.withMessage('must contain a number'),
 	body('birthDate').optional().isDate().withMessage(' Must be a valid date').toDate(),
 	body('salary').optional().isInt({ min: 0 }).withMessage(' Must be an Integer').toInt(),
-	body('role').optional().isIn(roles).withMessage(`role mu be in ${roles}`)
+	body('role').optional().isIn(roles).withMessage(`role mu be in ${roles}`),
 ];
 
 exports.validateSearchEmployee = [

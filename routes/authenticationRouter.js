@@ -11,14 +11,14 @@ const lol = (req, res, next) => {
 	next();
 };
 
-const saveOnBody = (req, res, next) => {
-	if (req.file && req.file.path) req.body.image = req.file.filename;
-	next();
-};
+// const saveOnBody = (req, res, next) => {
+// 	if (req.file && req.file.path) req.body.image = req.file.filename;
+// 	next();
+// };
 
 routes.post('/login/administration', validator.loginValidation, validationMiddleware, loginAdministration);
 routes.post('/login', validator.loginValidation, validationMiddleware, login);
-routes.post('/activation', saveImage('firstImage'), saveOnBody, validator.activation, validationMiddleware, activation);
+routes.post('/activation', saveImage('firstImage'), validator.activation, validationMiddleware, activation);
 routes.post(
 	'/activation/administration',
 	saveImage('firstImage'),

@@ -100,6 +100,7 @@ exports.updateMember = (req, res, next) => {
 					if (fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
 						fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
 					}
+					req.body.image = req.file.filename;
 				}
 				return MemberSchema.updateOne(
 					{
@@ -109,7 +110,7 @@ exports.updateMember = (req, res, next) => {
 						$set: {
 							full_name: req.body.full_name,
 							password: hashedPass,
-							image: req.file.filename,
+							image: req.body.image,
 							phone_number: req.body.phone_number,
 							birth_date: req.body.birth_date,
 							address: req.body.address,
