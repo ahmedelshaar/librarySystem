@@ -92,7 +92,7 @@ router.route('/books/search').all(isMember).get(bookController.searchBooks);
 router
 	.route('/books/search')
 	.all(isMember)
-	.get(log, bookValidations.searchBookValidator, log, bookController.searchBooks);
+	.get(bookValidations.searchBookValidator,validator, bookController.searchBooks);
 
 // c- List of borrowed books in current month , this page will have capability of showing borrowed books filtered by month and year
 router.route('/books/history/borrowed').all(isMemberOnly).get(bookController.memberBorrowedBooks);
