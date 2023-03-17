@@ -11,6 +11,7 @@ const BookSchema = mongoose.model('books');
 const LogSchema = mongoose.model('logs');
 const MemberSchema = mongoose.model('members');
 
+
 // Get All Logs for today
 exports.log = (req, res, next) => {
 	// LogSchema.find()
@@ -542,8 +543,8 @@ exports.searchBooks = (req, res, next) => {
 	Object.keys(req.query).forEach((key) => {
 		if (permittedQueries.includes(key.toLowerCase()) && req.query[key]) findBy[key.toLowerCase()] = req.query[key];
 	});
-	if (Object.keys(req.query).includes('available')) {
-		findBy.available = findBy.available ? { $gte: 1 } : { $lt: 1 };
+	if(Object.keys(req.query).includes("available")){
+		findBy.available = findBy.available ? {$gte:1} : {$lt:1};
 	}
 	if (Number(findBy.year)) {
 		// must be string or it will call timestamp constructor
@@ -559,7 +560,7 @@ exports.searchBooks = (req, res, next) => {
 		delete findBy['year'];
 	}
 	console.log(findBy);
-	if (!Object.keys(findBy).length) throw new Error('Nothing to search for.');
+	if(!Object.keys(findBy).length) throw new Error("Nothing to search for.")
 	BookSchema.find(findBy)
 		.then((data) => {
 			res.status(200).json({ data });

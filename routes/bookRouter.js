@@ -13,6 +13,7 @@ router.route('/categories').get((req, res, next) => {
 	res.status(200).json({ data: categories }); // categories for Book Schema
 });
 // reports
+
 router.route("/reports").get(bookValidations.dayValidator, validator,isAdmin,bookController.log); // categories for Book Schema
 
 const log = (req, res, next) => {
@@ -21,6 +22,7 @@ const log = (req, res, next) => {
 	console.log('params', req.params);
 	next();
 };
+
 
 router
 	.route('/books')
