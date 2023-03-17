@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 require('../models/managersModel');
+const moment = require('moment');
 const path = require('path');
 const fs = require('fs');
 const managersSchema = mongoose.model('managers');
-const mailer = require("../services/sendMails");
+const mailer = require('../services/sendMails');
 const generator = require('generate-password');
+const maxBirthDate = moment(new Date('2000-01-01 00:00:00'));
 
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
@@ -99,8 +101,11 @@ exports.autoComplete = (req, res, next) => {
 exports.addEmployee = (req, res, next) => {
 	let password = generator.generate({
 		length: 10,
-		numbers: true
+		numbers: true,
 	});
+	if (req.body.hireDate > moment().add(1, 'day')) {
+		throw new Error('Hire Date Cannot Be After Today');
+	}
 	const newEmployee = new managersSchema({
 		firstName: req.body.firstName,
 		lastName: req.body.lastName,
@@ -113,9 +118,9 @@ exports.addEmployee = (req, res, next) => {
 	newEmployee
 		.save()
 		.then((data) => {
-			data.password=""; 
+			data.password = '';
 			// console.log(data);
-			mailer(req.body.email,`Emp ${req.body.firstName} ${req.body.lastName}`,password)
+			mailer(req.body.email, `Emp ${req.body.firstName} ${req.body.lastName}`, password);
 			res.status(201).json({ data });
 		})
 		.catch((err) => {
@@ -152,6 +157,9 @@ exports.updateEmployee = (req, res, next) => {
 			// لييييه لييييه؟
 			if (!data.image) {
 				delete req.file;
+			}
+			if (req.body.birthDate && moment(req.body.birthDate).isAfter(maxBirthDate)) {
+				throw new Error(`Birth Year Cannot Be After ${maxBirthDate}`);
 			}
 			if (req.file && data.image && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
 				// fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));

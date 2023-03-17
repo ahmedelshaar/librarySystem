@@ -25,7 +25,7 @@
 // handled newpassword not to be as the old one in  firstLogin (Done😁)
 // handle image on delete admin. (Done😁)
 // Handle Birth date to be before 2008 (Done😁)
-
+// handle BirthDate & hireDate (Done😁)
 
 // handle get emp by id auth (Done😁 ??)
 // handle update admin auth (Done😁 ??)

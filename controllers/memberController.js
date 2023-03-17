@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const path = require('path');
 const fs = require('fs');
 const maxBirthDate = moment(new Date('2009-01-01 00:00:00'));
-const mailer = require("../services/sendMails");
+const mailer = require('../services/sendMails');
 const generator = require('generate-password');
 
 const saltRound = 10;
@@ -72,7 +72,7 @@ exports.autocompleteMember = (req, res, next) => {
 exports.addMember = (req, res, next) => {
 	let password = generator.generate({
 		length: 10,
-		numbers: true
+		numbers: true,
 	});
 	new MemberSchema({
 		full_name: req.body.full_name,
@@ -81,9 +81,9 @@ exports.addMember = (req, res, next) => {
 	})
 		.save()
 		.then((data) => {
-			data.password=""; 
+			data.password = '';
 			// console.log(data);
-			mailer(req.body.email,`Member ${req.body.full_name}`,password)
+			mailer(req.body.email, `Member ${req.body.full_name}`, password);
 			res.status(201).json({ success: true, data: data });
 		})
 		.catch((error) => {
@@ -116,7 +116,6 @@ exports.updateMember = (req, res, next) => {
 				if (req.file && req.file.path) {
 					if (data.image != null && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
 						req.delete_image = path.join(__dirname, '..', 'images', `${data.image}`);
-						// fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
 					}
 					req.body.image = req.file.filename;
 				}

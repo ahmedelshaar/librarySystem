@@ -1,11 +1,13 @@
 const path = require('path');
 const fs = require('fs');
+const moment = require('moment');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 require('../models/managersModel');
 const managersSchema = mongoose.model('managers');
-const mailer = require("../services/sendMails");
+const mailer = require('../services/sendMails');
 const generator = require('generate-password');
+const maxBirthDate = moment(new Date('1996-01-01 00:00:00'));
 
 // bcrybt
 const saltRounds = 10;
@@ -49,8 +51,11 @@ exports.getAdminById = (req, res, next) => {
 exports.addAdmin = (req, res, next) => {
 	let password = generator.generate({
 		length: 10,
-		numbers: true
+		numbers: true,
 	});
+	if (req.body.hireDate > moment().add(1, 'day')) {
+		throw new Error('Hire Date Cannot Be After Today');
+	}
 	const newAdmin = new managersSchema({
 		firstName: req.body.firstName,
 		lastName: req.body.lastName,
@@ -63,9 +68,9 @@ exports.addAdmin = (req, res, next) => {
 	newAdmin
 		.save()
 		.then((data) => {
-			data.password=""; 
+			data.password = '';
 			// console.log(data);
-			mailer(req.body.email,`Admin ${req.body.firstName} ${req.body.lastName}`,password)
+			mailer(req.body.email, `Admin ${req.body.firstName} ${req.body.lastName}`, password);
 			res.status(201).json({ data });
 		})
 		.catch((err) => {
@@ -93,6 +98,9 @@ exports.updateAdmin = (req, res, next) => {
 				}
 				if (req.role == 'super-admin' && req.body.role == 'root') {
 					throw new Error("You can't upgrate to root role");
+				}
+				if (req.body.birthDate && moment(req.body.birthDate).isAfter(maxBirthDate)) {
+					throw new Error(`Birth Year Cannot Be After ${maxBirthDate}`);
 				}
 				if (req.file && data.image && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
 					// fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
