@@ -1,5 +1,5 @@
-// handle validation on searchBooks Route.
-// handle update of available books.
+// #DONE handle validation on searchBooks Route.
+// #DONE handle update of available books.
 
 // #Done check book data if bigger than now
 // expected data not more than 30day
