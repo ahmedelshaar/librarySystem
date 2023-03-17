@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const e = require('express');
+const moment = require('moment');
 require('dotenv').config();
 // bcrybt
 const saltRounds = 10;
@@ -12,6 +13,7 @@ require('../models/managersModel');
 require('../models/memberModel');
 const ManagersSchema = mongoose.model('managers');
 const MemberSchema = mongoose.model('members');
+const maxBirthDate = moment(new Date('2009-01-01 00:00:00'));
 
 const checkMailAndPassword = async (model, req, res, next) => {
 	try {
@@ -120,7 +122,10 @@ exports.activation = async (req, res, next) => {
 			} else {
 				if (bcrypt.compareSync(req.body.newpassword, userData.password))
 					throw new Error('new Password must not be the same as the old one.');
-				// if (req.file && req.file.path) req.body.image = req.file.filename;
+				if (moment(req.body.birth_date).isAfter(maxBirthDate)) {
+					throw new Error(`Birth Year Cannot Be After ${maxBirthDate}`);
+				}
+
 				await MemberSchema.updateOne(
 					{ _id: userData._id },
 					{

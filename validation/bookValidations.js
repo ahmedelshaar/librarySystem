@@ -3,8 +3,8 @@ const moment = require('moment');
 const { body, param, query } = require('express-validator');
 const { categories } = require('../Core/Static/categories');
 
-const isIsoDateInRange = (value, { minDate, maxDate } ) => {
-	if ( !moment(value, moment.ISO_8601).isValid() ) {
+const isIsoDateInRange = (value, { minDate, maxDate }) => {
+	if (!moment(value, moment.ISO_8601).isValid()) {
 		throw new Error('Invalid date format');
 	}
 
@@ -21,17 +21,22 @@ const isIsoDateInRange = (value, { minDate, maxDate } ) => {
 };
 
 const checkAfterToday = (value) => {
-	const minDate = new Date().toISOString(); 
-	const maxDate = moment().add(1,"month").toISOString();
-	return isIsoDateInRange(value, { minDate,maxDate });
+	const minDate = new Date().toISOString();
+	const maxDate = moment().add(1, 'month').toISOString();
+	return isIsoDateInRange(value, { minDate, maxDate });
 };
 const checkBeforeToday = (value) => {
 	const minDate = null;
 	const maxDate = new Date().toISOString();
-	return isIsoDateInRange(value, { minDate,maxDate });
+	return isIsoDateInRange(value, { minDate, maxDate });
 };
 
 exports.getValidator = exports.deleteValidator = [param('id').isInt().withMessage('Id should be Number').toInt()];
+exports.dayValidator = [
+	query('day').optional()
+	// .custom(checkBeforeToday).toDate()
+	.isISO8601().withMessage('Query day should be A valid Date').toDate()
+];
 
 exports.postValidator = [
 	// Strings
@@ -79,12 +84,10 @@ exports.searchBookValidator = [
 	query('publisher').optional().isLength({ min: 3 }).withMessage('publisher Must Be String').trim(),
 	query('category').optional().isIn(categories).withMessage(`Category should be in [${categories}]`).trim(),
 	query('year').optional().isInt({ min: 0, max: 9999 }).withMessage('year Must Be Intger').toInt(),
-	query("available").optional().isBoolean().withMessage("year Must Be Boolean").toBoolean(),
+	query('available').optional().isBoolean().withMessage('year Must Be Boolean').toBoolean(),
 ];
-exports.paramName = [
-	param('name').isLength({ min: 3 }).withMessage('name Must Be String').trim(),
-]
+exports.paramName = [param('name').isLength({ min: 3 }).withMessage('name Must Be String').trim()];
 exports.paramYear = [
 	param('year').isInt().withMessage('year should be Number').toInt(),
 	param('month').optional().isInt().withMessage('month should be Number').toInt(),
-]
+];

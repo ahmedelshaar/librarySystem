@@ -10,7 +10,7 @@ const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
 
 (async () => {
-	console.log('sending data to DB.');
+	// console.log('sending data to DB.');
 	let count = await managersSchema.countDocuments();
 	if (count > 0) {
 		return;
