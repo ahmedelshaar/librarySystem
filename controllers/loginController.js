@@ -13,7 +13,7 @@ require('../models/managersModel');
 require('../models/memberModel');
 const ManagersSchema = mongoose.model('managers');
 const MemberSchema = mongoose.model('members');
-const maxBirthDate = moment().subtract(15, 'year').toISOString;
+const maxBirthDate = moment(new Date('2009-01-01 00:00:00'));
 
 const checkMailAndPassword = async (model, req, res, next) => {
 	try {
@@ -122,9 +122,10 @@ exports.activation = async (req, res, next) => {
 			} else {
 				if (bcrypt.compareSync(req.body.newpassword, userData.password))
 					throw new Error('new Password must not be the same as the old one.');
-				if (req.birth_date > maxBirthDate) {
-					throw new Error(`Birth Day Cannot Be After ${maxBirthDate}`);
+				if (moment(req.body.birth_date).isAfter(maxBirthDate)) {
+					throw new Error(`Birth Year Cannot Be After ${maxBirthDate}`);
 				}
+
 				await MemberSchema.updateOne(
 					{ _id: userData._id },
 					{

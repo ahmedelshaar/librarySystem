@@ -8,7 +8,7 @@ const salt = bcrypt.genSaltSync(saltRound);
 const MemberSchema = mongoose.model('members');
 const path = require('path');
 const fs = require('fs');
-const maxBirthDate = moment().subtract(15, 'year').toISOString();
+const maxBirthDate = moment(new Date('2009-01-01 00:00:00'));
 
 exports.getAllMembers = (req, res, next) => {
 	MemberSchema.find({})
@@ -98,8 +98,8 @@ exports.updateMember = (req, res, next) => {
 				} else if (req.role == 'member' && req.params.id == req.id) {
 					delete req.body.email;
 				}
-				if (req.birth_date > maxBirthDate) {
-					throw new Error(`Birth Day Cannot Be After ${maxBirthDate}`);
+				if (moment(req.body.birth_date).isAfter(maxBirthDate)) {
+					throw new Error(`Birth Year Cannot Be After ${maxBirthDate}`);
 				}
 				let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
 				if (req.file && req.file.path) {
