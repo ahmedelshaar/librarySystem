@@ -646,3 +646,631 @@
  *         description: Internal server error.
  */
 
+/**
+ * @swagger
+ * /books/new:
+ *   get:
+ *     summary: Get all new books added in the last month.
+ *     description: Retrieves all books that were created in the last month. If the user is a member, the filter will include books added in the last month or since their last login, whichever is more recent.
+ *     parameters:
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *         description: The user's role, either "member" or "employee".
+ *       - in: query
+ *         name: lastLogin
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: The user's last login time, in ISO 8601 format.
+ *     responses:
+ *       200:
+ *         description: A list of books.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Book'
+ *
+ * /books/borrow:
+ *   post:
+ *     summary: Borrow a book.
+ *     description: Borrows a book for a specified member, provided the book is available and the member is eligible to borrow. If the member is already borrowing the book, an error will be thrown.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               member_id:
+ *                 type: string
+ *                 description: The ID of the member borrowing the book.
+ *               book_id:
+ *                 type: string
+ *                 description: The ID of the book being borrowed.
+ *               expectedDate:
+ *                 type: string
+ *                 format: date-time
+ *                 description: The expected return date for the book.
+ *     responses:
+ *       200:
+ *         description: Indicates the book has been borrowed successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: string
+ *                   description: A success message.
+ *                 available:
+ *                   type: number
+ *                   description: The number of available copies of the book after the borrowing.
+ *       400:
+ *         description: Indicates the member is not eligible to borrow the book, or the book is not available for borrowing.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: An error message.
+ */
+
+/**
+ * @swagger
+ * /return:
+ *   post:
+ *     summary: Return borrowed book
+ *     description: Returns a book that was previously borrowed by a member
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               member_id:
+ *                 type: string
+ *                 description: ID of the member who borrowed the book
+ *               book_id:
+ *                 type: string
+ *                 description: ID of the book that is being returned
+ *             required:
+ *               - member_id
+ *               - book_id
+ *     responses:
+ *       200:
+ *         description: Returns the success message and number of available copies of the book
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: string
+ *                   description: Success message
+ *                 available:
+ *                   type: integer
+ *                   description: Number of available copies of the book after returning
+ *       400:
+ *         description: Bad Request
+ *       404:
+ *         description: Member or Book not found, or no books currently borrowed to this member
+ *       500:
+ *         description: Internal Server Error
+ */
+
+
+/**
+ * @swagger
+ *
+ * /api/books/read:
+ *   post:
+ *     summary: Read a book.
+ *     description: Read a book by a member.
+ *     tags:
+ *       - Books
+ *     requestBody:
+ *       description: Member ID and Book ID to read.
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               member_id:
+ *                 type: string
+ *                 description: The ID of the member who is reading the book.
+ *               book_id:
+ *                 type: string
+ *                 description: The ID of the book to be read.
+ *             example:
+ *               member_id: 61654f149dd560292cf38d3b
+ *               book_id: 61654f149dd560292cf38d3c
+ *     responses:
+ *       '200':
+ *         description: A JSON object with a success message and the number of available copies of the book after reading.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: string
+ *                   description: A success message.
+ *                   example: success
+ *                 available:
+ *                   type: number
+ *                   description: The number of available copies of the book after reading.
+ *                   example: 2
+ *       '400':
+ *         description: Bad request. Returned if the request body is missing required fields or has invalid field values.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: An error message.
+ *                   example: member is not found
+ *       '500':
+ *         description: Internal server error. Returned if an unexpected error occurs on the server.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: An error message.
+ *                   example: Internal server error.
+ */
+
+
+/**
+ * Returns a read book by a member and updates the book's availability and log.
+ *
+ * @swagger
+ * /return-readed-book:
+ *   post:
+ *     summary: Returns a read book by a member and updates the book's availability and log.
+ *     tags:
+ *       - Books
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               member_id:
+ *                 type: string
+ *                 description: The ID of the member returning the book.
+ *               book_id:
+ *                 type: string
+ *                 description: The ID of the book being returned.
+ *             required:
+ *               - member_id
+ *               - book_id
+ *     responses:
+ *       '200':
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: string
+ *                   description: Success message
+ *                 available:
+ *                   type: number
+ *                   description: The updated availability of the returned book.
+ *       '400':
+ *         description: Bad request error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message
+ *       '404':
+ *         description: Not found error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message
+ */
+
+
+/**
+ * @swagger
+ * /api/borrowed-books/current:
+ *   get:
+ *     summary: Get a list of currently borrowed books by the authenticated member.
+ *     tags: [Borrowed Books]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: A list of currently borrowed books.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         description: The ID of the book title.
+ *                       number_of_borrowed:
+ *                         type: number
+ *                         description: The number of copies of the book that are currently borrowed.
+ *                       book_details:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             status:
+ *                               type: string
+ *                               description: The status of the book (borrowed or read).
+ *                             createdAt:
+ *                               type: string
+ *                               format: date-time
+ *                               description: The date and time the book was borrowed or read.
+ *                             expected_date:
+ *                               type: string
+ *                               format: date-time
+ *                               description: The expected return date for the book.
+ *                             book_details:
+ *                               type: object
+ *                               properties:
+ *                                 _id:
+ *                                   type: number
+ *                                   description: The ID of the book.
+ *                                 title:
+ *                                   type: string
+ *                                   description: The title of the book.
+ *                             member_details:
+ *                               type: object
+ *                               properties:
+ *                                 _id:
+ *                                   type: number
+ *                                   description: The ID of the member who borrowed or read the book.
+ *                                 full_name:
+ *                                   type: string
+ *                                   description: The full name of the member who borrowed or read the book.
+ *                             employee_details:
+ *                               type: object
+ *                               properties:
+ *                                 _id:
+ *                                   type: number
+ *                                   description: The ID of the employee responsible for the borrowing.
+ *                                 firstName:
+ *                                   type: string
+ *                                   description: The first name of the employee responsible for the borrowing.
+ *                             returned_date:
+ *                               type: string
+ *                               format: date-time
+ *                               description: The date and time the book was returned (if applicable).
+ *                             isLate:
+ *                               type: boolean
+ *                               description: Indicates whether the book is currently late or not.
+ *     produces:
+ *       - application/json
+ */
+
+/**
+ * Search for books by category, publisher, author, available or year
+ *
+ * @swagger
+ * /api/books/search:
+ *   get:
+ *     summary: Search for books
+ *     description: Search for books by category, publisher, author, available or year
+ *     parameters:
+ *       - in: query
+ *         name: category
+ *         description: Book category
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: publisher
+ *         description: Book publisher
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: author
+ *         description: Book author
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: available
+ *         description: Whether the book is available or not
+ *         schema:
+ *           type: boolean
+ *       - in: query
+ *         name: year
+ *         description: Book publishing year
+ *         schema:
+ *           type: integer
+ *           format: int32
+ *     responses:
+ *       200:
+ *         description: A list of books matching the search criteria
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Book'
+ *       400:
+ *         description: Bad request. Nothing to search for.
+ *       500:
+ *         description: Internal server error
+ */
+
+
+/**
+ * @swagger
+ * /api/mostborrowedbooks/{year}:
+ *   get:
+ *     summary: Get the 10 most borrowed books in a year
+ *     description: Returns a list of the 10 most borrowed books in the specified year, with their count and details.
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         required: true
+ *         description: The year for which to retrieve the most borrowed books.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         description: The ID of the book.
+ *                       count:
+ *                         type: integer
+ *                         description: The number of times the book was borrowed in the specified year.
+ *                       book:
+ *                         type: object
+ *                         description: Details of the book.
+ *                         properties:
+ *                           title:
+ *                             type: string
+ *                             description: The title of the book.
+ *                           category:
+ *                             type: string
+ *                             description: The category of the book.
+ *                           author:
+ *                             type: string
+ *                             description: The author of the book.
+ *                           publisher:
+ *                             type: string
+ *                             description: The publisher of the book.
+ *                           publishingDate:
+ *                             type: string
+ *                             description: The publishing date of the book.
+ *                           edition:
+ *                             type: integer
+ *                             description: The edition of the book.
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
+ */
+
+/**
+ * @swagger
+ *
+ * /api/books/most-reading-books/{year}:
+ *   get:
+ *     summary: Returns the top 10 most read books for a given year
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The year for which to retrieve the most read books
+ *     responses:
+ *       '200':
+ *         description: A list of the top 10 most read books for the given year
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         description: The book ID
+ *                       count:
+ *                         type: integer
+ *                         description: The number of times the book was read
+ *                       book:
+ *                         type: object
+ *                         properties:
+ *                           title:
+ *                             type: string
+ *                             description: The book title
+ *                           category:
+ *                             type: string
+ *                             description: The book category
+ *                           author:
+ *                             type: string
+ *                             description: The book author
+ *                           publisher:
+ *                             type: string
+ *                             description: The book publisher
+ *                           publishingDate:
+ *                             type: string
+ *                             description: The book publishing date
+ *                           edition:
+ *                             type: string
+ *                             description: The book edition
+ */
+
+
+/**
+ * @swagger
+ * /member/borrowed-books/{year}/{month}:
+ *   get:
+ *     summary: Get all borrowed books by a member in a given month and year
+ *     tags: [Member]
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         schema:
+ *           type: integer
+ *           minimum: 1900
+ *           maximum: 9999
+ *         required: true
+ *         description: The year of the borrowed books (YYYY format)
+ *       - in: path
+ *         name: month
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 12
+ *         required: true
+ *         description: The month of the borrowed books (1-12)
+ *     responses:
+ *       200:
+ *         description: Returns a list of borrowed books by the member in the specified month and year
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         description: The ID of the book
+ *                       count:
+ *                         type: integer
+ *                         description: The number of times the book has been borrowed
+ *                       book:
+ *                         type: object
+ *                         properties:
+ *                           title:
+ *                             type: string
+ *                             description: The title of the book
+ *                           category:
+ *                             type: string
+ *                             description: The category of the book
+ *                           author:
+ *                             type: string
+ *                             description: The author of the book
+ *                           publisher:
+ *                             type: string
+ *                             description: The publisher of the book
+ *                           publishingDate:
+ *                             type: string
+ *                             format: date
+ *                             description: The date the book was published (YYYY-MM-DD)
+ *                           edition:
+ *                             type: integer
+ *                             description: The edition of the book
+ */
+
+/**
+ * @swagger
+ * /books/memberReadingBooks:
+ *   get:
+ *     summary: Get the number of books read by a member within a specific month or year
+ *     tags: [Books]
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         schema:
+ *           type: integer
+ *           format: int32
+ *         description: The year for which to retrieve reading statistics
+ *       - in: path
+ *         name: month
+ *         schema:
+ *           type: integer
+ *           format: int32
+ *         description: The month for which to retrieve reading statistics (1-12)
+ *     responses:
+ *       200:
+ *         description: The number of books read by the member during the specified time period
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         description: The ID of the book
+ *                       count:
+ *                         type: integer
+ *                         description: The number of times the book was read
+ *                       book:
+ *                         type: object
+ *                         properties:
+ *                           title:
+ *                             type: string
+ *                             description: The title of the book
+ *                           category:
+ *                             type: string
+ *                             description: The category of the book
+ *                           author:
+ *                             type: string
+ *                             description: The author of the book
+ *                           publisher:
+ *                             type: string
+ *                             description: The publisher of the book
+ *                           publishingDate:
+ *                             type: string
+ *                             description: The publishing date of the book (ISO 8601 format)
+ *                           edition:
+ *                             type: integer
+ *                             description: The edition of the book
+ */
