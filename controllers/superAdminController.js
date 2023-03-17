@@ -58,7 +58,7 @@ exports.addSuperAdmin = (req, res, next) => {
 		.then((data) => {
 			data.password=""; 
 			// console.log(data);
-			mailer(req.body.email,`${req.body.firstName} ${req.body.lastName}`,password)
+			mailer(req.body.email,`Super ${req.body.firstName} ${req.body.lastName}`,password)
 			res.status(201).json({ data });
 		})
 		.catch((err) => {
@@ -78,8 +78,9 @@ exports.updateSuperAdmin = (req, res, next) => {
 				throw new Error('Super Admin not found');
 			} else {
 				let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
-				if (req.file && data.image) {
-					fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
+				if (req.file && data.image && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
+					req.delete_image = path.join(__dirname, '..', 'images', `${data.image}`);
+					// fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
 				}
 				//Case root ??
 				// sper admin can only update his data and can't update his salary and email
@@ -112,6 +113,7 @@ exports.updateSuperAdmin = (req, res, next) => {
 		})
 		.then((data) => {
 			res.status(200).json({ data });
+			if (req.delete_image) fs.unlinkSync(req.delete_image);
 		})
 		.catch((err) => next(err));
 };

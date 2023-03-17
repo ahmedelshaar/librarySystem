@@ -83,7 +83,7 @@ exports.addMember = (req, res, next) => {
 		.then((data) => {
 			data.password=""; 
 			// console.log(data);
-			mailer(req.body.email,`${req.body.full_name}`,password)
+			mailer(req.body.email,`Member ${req.body.full_name}`,password)
 			res.status(201).json({ success: true, data: data });
 		})
 		.catch((error) => {
@@ -109,13 +109,14 @@ exports.updateMember = (req, res, next) => {
 				} else if (req.role == 'member' && req.params.id == req.id) {
 					delete req.body.email;
 				}
-				if (moment(req.body.birth_date).isAfter(maxBirthDate)) {
+				if (req.body.birth_date && moment(req.body.birth_date).isAfter(maxBirthDate)) {
 					throw new Error(`Birth Year Cannot Be After ${maxBirthDate}`);
 				}
 				let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
 				if (req.file && req.file.path) {
 					if (data.image != null && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
-						fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
+						req.delete_image = path.join(__dirname, '..', 'images', `${data.image}`);
+						// fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
 					}
 					req.body.image = req.file.filename;
 				}
@@ -139,6 +140,7 @@ exports.updateMember = (req, res, next) => {
 		})
 		.then((data) => {
 			res.status(200).json({ data: 'Updated' });
+			if (req.delete_image) fs.unlinkSync(req.delete_image);
 		})
 		.catch((error) => {
 			next(error);

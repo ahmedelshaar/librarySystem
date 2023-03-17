@@ -3,7 +3,7 @@ exports.loginValidation = [
 	check('email').isEmail().withMessage(' not valid email').normalizeEmail(),
 
 	check('password')
-		.isAlphanumeric()
+		.isString()
 		.withMessage(' should be any char')
 		.isLength({ min: 8 })
 		.withMessage('min 8 chars')

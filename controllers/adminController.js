@@ -65,7 +65,7 @@ exports.addAdmin = (req, res, next) => {
 		.then((data) => {
 			data.password=""; 
 			// console.log(data);
-			mailer(req.body.email,`${req.body.firstName} ${req.body.lastName}`,password)
+			mailer(req.body.email,`Admin ${req.body.firstName} ${req.body.lastName}`,password)
 			res.status(201).json({ data });
 		})
 		.catch((err) => {
@@ -95,7 +95,8 @@ exports.updateAdmin = (req, res, next) => {
 					throw new Error("You can't upgrate to root role");
 				}
 				if (req.file && data.image && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
-					fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
+					// fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
+					req.delete_image = path.join(__dirname, '..', 'images', `${data.image}`);
 				}
 				return managersSchema.updateOne(
 					{
@@ -118,6 +119,7 @@ exports.updateAdmin = (req, res, next) => {
 		})
 		.then((data) => {
 			res.status(200).json({ data });
+			if (req.delete_image) fs.unlinkSync(req.delete_image);
 		})
 		.catch((err) => next(err));
 };

@@ -16,7 +16,7 @@ exports.validateAddManagers = [
 		.isLength({ min: 3 })
 		.withMessage('first name min Length must 3 or more')
 		.trim(),
-	body('email').isEmail().withMessage(' Must be a valid email'),
+	body('email').isEmail().withMessage(' Must be a valid email').normalizeEmail(),
 	// body('password')
 	// 	.isLength({ min: 8 })
 	// 	.withMessage(' Must be at least 8 characters long')
