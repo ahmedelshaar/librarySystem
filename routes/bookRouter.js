@@ -13,7 +13,14 @@ router.route('/categories').get((req, res, next) => {
 	res.status(200).json({ data: categories }); // categories for Book Schema
 });
 // reports
-router.route('/reports').get(bookController.log); // categories for Book Schema
+router.route('/reports').get(isAdmin, bookController.log); // categories for Book Schema
+
+const log = (req, res, next) => {
+	console.log('query', req.query);
+	console.log('body', req.body);
+	console.log('params', req.params);
+	next();
+};
 
 router
 	.route('/books')
@@ -26,6 +33,9 @@ router
 router.route('/books/author/:name').get(isEmployee, bookController.getBooksByAuthor);
 router.route('/books/publisher/:name').get(isEmployee, bookController.getBooksByPublisher);
 router.route('/books/title/:name').get(isEmployee, bookController.getBooksByTitle);
+router.route('/books/author/:name').get(bookValidations.paramName, isEmployee, bookController.getBooksByAuthor);
+router.route('/books/publisher/:name').get(bookValidations.paramName, isEmployee, bookController.getBooksByPublisher);
+router.route('/books/title/:name').get(bookValidations.paramName, isEmployee, bookController.getBooksByTitle);
 
 //G
 router.route('/books/available').get(isEmployee, bookController.getAvailableBooks);
@@ -38,6 +48,12 @@ router.route('/books/mostborrowed').get(isEmployee, bookController.mostBorrowedB
 router.route('/books/mostborrowed/:year').get(isEmployee, bookController.mostBorrowedBooks);
 router.route('/books/mostreading').get(isEmployee, bookController.mostReadingBooks);
 router.route('/books/mostreading/:year').get(isEmployee, bookController.mostReadingBooks);
+router
+	.route('/books/mostborrowed/:year')
+	.get(log, bookValidations.paramYear, isEmployee, bookController.mostBorrowedBooks);
+router.route('/books/mostborrowed').get(isEmployee, bookController.mostBorrowedBooks);
+router.route('/books/mostreading').get(isEmployee, bookController.mostReadingBooks);
+router.route('/books/mostreading/:year').get(bookValidations.paramYear, isEmployee, bookController.mostReadingBooks);
 
 // I + K
 router
@@ -63,16 +79,38 @@ router.route('/books/late').all(isEmployee).get(bookController.getLateBooks);
 router.route('/books/currentborrow').all(isMemberOnly).get(bookController.currentBorrowedBooks);
 // f- Search for any book in the library filtered by year , category , publisher , author and availability
 router.route('/books/search').all(isMember).get(bookController.searchBooks);
+router
+	.route('/books/search')
+	.all(isMember)
+	.get(log, bookValidations.searchBookValidator, log, bookController.searchBooks);
 
 // c- List of borrowed books in current month , this page will have capability of showing borrowed books filtered by month and year
 router.route('/books/history/borrowed').all(isMemberOnly).get(bookController.memberBorrowedBooks);
 router.route('/books/history/borrowed/:year').all(isMemberOnly).get(bookController.memberBorrowedBooks);
 router.route('/books/history/borrowed/:year/:month').all(isMemberOnly).get(bookController.memberBorrowedBooks);
+router.route('/books/history/borrowed').all(isMemberOnly).get(bookController.memberBorrowedBooks);
+router
+	.route('/books/history/borrowed/:year')
+	.all(isMemberOnly)
+	.get(bookValidations.paramYear, bookController.memberBorrowedBooks);
+router
+	.route('/books/history/borrowed/:year/:month')
+	.all(isMemberOnly)
+	.get(bookValidations.paramYear, bookController.memberBorrowedBooks);
 
 // b- List of reading books in current month , this page will have capability of showing reading books filtered by month and year
 router.route('/books/history/reading').all(isMemberOnly).get(bookController.memberReadingBooks);
 router.route('/books/history/reading/:year').all(isMemberOnly).get(bookController.memberReadingBooks);
 router.route('/books/history/reading/:year/:month').all(isMemberOnly).get(bookController.memberReadingBooks);
+router.route('/books/history/reading').all(isMemberOnly).get(bookController.memberReadingBooks);
+router
+	.route('/books/history/reading/:year')
+	.all(isMemberOnly)
+	.get(bookValidations.paramYear, bookController.memberReadingBooks);
+router
+	.route('/books/history/reading/:year/:month')
+	.all(isMemberOnly)
+	.get(bookValidations.paramYear, bookController.memberReadingBooks);
 
 router
 	.route('/books/:id')

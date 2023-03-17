@@ -75,9 +75,16 @@ exports.readingBookValidator = [
 	body('book_id').isInt().withMessage('Book ID should be Number').toInt(),
 ];
 exports.searchBookValidator = [
-	query('author').isLength({ min: 3 }).withMessage('author Must Be String').trim(),
-	query('publisher').isLength({ min: 3 }).withMessage('publisher Must Be String').trim(),
-	query('category').isLength({ min: 3 }).withMessage('Category Must Be String').trim(),
-	query('year').isInt({ min: 0, max: 9999 }).withMessage('year Must Be Intger').toInt(),
-	// query("available").isBoolean().withMessage("year Must Be Boolean"),
+	query('author').optional().isLength({ min: 3 }).withMessage('author Must Be String').trim(),
+	query('publisher').optional().isLength({ min: 3 }).withMessage('publisher Must Be String').trim(),
+	query('category').optional().isIn(categories).withMessage(`Category should be in [${categories}]`).trim(),
+	query('year').optional().isInt({ min: 0, max: 9999 }).withMessage('year Must Be Intger').toInt(),
+	query("available").optional().isBoolean().withMessage("year Must Be Boolean").toBoolean(),
 ];
+exports.paramName = [
+	param('name').isLength({ min: 3 }).withMessage('name Must Be String').trim(),
+]
+exports.paramYear = [
+	param('year').isInt().withMessage('year should be Number').toInt(),
+	param('month').optional().isInt().withMessage('month should be Number').toInt(),
+]

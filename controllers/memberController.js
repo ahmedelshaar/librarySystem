@@ -1,16 +1,19 @@
 const mongoose = require('mongoose');
 require('./../models/memberModel');
 
+const moment = require('moment');
 const bcrypt = require('bcrypt');
 const saltRound = 10;
 const salt = bcrypt.genSaltSync(saltRound);
 const MemberSchema = mongoose.model('members');
 const path = require('path');
 const fs = require('fs');
+const maxBirthDate = moment().subtract(15, 'year').toISOString();
 
 exports.getAllMembers = (req, res, next) => {
 	MemberSchema.find({})
 		.then((data) => {
+			console.log(maxBirthDate);
 			res.status(200).json({ data });
 		})
 		.catch((error) => {
@@ -89,11 +92,14 @@ exports.updateMember = (req, res, next) => {
 				throw new Error('Member Not Found');
 			} else {
 				if (req.role == 'member' && req.params.id != req.id) {
-					let error = new Error('Not Authorized');
+					let error = new Error('Not Authonticated');
 					error.status = 401;
 					throw error;
 				} else if (req.role == 'member' && req.params.id == req.id) {
 					delete req.body.email;
+				}
+				if (req.birth_date > maxBirthDate) {
+					throw new Error(`Birth Day Cannot Be After ${maxBirthDate}`);
 				}
 				let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
 				if (req.file && req.file.path) {
