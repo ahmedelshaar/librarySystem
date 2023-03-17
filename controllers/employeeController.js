@@ -133,7 +133,7 @@ exports.updateEmployee = (req, res, next) => {
 			if (req.role != 'super-admin') {
 				delete req.body.role;
 			}
-			if (req.role == 'super-admin' && req.body.role == 'root') {
+			if (req.role == 'super-admin' && req.role == 'root') {
 				throw new Error("You can't upgrate to root role");
 			}
 			// لييييه لييييه؟

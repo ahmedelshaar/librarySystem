@@ -2,11 +2,13 @@ const mongoose = require('mongoose');
 require('./../models/memberModel');
 
 const bcrypt = require('bcrypt');
-const saltRound = 10;
-const salt = bcrypt.genSaltSync(saltRound);
-const MemberSchema = mongoose.model('members');
 const path = require('path');
 const fs = require('fs');
+
+const saltRound = 10;
+const salt = bcrypt.genSaltSync(saltRound);
+
+const MemberSchema = mongoose.model('members');
 
 exports.getAllMembers = (req, res, next) => {
 	MemberSchema.find({})
