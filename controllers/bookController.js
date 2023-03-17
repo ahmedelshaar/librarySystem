@@ -119,7 +119,7 @@ exports.updateBook = (req, res, next) => {
 					edition: req.body.edition,
 					noOfCopies: req.body.noOfCopies,
 					shelfNo: req.body.shelfNo,
-					available: req.body.available,
+					// available: req.body.available,
 				}
 			);
 		})
@@ -534,11 +534,13 @@ exports.currentBorrowedBooks = (req, res, next) => {
 exports.searchBooks = (req, res, next) => {
 	const permittedQueries = ['category', 'publisher', 'author', 'available', 'year'];
 	let findBy = {};
-	//   console.log(req.query);
+	console.log(req.query);
 	Object.keys(req.query).forEach((key) => {
-		if (permittedQueries.includes(key) && req.query[key]) findBy[key] = req.query[key];
+		if (permittedQueries.includes(key.toLowerCase()) && req.query[key]) findBy[key.toLowerCase()] = req.query[key];
 	});
-
+	if(Object.keys(req.query).includes("available")){
+		findBy.available = findBy.available ? {$gte:1} : {$lt:1};
+	}
 	if (Number(findBy.year)) {
 		// must be string or it will call timestamp constructor
 		let year = moment(String(findBy.year));
@@ -552,7 +554,8 @@ exports.searchBooks = (req, res, next) => {
 		// console.log(findBy.publishingDate)
 		delete findBy['year'];
 	}
-	//   console.log(findBy);
+	console.log(findBy);
+	if(!Object.keys(findBy).length) throw new Error("Nothing to search for.")
 	BookSchema.find(findBy)
 		.then((data) => {
 			res.status(200).json({ data });
