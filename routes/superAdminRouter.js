@@ -17,7 +17,8 @@ router
 //Get by id
 router
 	.route('/superAdmin/:id')
-	.get(isSuperAdmin, validateGetById, validateMW, superAdminController.getSuperAdminById)
+	.all(isSuperAdmin)
+	.get(validateGetById, validateMW, superAdminController.getSuperAdminById)
 	.patch(saveImage('superAdmins'), validateUpdateManagers, validateMW, superAdminController.updateSuperAdmin)
 	.delete(validateGetById, validateMW, superAdminController.deleteSuperAdmin);
 

@@ -90,7 +90,7 @@ exports.updateAdmin = (req, res, next) => {
 				}
 				return managersSchema.updateOne(
 					{
-						_id: req.body.id,
+						_id: req.params.id,
 					},
 					{
 						$set: {
