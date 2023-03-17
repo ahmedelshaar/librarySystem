@@ -23,10 +23,10 @@
 
 // handle activation column on Manager route (Done😁)
 // handled newpassword not to be as the old one in  firstLogin (Done😁)
-// handle image on delete admin.
+// handle image on delete admin. (Done😁)
 
 
-// handle get emp by id auth
-// handle update admin auth
-// handle hire date to be less than toDay.
+// handle get emp by id auth (Done😁 ??)
+// handle update admin auth (Done😁 ??)
+// handle hire date to be less than toDay. (Done😁)
 // handle super-admin delete with root.

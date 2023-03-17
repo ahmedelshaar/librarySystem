@@ -15,7 +15,7 @@ router
 	.get(isSuperAdmin, adminController.getAllAdmins)
 	.post(isSuperAdmin, saveImage('admins'), validateAddManagers, validateMW, adminController.addAdmin);
 
-// Get Admin by ID
+// Routes by ID
 router
 	.route('/admin/:id')
 	.get(isAdmin, validateGetById, validateMW, adminController.getAdminById)

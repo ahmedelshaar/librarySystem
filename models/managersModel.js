@@ -26,11 +26,16 @@ const managersSchema = mongoose.Schema(
 		birthDate: {
 			type: Date,
 			required: false,
+			// Min & Max Date
+			min: new Date(1950, 0, 1),
+			max: new Date(2010, 11, 31),
 		},
 		hireDate: {
 			type: Date,
 			required: [true, 'you need to enter a hire date'],
 			immutable: true,
+			// Max Date is today's Date
+			max: new Date(Date.now()),
 		},
 		salary: {
 			type: Number,
@@ -42,7 +47,7 @@ const managersSchema = mongoose.Schema(
 		},
 		role: {
 			type: String,
-			enum: ['root','super-admin', 'admin', 'employee'],
+			enum: ['root', 'super-admin', 'admin', 'employee'],
 			required: [true, 'You need to enter role'],
 		},
 		token: {

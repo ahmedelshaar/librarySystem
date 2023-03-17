@@ -85,7 +85,7 @@ exports.updateAdmin = (req, res, next) => {
 				if (req.role == 'super-admin' && req.body.role == 'root') {
 					throw new Error("You can't upgrate to root role");
 				}
-				if (req.file && data.image) {
+				if (req.file && data.image && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
 					fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
 				}
 				return managersSchema.updateOne(
@@ -121,8 +121,7 @@ exports.deleteAdmin = (req, res, next) => {
 			if (!data) {
 				throw new Error('Admin not found');
 			} else {
-				//Check if image send in request
-				if (data.image) {
+				if (data.image && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
 					fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
 				}
 				return managersSchema.deleteOne({ _id: req.body.id });

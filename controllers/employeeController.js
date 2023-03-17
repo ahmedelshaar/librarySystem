@@ -144,7 +144,7 @@ exports.updateEmployee = (req, res, next) => {
 			if (!data.image) {
 				delete req.file;
 			}
-			if (req.file && data.image) {
+			if (req.file && data.image && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
 				fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
 			}
 
@@ -181,7 +181,7 @@ exports.deleteEmployee = (req, res, next) => {
 			if (!data) {
 				throw new Error('Employee not found');
 			} else {
-				if (data.image) {
+				if (data.image && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
 					fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
 				}
 				return managersSchema.deleteOne({ _id: req.params.id });
