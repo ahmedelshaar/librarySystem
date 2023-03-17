@@ -17,6 +17,19 @@ const saveOnBody = (req, res, next) => {
 };
 
 routes.post('/login/administration', validator.loginValidation, validationMiddleware, loginAdministration);
+/**
+* @swagger
+* /login:
+*   get:
+*     summary: this is login route
+*     description: desc
+*     responses:
+*       200:
+*         good
+*/
+
+
+
 routes.post('/login', validator.loginValidation, validationMiddleware, login);
 routes.post('/activation', saveImage('firstImage'), saveOnBody, validator.activation, validationMiddleware, activation);
 routes.post(

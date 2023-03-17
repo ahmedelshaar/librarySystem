@@ -1,9 +1,15 @@
+const fs = require('fs');
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config({ path: './.env' });
 const cors = require('cors');
 const logger = require('morgan');
-const fs = require('fs');
+
+// swagger Docs
+const swaggerJSDoc = require("swagger-jsdoc");
+const swaggerUI = require("swagger-ui-express");
+
+
 require('./services/folderValidations');
 
 const authenticator = require('./middlewares/authenticationMw');
@@ -34,7 +40,29 @@ app.use(logger('dev'));
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: false, limit: '2mb' }));
 
+const options = {
+	definition: {
+		openapi: "3.0.0",
+		info: {
+			title: "Library API",
+			version: "1.0.0",
+			description: "A simple Express Library API",
+		},
+		servers: [
+			{
+				url: "http://localhost:"+process.env.PORT,
+			},
+		],
+	},
+	apis: ["./routes/*.js"],
+};
+
+const specs = swaggerJSDoc(options);
+app.use("/api", swaggerUI.serve, swaggerUI.setup(specs));
+
+
 //login
+
 app.use(LoginRoute);
 app.use(authenticator); // authentication layer
 //routing

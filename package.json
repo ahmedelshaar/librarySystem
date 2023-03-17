@@ -4,7 +4,7 @@
   "description": " sample library management System",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app",
+    "start": "npm i",
     "test": "jest --detectOpenHandles"
   },
   "repository": {
@@ -23,7 +23,9 @@
     "mongoose": "^6.9.2",
     "mongoose-sequence": "^5.3.1",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.1"
+    "nodemailer": "^6.9.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^4.6.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
