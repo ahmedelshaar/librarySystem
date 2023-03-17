@@ -32,6 +32,11 @@ const checkBeforeToday = (value) => {
 };
 
 exports.getValidator = exports.deleteValidator = [param('id').isInt().withMessage('Id should be Number').toInt()];
+exports.dayValidator = [
+	query('day').optional()
+	// .custom(checkBeforeToday).toDate()
+	.isISO8601().withMessage('Query day should be A valid Date').toDate()
+];
 
 exports.postValidator = [
 	// Strings

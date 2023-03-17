@@ -13,7 +13,7 @@ router.route("/categories").get((req, res, next) => {
   res.status(200).json({ data: categories }); // categories for Book Schema
 });
 // reports
-router.route("/reports").get(isAdmin,bookController.log); // categories for Book Schema
+router.route("/reports").get(bookValidations.dayValidator, validator,isAdmin,bookController.log); // categories for Book Schema
 
 const log = (req,res,next)=>{
   console.log("query",req.query);
@@ -31,9 +31,9 @@ router
   .post(bookValidations.postValidator, validator, bookController.addBook);
 
 // F
-router.route("/books/author/:name").get(bookValidations.paramName,isEmployee,bookController.getBooksByAuthor);
-router.route("/books/publisher/:name").get(bookValidations.paramName,isEmployee,bookController.getBooksByPublisher);
-router.route("/books/title/:name").get(bookValidations.paramName,isEmployee,bookController.getBooksByTitle);
+router.route("/books/author/:name").get(bookValidations.paramName, validator,isEmployee,bookController.getBooksByAuthor);
+router.route("/books/publisher/:name").get(bookValidations.paramName, validator,isEmployee,bookController.getBooksByPublisher);
+router.route("/books/title/:name").get(bookValidations.paramName, validator,isEmployee,bookController.getBooksByTitle);
 
 //G
 router.route("/books/available").get(isEmployee,bookController.getAvailableBooks);
@@ -42,10 +42,10 @@ router.route("/books/borrowing").get(isEmployee,bookController.getBorrowingBooks
 //H   +  /new Member //D
 router.route("/books/new").get(isMember,bookController.getNewBooks);
 
-router.route("/books/mostborrowed/:year").get(log,bookValidations.paramYear,isEmployee,bookController.mostBorrowedBooks);
+router.route("/books/mostborrowed/:year").get(log,bookValidations.paramYear, validator,isEmployee,bookController.mostBorrowedBooks);
 router.route("/books/mostborrowed").get(isEmployee,bookController.mostBorrowedBooks);
 router.route("/books/mostreading").get(isEmployee,bookController.mostReadingBooks);
-router.route("/books/mostreading/:year").get(bookValidations.paramYear,isEmployee,bookController.mostReadingBooks);
+router.route("/books/mostreading/:year").get(bookValidations.paramYear, validator,isEmployee,bookController.mostReadingBooks);
 
 
 // I + K

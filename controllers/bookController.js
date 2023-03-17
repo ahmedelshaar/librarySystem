@@ -14,7 +14,11 @@ const MemberSchema = mongoose.model('members');
 // Get All Logs for today
 exports.log = (req, res, next) => {
 	// LogSchema.find()
-	LogSchema.find({ date: { $gte: moment().startOf('day').toDate(), $lte: moment().endOf('day').toDate() } })
+	// console.log({ createdAt: { $gte: moment().startOf('day').toDate(), $lte: moment().endOf('day').toDate() } })
+	let day = req.query.day;
+	// console.log(day,moment(day).startOf('day').toDate());
+	// console.log({ createdAt: { $gte: moment(day).startOf('day').toDate(), $lte: moment(day).endOf('day').toDate() } })
+	LogSchema.find({ createdAt: { $gte: moment(day).startOf('day').toDate(), $lte: moment(day).endOf('day').toDate() } })
 		.populate('member emp book', 'full_name title firstName lastName')
 		.then((data) => {
 			res.status(200).json({ data });
