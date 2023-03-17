@@ -1,9 +1,11 @@
+const path = require('path');
+const fs = require('fs');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 require('../models/managersModel');
 const managersSchema = mongoose.model('managers');
-const path = require('path');
-const fs = require('fs');
+const mailer = require("../services/sendMails");
+const generator = require('generate-password');
 
 // bcrybt
 const saltRounds = 10;
@@ -45,11 +47,15 @@ exports.getAdminById = (req, res, next) => {
 
 // Add new admin
 exports.addAdmin = (req, res, next) => {
+	let password = generator.generate({
+		length: 10,
+		numbers: true
+	});
 	const newAdmin = new managersSchema({
 		firstName: req.body.firstName,
 		lastName: req.body.lastName,
 		email: req.body.email,
-		password: bcrypt.hashSync(req.body.password, salt),
+		password: bcrypt.hashSync(password, salt),
 		hireDate: req.body.hireDate,
 		salary: req.body.salary,
 		role: 'admin',
@@ -57,6 +63,9 @@ exports.addAdmin = (req, res, next) => {
 	newAdmin
 		.save()
 		.then((data) => {
+			data.password=""; 
+			// console.log(data);
+			mailer(req.body.email,`${req.body.firstName} ${req.body.lastName}`,password)
 			res.status(201).json({ data });
 		})
 		.catch((err) => {

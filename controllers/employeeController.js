@@ -4,6 +4,8 @@ require('../models/managersModel');
 const path = require('path');
 const fs = require('fs');
 const managersSchema = mongoose.model('managers');
+const mailer = require("../services/sendMails");
+const generator = require('generate-password');
 
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
@@ -95,11 +97,15 @@ exports.autoComplete = (req, res, next) => {
 };
 
 exports.addEmployee = (req, res, next) => {
+	let password = generator.generate({
+		length: 10,
+		numbers: true
+	});
 	const newEmployee = new managersSchema({
 		firstName: req.body.firstName,
 		lastName: req.body.lastName,
 		email: req.body.email,
-		password: bcrypt.hashSync(req.body.password, salt),
+		password: bcrypt.hashSync(password, salt),
 		hireDate: req.body.hireDate,
 		salary: req.body.salary,
 		role: 'employee',
@@ -107,6 +113,9 @@ exports.addEmployee = (req, res, next) => {
 	newEmployee
 		.save()
 		.then((data) => {
+			data.password=""; 
+			// console.log(data);
+			mailer(req.body.email,`${req.body.firstName} ${req.body.lastName}`,password)
 			res.status(201).json({ data });
 		})
 		.catch((err) => {

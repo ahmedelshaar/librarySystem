@@ -6,6 +6,8 @@ const bcrypt = require('bcrypt');
 const path = require('path');
 const fs = require('fs');
 const maxBirthDate = moment(new Date('2009-01-01 00:00:00'));
+const mailer = require("../services/sendMails");
+const generator = require('generate-password');
 
 const saltRound = 10;
 const salt = bcrypt.genSaltSync(saltRound);
@@ -68,13 +70,20 @@ exports.autocompleteMember = (req, res, next) => {
 };
 
 exports.addMember = (req, res, next) => {
+	let password = generator.generate({
+		length: 10,
+		numbers: true
+	});
 	new MemberSchema({
 		full_name: req.body.full_name,
-		password: bcrypt.hashSync(req.body.password, salt),
+		password: bcrypt.hashSync(password, salt),
 		email: req.body.email,
 	})
 		.save()
 		.then((data) => {
+			data.password=""; 
+			// console.log(data);
+			mailer(req.body.email,`${req.body.full_name}`,password)
 			res.status(201).json({ success: true, data: data });
 		})
 		.catch((error) => {
