@@ -24,6 +24,7 @@
 // handle activation column on Manager route (Done😁)
 // handled newpassword not to be as the old one in  firstLogin (Done😁)
 // handle image on delete admin. (Done😁)
+// Handle Birth date to be before 2008 (Done😁)
 
 
 // handle get emp by id auth (Done😁 ??)
