@@ -141,13 +141,14 @@ exports.deleteAdmin = (req, res, next) => {
 				throw new Error('Admin not found');
 			} else {
 				if (data.image && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
-					fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
+					req.delete_image = path.join(__dirname, '..', 'images', `${data.image}`);
 				}
 				return managersSchema.deleteOne({ _id: req.body.id });
 			}
 		})
 		.then((data) => {
 			res.status(200).json({ data });
+			if (req.delete_image) fs.unlinkSync(req.delete_image);
 		})
 		.catch((err) => {
 			next(err);
