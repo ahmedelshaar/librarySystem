@@ -11,11 +11,12 @@ const BookSchema = mongoose.model('books');
 const LogSchema = mongoose.model('logs');
 const MemberSchema = mongoose.model('members');
 
-
 // Get All Logs for specifec day or today by default
 exports.log = (req, res, next) => {
 	let day = req.query.day;
-	LogSchema.find({ createdAt: { $gte: moment(day).startOf('day').toDate(), $lte: moment(day).endOf('day').toDate() } })
+	LogSchema.find({
+		createdAt: { $gte: moment(day).startOf('day').toDate(), $lte: moment(day).endOf('day').toDate() },
+	})
 		// .populate('member emp book', 'full_name title firstName lastName')
 		.populate('member', 'full_name')
 		.populate('emp', 'firstName lastName')
@@ -221,7 +222,6 @@ exports.getNewBooks = (req, res, next) => {
 		});
 };
 
-
 exports.borrowBook = (req, res, next) => {
 	// Happy scenario
 	// 1 count reading books from log then add the rest to available if no return date until today
@@ -312,7 +312,7 @@ exports.returnBorrowedBook = (req, res, next) => {
 	MemberSchema.findOne({ _id: member_id }, { _id: 1 })
 		.then((data) => {
 			if (!data) throw new Error('member is not found');
-			
+
 			return BookSchema.findOne({ _id: book_id }, { _id: 1, available: 1 });
 		})
 		.then((data) => {
@@ -327,9 +327,9 @@ exports.returnBorrowedBook = (req, res, next) => {
 		})
 		.then((data) => {
 			if (!data) throw new Error('no books currenty borrowed to this member');
-			
+
 			const expected_date = moment(data.expected_date);
-			
+
 			if (expected_date.isValid() && expected_date.isBefore(moment())) {
 				console.log(
 					'baned until ',
@@ -355,7 +355,6 @@ exports.returnBorrowedBook = (req, res, next) => {
 			);
 		})
 		.then((data) => {
-			
 			if (data.modifiedCount == 0) throw new Error('no books currenty borrowed to this member');
 			return BookSchema.updateMany({ _id: book_id }, { $inc: { available: 1, borrowedCopies: -1 } });
 		})
@@ -524,12 +523,12 @@ exports.currentBorrowedBooks = (req, res, next) => {
 exports.searchBooks = (req, res, next) => {
 	const permittedQueries = ['category', 'publisher', 'author', 'available', 'year'];
 	let findBy = {};
-	console.log(req.query);
+	// console.log(req.query);
 	Object.keys(req.query).forEach((key) => {
 		if (permittedQueries.includes(key.toLowerCase()) && req.query[key]) findBy[key.toLowerCase()] = req.query[key];
 	});
-	if(Object.keys(req.query).includes("available")){
-		findBy.available = findBy.available ? {$gte:1} : {$lt:1};
+	if (Object.keys(req.query).includes('available')) {
+		findBy.available = findBy.available ? { $gte: 1 } : { $lt: 1 };
 	}
 	if (Number(findBy.year)) {
 		// must be string or it will call timestamp constructor
@@ -540,8 +539,8 @@ exports.searchBooks = (req, res, next) => {
 		};
 		delete findBy['year'];
 	}
-	console.log(findBy);
-	if(!Object.keys(findBy).length) throw new Error("Nothing to search for.")
+	// console.log(findBy);
+	if (!Object.keys(findBy).length) throw new Error('Nothing to search for.');
 	BookSchema.find(findBy)
 		.then((data) => {
 			res.status(200).json({ data });

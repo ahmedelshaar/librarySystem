@@ -6,8 +6,6 @@ const cors = require('cors');
 const logger = require('morgan');
 const api = require('./API/api');
 
-
-
 require('./services/folderValidations');
 
 const authenticator = require('./middlewares/authenticationMw');

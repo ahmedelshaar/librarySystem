@@ -27,7 +27,7 @@ exports.getAllAdmins = (req, res, next) => {
 
 // Get Admin by id
 exports.getAdminById = (req, res, next) => {
-	if ((req.role == 'admin' && req.params.id == req.id) || req.role == 'super-admin') {
+	if ((req.role == 'admin' && req.params.id == req.id) || req.role == 'super-admin' || req.role == 'root') {
 		managersSchema
 			.findOne({ _id: req.params.id, role: 'admin' }, { password: 0 })
 			.then((data) => {
@@ -141,7 +141,7 @@ exports.deleteAdmin = (req, res, next) => {
 				if (data.image && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
 					req.delete_image = path.join(__dirname, '..', 'images', `${data.image}`);
 				}
-				return managersSchema.deleteOne({ _id: req.body.id });
+				return managersSchema.deleteOne({ _id: req.params.id });
 			}
 		})
 		.then((data) => {
