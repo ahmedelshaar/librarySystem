@@ -36,9 +36,6 @@ const MemberSchema = mongoose.Schema(
 			type: Date,
 			trim: true,
 			required: false,
-			// Min & Max Date 
-			min: new Date(1950, 0, 1),
-			max: new Date(2010, 11, 31),
 		},
 		address: { type: AddressSchema, required: false },
 		last_login: {

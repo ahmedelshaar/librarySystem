@@ -6,9 +6,8 @@ const cors = require('cors');
 const logger = require('morgan');
 
 // swagger Docs
-const swaggerJSDoc = require("swagger-jsdoc");
-const swaggerUI = require("swagger-ui-express");
-
+const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerUI = require('swagger-ui-express');
 
 require('./services/folderValidations');
 
@@ -42,24 +41,23 @@ app.use(express.urlencoded({ extended: false, limit: '2mb' }));
 
 const options = {
 	definition: {
-		openapi: "3.0.0",
+		openapi: '3.0.0',
 		info: {
-			title: "Library API",
-			version: "1.0.0",
-			description: "A simple Express Library API",
+			title: 'Library API',
+			version: '1.0.0',
+			description: 'A simple Express Library API',
 		},
 		servers: [
 			{
-				url: "http://localhost:"+process.env.PORT,
+				url: 'http://localhost:' + process.env.PORT,
 			},
 		],
 	},
-	apis: ["./routes/*.js"],
+	apis: ['./routes/*.js'],
 };
 
 const specs = swaggerJSDoc(options);
-app.use("/api", swaggerUI.serve, swaggerUI.setup(specs));
-
+app.use('/api', swaggerUI.serve, swaggerUI.setup(specs));
 
 //login
 

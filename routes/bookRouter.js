@@ -14,7 +14,7 @@ router.route('/categories').get((req, res, next) => {
 });
 // reports
 
-router.route("/reports").get(bookValidations.dayValidator, validator,isAdmin,bookController.log); // categories for Book Schema
+router.route('/reports').get(bookValidations.dayValidator, validator, isAdmin, bookController.log); // categories for Book Schema
 
 const log = (req, res, next) => {
 	console.log('query', req.query);
@@ -22,7 +22,6 @@ const log = (req, res, next) => {
 	console.log('params', req.params);
 	next();
 };
-
 
 router
 	.route('/books')
@@ -86,7 +85,7 @@ router.route('/books/search').all(isMember).get(bookController.searchBooks);
 router
 	.route('/books/search')
 	.all(isMember)
-	.get(bookValidations.searchBookValidator,validator, bookController.searchBooks);
+	.get(bookValidations.searchBookValidator, validator, bookController.searchBooks);
 
 // c- List of borrowed books in current month , this page will have capability of showing borrowed books filtered by month and year
 router.route('/books/history/borrowed').all(isMemberOnly).get(bookController.memberBorrowedBooks);

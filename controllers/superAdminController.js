@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const moment = require('moment');
 require('../models/managersModel');
 const managersSchema = mongoose.model('managers');
 const path = require('path');
 const fs = require('fs');
-const mailer = require("../services/sendMails");
+const mailer = require('../services/sendMails');
 const generator = require('generate-password');
+const maxBirthDate = moment(new Date('1995-01-01 00:00:00'));
 
 // bcrybt
 const saltRounds = 10;
@@ -42,8 +44,11 @@ exports.getSuperAdminById = (req, res, next) => {
 exports.addSuperAdmin = (req, res, next) => {
 	let password = generator.generate({
 		length: 10,
-		numbers: true
+		numbers: true,
 	});
+	if (req.body.hireDate > moment().add(1, 'day')) {
+		throw new Error('Hire Date Cannot Be After Today');
+	}
 	const newAdmin = new managersSchema({
 		firstName: req.body.firstName,
 		lastName: req.body.lastName,
@@ -56,9 +61,9 @@ exports.addSuperAdmin = (req, res, next) => {
 	newAdmin
 		.save()
 		.then((data) => {
-			data.password=""; 
+			data.password = '';
 			// console.log(data);
-			mailer(req.body.email,`Super ${req.body.firstName} ${req.body.lastName}`,password)
+			mailer(req.body.email, `Super ${req.body.firstName} ${req.body.lastName}`, password);
 			res.status(201).json({ data });
 		})
 		.catch((err) => {
@@ -81,6 +86,9 @@ exports.updateSuperAdmin = (req, res, next) => {
 				if (req.file && data.image && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
 					req.delete_image = path.join(__dirname, '..', 'images', `${data.image}`);
 					// fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
+				}
+				if (req.body.birthDate && moment(req.body.birthDate).isAfter(maxBirthDate)) {
+					throw new Error(`Birth Year Cannot Be After ${maxBirthDate}`);
 				}
 				//Case root ??
 				// sper admin can only update his data and can't update his salary and email
@@ -118,6 +126,7 @@ exports.updateSuperAdmin = (req, res, next) => {
 		.catch((err) => next(err));
 };
 
+// Delete Super Admin
 exports.deleteSuperAdmin = (req, res, next) => {
 	// managersSchema
 	// .find({ role: 'super-admin' })

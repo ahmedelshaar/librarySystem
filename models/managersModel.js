@@ -27,15 +27,15 @@ const managersSchema = mongoose.Schema(
 			type: Date,
 			required: false,
 			// Min & Max Date
-			min: new Date(1950, 0, 1),
-			max: new Date(2010, 11, 31),
+			// min: new Date(1950, 0, 1),
+			// max: new Date(2010, 11, 31),
 		},
 		hireDate: {
 			type: Date,
 			required: [true, 'you need to enter a hire date'],
 			immutable: true,
 			// Max Date is today's Date
-			max: new Date(Date.now()),
+			// max: new Date(Date.now()),
 		},
 		salary: {
 			type: Number,

@@ -4,7 +4,7 @@
   "description": " sample library management System",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app",
+    "start": "npm i",
     "test": "jest --detectOpenHandles"
   },
   "repository": {
