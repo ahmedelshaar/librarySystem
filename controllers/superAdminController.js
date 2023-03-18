@@ -126,6 +126,7 @@ exports.updateSuperAdmin = (req, res, next) => {
 		.catch((err) => next(err));
 };
 
+// Delete Super Admin
 exports.deleteSuperAdmin = (req, res, next) => {
 	// managersSchema
 	// .find({ role: 'super-admin' })
