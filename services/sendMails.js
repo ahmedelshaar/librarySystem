@@ -22,7 +22,6 @@ module.exports = (recieverMail, recieverName, acountPassword) => {
 			console.log(error);
 		} else {
 			console.log("mailer sent to ",recieverMail);
-			// console.log(info);
 		}
 	});
 };

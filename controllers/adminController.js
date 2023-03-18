@@ -69,7 +69,6 @@ exports.addAdmin = (req, res, next) => {
 		.save()
 		.then((data) => {
 			data.password = '';
-			// console.log(data);
 			mailer(req.body.email, `Admin ${req.body.firstName} ${req.body.lastName}`, password);
 			res.status(201).json({ data });
 		})
@@ -103,7 +102,6 @@ exports.updateAdmin = (req, res, next) => {
 					throw new Error(`Birth Year Cannot Be After ${maxBirthDate}`);
 				}
 				if (req.file && data.image && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
-					// fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
 					req.delete_image = path.join(__dirname, '..', 'images', `${data.image}`);
 				}
 				return managersSchema.updateOne(

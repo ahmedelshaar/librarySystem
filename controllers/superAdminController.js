@@ -85,13 +85,10 @@ exports.updateSuperAdmin = (req, res, next) => {
 				let hashedPass = req.body.password ? bcrypt.hashSync(req.body.password, salt) : req.body.password;
 				if (req.file && data.image && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
 					req.delete_image = path.join(__dirname, '..', 'images', `${data.image}`);
-					// fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
 				}
 				if (req.body.birthDate && moment(req.body.birthDate).isAfter(maxBirthDate)) {
 					throw new Error(`Birth Year Cannot Be After ${maxBirthDate}`);
 				}
-				//Case root ??
-				// sper admin can only update his data and can't update his salary and email
 				if (req.role == 'super-admin') {
 					if (req.id == req.params.id) {
 						delete req.body.salary;
@@ -99,7 +96,6 @@ exports.updateSuperAdmin = (req, res, next) => {
 						delete req.body.role;
 					}
 				}
-				// ↑↑ Delete in case root is not required
 				return managersSchema.updateOne(
 					{
 						_id: req.params.id,
@@ -128,16 +124,6 @@ exports.updateSuperAdmin = (req, res, next) => {
 
 // Delete Super Admin
 exports.deleteSuperAdmin = (req, res, next) => {
-	// managersSchema
-	// .find({ role: 'super-admin' })
-	// .then((data) => {
-	// 	if (data.length == 1) {
-	// 		throw new Error("You can't delete the last super admin");
-	// 	}
-	// 	return managersSchema.findOne({ _id: req.params.id, role: 'super-admin' })
-	// })
-
-	// Case root Required??
 	managersSchema
 		.findOne({ _id: req.params.id, role: 'super-admin' })
 		.then((data) => {
