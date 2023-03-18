@@ -156,11 +156,12 @@ exports.deleteMember = (req, res, next) => {
 			} else {
 				// status;
 				if (fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
-					fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
+					req.delete_image = path.join(__dirname, '..', 'images', `${data.image}`);
 				}
 
 				return MemberSchema.deleteOne({ _id: req.params.id }).then((data) => {
 					res.status(200).json({ data: 'Deleted' });
+					if (req.delete_image) fs.unlinkSync(req.delete_image);
 				});
 			}
 		})
