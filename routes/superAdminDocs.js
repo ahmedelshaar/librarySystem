@@ -106,13 +106,53 @@
  *     responses:
  *       200:
  *         description: A super admin object
- *         schema:
- *           $ref: '#/definitions/SuperAdmin'
- *       404:
- *         description: Super admin not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: integer
+ *                   description: The ID of the super admin.
+ *                 firstName:
+ *                   type: string
+ *                   description: The first name of the super admin.
+ *                 lastName:
+ *                    type: string
+ *                    description: The last name of the super admin.
+ *                 email:
+ *                   type: string
+ *                   description: The email address of the member.
+ *                 birthDate:
+ *                   type: string
+ *                   format: date-time
+ *                   description: The birth date of the super admin.
+ *                 hireDate:
+ *                    type: string
+ *                    format: date-time
+ *                    description: the super admin hire date
+ *                 role:
+ *                   type: string
+ *                 image:
+ *                   type: string
+ *                   description: the super admin image
+ *                 salary:
+ *                    type: number
+ *                    description: the super admin salary
+ *       400:
+ *         description: Bad request
+ *       '401':
+ *         description: Unauthorized
+ *       '403':
+ *         description: Forbidden
+ *       '404':
+ *         description: not found
+ *       '500':
+ *         description: Internal server error
  *     security:
  *       - bearerAuth: []
  */
+z
 /**
  * @swagger
  *
@@ -133,11 +173,44 @@
  *     responses:
  *       201:
  *         description: The newly created super admin object
- *         schema:
- *           $ref: '#/definitions/SuperAdmin'
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 firstName:
+ *                   type: string
+ *                   description: The first name of the super admin.
+ *                 lastName:
+ *                    type: string
+ *                    description: The last name of the super admin.
+ *                 email:
+ *                   type: string
+ *                   description: The email address of the member.
+ *                 birthDate:
+ *                   type: string
+ *                   format: date-time
+ *                   description: The birth date of the super admin.
+ *                 hireDate:
+ *                    type: string
+ *                    format: date-time
+ *                    description: the super admin hire date
+ *                 role:
+ *                   type: string
+ *                 salary:
+ *                    type: number
+ *                    description: the super admin salary
  *       400:
  *         description: Bad request
- * 
+ *       '401':
+ *         description: Unauthorized
+ *       '403':
+ *         description: Forbidden
+ *       '404':
+ *         description: not found
+ *       '500':
+ *         description: Internal server error
+ *
  *     security:
  *       - bearerAuth: []
  */
@@ -205,9 +278,28 @@
  *             schema:
  *               type: object
  *               properties:
- *                 data:
- *                   type: object
- *                   description: The updated Super Admin object
+ *                 firstName:
+ *                   type: string
+ *                   description: The first name of the super admin.
+ *                 lastName:
+ *                    type: string
+ *                    description: The last name of the super admin.
+ *                 email:
+ *                   type: string
+ *                   description: The email address of the member.
+ *                 birthDate:
+ *                   type: string
+ *                   format: date-time
+ *                   description: The birth date of the super admin.
+ *                 image:
+ *                   type: string
+ *                   description: Super Admin Image
+ *                 role:
+ *                   type: string
+ *                   enum: ["super-admin","admin","employee"]
+ *                 salary:
+ *                    type: number
+ *                    description: the super admin salary
  *       '400':
  *         description: Bad request
  *       '401':
@@ -215,7 +307,7 @@
  *       '403':
  *         description: Forbidden
  *       '404':
- *         description: Super Admin not found
+ *         description: not found
  *       '500':
  *         description: Internal server error
  */
@@ -243,8 +335,14 @@
  *                   type: string
  *                   description: Message indicating that the Super Admin has been deleted successfully.
  *                   example: Deleted
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
- *       500:
- *         $ref: '#/components/responses/InternalServerError'
+ *       400:
+ *         description: Bad request
+ *       '401':
+ *         description: Unauthorized
+ *       '403':
+ *         description: Forbidden
+ *       '404':
+ *         description: not found
+ *       '500':
+ *         description: Internal server error
  */
