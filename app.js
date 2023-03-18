@@ -4,10 +4,9 @@ const mongoose = require('mongoose');
 require('dotenv').config({ path: './.env' });
 const cors = require('cors');
 const logger = require('morgan');
+const api = require('./api');
 
-// swagger Docs
-const swaggerJSDoc = require('swagger-jsdoc');
-const swaggerUI = require('swagger-ui-express');
+
 
 require('./services/folderValidations');
 
@@ -39,25 +38,8 @@ app.use(logger('dev'));
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: false, limit: '2mb' }));
 
-const options = {
-	definition: {
-		openapi: '3.0.0',
-		info: {
-			title: 'Library API',
-			version: '1.0.0',
-			description: 'A simple Express Library API',
-		},
-		servers: [
-			{
-				url: 'http://localhost:' + process.env.PORT,
-			},
-		],
-	},
-	apis: ['./routes/*.js'],
-};
-
-const specs = swaggerJSDoc(options);
-app.use('/api', swaggerUI.serve, swaggerUI.setup(specs));
+// SWAGGER API
+app.use(api);
 
 //login
 
