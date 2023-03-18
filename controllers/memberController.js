@@ -82,7 +82,6 @@ exports.addMember = (req, res, next) => {
 		.save()
 		.then((data) => {
 			data.password = '';
-			// console.log(data);
 			mailer(req.body.email, `Member ${req.body.full_name}`, password);
 			res.status(201).json({ success: true, data: data });
 		})
