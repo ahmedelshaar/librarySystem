@@ -1225,6 +1225,7 @@
  * /books/currentborrow:
  *   get:
  *     summary: Returns all currently borrowed books by a specific member.
+ *     tags: [Books For member Only]
  *     description: Returns all books that are currently marked as "borrowed" with the member's ID and book details.
  *     parameters:
  *       - in: header
