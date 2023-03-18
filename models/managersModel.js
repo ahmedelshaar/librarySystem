@@ -42,7 +42,7 @@ const managersSchema = mongoose.Schema(
 		},
 		role: {
 			type: String,
-			enum: ['super-admin', 'admin', 'employee'],
+			enum: ['root', 'super-admin', 'admin', 'employee'],
 			required: [true, 'You need to enter role'],
 		},
 		token: {
@@ -52,6 +52,11 @@ const managersSchema = mongoose.Schema(
 		lastLoginTime: {
 			type: Date,
 			required: false,
+		},
+		activated: {
+			type: Boolean,
+			required: false,
+			default: false,
 		},
 	},
 	{ timestamps: true }

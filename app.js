@@ -1,9 +1,13 @@
+const fs = require('fs');
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config({ path: './.env' });
 const cors = require('cors');
 const logger = require('morgan');
-const fs = require('fs');
+const api = require('./api');
+
+
+
 require('./services/folderValidations');
 
 const authenticator = require('./middlewares/authenticationMw');
@@ -15,7 +19,7 @@ const adminRouter = require('./routes/adminRouter');
 const employeeRouter = require('./routes/employeeRouter');
 const bookRouter = require('./routes/bookRouter');
 const memberRouter = require('./routes/memberRouter');
-const sender = require('./services/sender');
+// require('./services/sender');
 
 const app = express();
 // ========= server =========
@@ -25,18 +29,20 @@ mongoose
 	.then(() => {
 		console.log('DB connected');
 		app.listen(process.env.PORT || 8080, () => console.log(`listening on http://localhost:${process.env.PORT}`));
-		sender();
 	})
 	.catch((error) => console.log(`DB connection error ${error}`));
 
 //============server=========
 app.use(cors());
 app.use(logger('dev'));
-
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: false, limit: '2mb' }));
 
+// SWAGGER API
+app.use(api);
+
 //login
+
 app.use(LoginRoute);
 app.use(authenticator); // authentication layer
 //routing

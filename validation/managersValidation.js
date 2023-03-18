@@ -1,7 +1,7 @@
 const { body, param } = require('express-validator');
 
 exports.validateGetById = [param('id').isInt().withMessage('Id should be Number').toInt()];
-const roles = ['super-admin','admin','employee'] ;
+const roles = ['super-admin', 'admin', 'employee'];
 
 exports.validateAddManagers = [
 	body('firstName')
@@ -17,11 +17,11 @@ exports.validateAddManagers = [
 		.withMessage('first name min Length must 3 or more')
 		.trim(),
 	body('email').isEmail().withMessage(' Must be a valid email').normalizeEmail(),
-	body('password')
-		.isLength({ min: 8 })
-		.withMessage(' Must be at least 8 characters long')
-		.matches(/\d/)
-		.withMessage('must contain a number'),
+	// body('password')
+	// 	.isLength({ min: 8 })
+	// 	.withMessage(' Must be at least 8 characters long')
+	// 	.matches(/\d/)
+	// 	.withMessage('must contain a number'),
 	body('hireDate').isDate().withMessage(' Must be a valid date').toDate(),
 	body('salary').isInt({ min: 0 }).withMessage(' Must be an Integer'),
 ];
@@ -51,7 +51,7 @@ exports.validateUpdateManagers = [
 		.withMessage('must contain a number'),
 	body('birthDate').optional().isDate().withMessage(' Must be a valid date').toDate(),
 	body('salary').optional().isInt({ min: 0 }).withMessage(' Must be an Integer').toInt(),
-	body('role').optional().isIn(roles).withMessage(`role mu be in ${roles}`)
+	body('role').optional().isIn(roles).withMessage(`role mu be in ${roles}`),
 ];
 
 exports.validateSearchEmployee = [

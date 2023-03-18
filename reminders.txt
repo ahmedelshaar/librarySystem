@@ -1,3 +1,6 @@
+// #DONE handle validation on searchBooks Route.
+// #DONE handle update of available books.
+
 // #Done check book data if bigger than now
 // expected data not more than 30day
 // #DONE complete is ban check in borrow middleware and return borrow 
@@ -12,10 +15,19 @@
 // router.route("/books/mostreading/:year").get(bookController.getNewBooks);
 
 
+
 // Handle activation field in members Schema (Done😁).
-// handle getMemberById Route (Done😁).
+// handle getMemberById Route (Done😁). 
 // handle in update member email if role is member reject any other role is ok (Done😁).
 // handle Member Auto Complete (Done😁)
 
+// handle activation column on Manager route (Done😁)
+// handled newpassword not to be as the old one in  firstLogin (Done😁)
+// handle image on delete admin. (Done😁)
+// Handle Birth date to be before 2008 (Done😁)
+// handle BirthDate & hireDate (Done😁)
 
-
+// handle get emp by id auth (Done😁 ??)
+// handle update admin auth (Done😁 ??)
+// handle hire date to be less than toDay. (Done😁)
+// handle super-admin delete with root.

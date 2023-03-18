@@ -11,23 +11,31 @@ const BookSchema = mongoose.model('books');
 const LogSchema = mongoose.model('logs');
 const MemberSchema = mongoose.model('members');
 
+
 // Get All Logs for today
 exports.log = (req, res, next) => {
 	// LogSchema.find()
-	LogSchema.find({ date: { $gte: moment().startOf('day').toDate(), $lte: moment().endOf('day').toDate() } })
-	.populate('member emp book', 'full_name title firstName lastName')
+	// console.log({ createdAt: { $gte: moment().startOf('day').toDate(), $lte: moment().endOf('day').toDate() } })
+	let day = req.query.day;
+	// console.log(day,moment(day).startOf('day').toDate());
+	// console.log({ createdAt: { $gte: moment(day).startOf('day').toDate(), $lte: moment(day).endOf('day').toDate() } })
+	LogSchema.find({ createdAt: { $gte: moment(day).startOf('day').toDate(), $lte: moment(day).endOf('day').toDate() } })
+		.populate('member emp book', 'full_name title firstName lastName')
 		.then((data) => {
 			res.status(200).json({ data });
-			fs.writeFile(path.join(__dirname, '..', 'logs',`log-${moment().format('YYYY-MM-DD')}.json`), JSON.stringify(data), (err) => {
-				if (err) console.log(err);
-				else console.log('The file has been saved!');
-			});
+			fs.writeFile(
+				path.join(__dirname, '..', 'logs', `log-${moment().format('YYYY-MM-DD')}.json`),
+				JSON.stringify(data),
+				(err) => {
+					if (err) console.log(err);
+					else console.log('The file has been saved!');
+				}
+			);
 		})
 		.catch((error) => {
 			next(error);
 		});
 };
-
 
 // Fetch all Books
 exports.getAllBooks = (req, res, next) => {
@@ -116,7 +124,7 @@ exports.updateBook = (req, res, next) => {
 					edition: req.body.edition,
 					noOfCopies: req.body.noOfCopies,
 					shelfNo: req.body.shelfNo,
-					available: req.body.available,
+					// available: req.body.available,
 				}
 			);
 		})
@@ -192,7 +200,7 @@ exports.getLateBooks = (req, res, next) => {
 	// let today = new Date("2025-01-01").toISOString().split("T")[0]
 	LogSchema.find(
 		{ status: 'borrow', returned_date: '', expected_date: { $lt: today } },
-		{ __v: 0,_id: 0, createdAt: 0, updatedAt: 0 }
+		{ __v: 0, _id: 0, createdAt: 0, updatedAt: 0 }
 	)
 		// .populate({path:"member",select:{full_name:1}})
 		.populate('member emp book', 'full_name title firstName lastName')
@@ -207,14 +215,15 @@ exports.getLateBooks = (req, res, next) => {
 exports.getNewBooks = (req, res, next) => {
 	// let OneMonthAgo = new Date(new Date().setMonth(new Date().getMonth() - 1));
 	// let OneMonthAgo = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0];
-	let OneMonthAgo = moment().subtract(1,"month").toISOString();
+	let OneMonthAgo = moment().subtract(1, 'month').toISOString();
 	// bigger of [last login || 30 days ago] for member
 	if (
-		req.role && req.role == "member" 
-		&& Number(req.lastLogin) 
-		&& Number(req.lastLogin) < new Date(OneMonthAgo).getTime()
-		)
-			OneMonthAgo = req.lastLogin;
+		req.role &&
+		req.role == 'member' &&
+		Number(req.lastLogin) &&
+		Number(req.lastLogin) < new Date(OneMonthAgo).getTime()
+	)
+		OneMonthAgo = req.lastLogin;
 	BookSchema.find({ createdAt: { $gte: OneMonthAgo } }, { __v: 0, createdAt: 0, updatedAt: 0 })
 		.then((data) => {
 			res.status(200).json({ data });
@@ -329,20 +338,27 @@ exports.returnBorrowedBook = (req, res, next) => {
 				book: book_id,
 				status: 'borrow',
 				returned_date: '', // No return Date yet
-			})
+			});
 		})
-		.then((data)=>{
+		.then((data) => {
 			if (!data) throw new Error('no books currenty borrowed to this member');
 			// console.log(data)
 			const expected_date = moment(data.expected_date);
 			// console.log(expected_date)
 			if (expected_date.isValid() && expected_date.isBefore(moment())) {
-				console.log("baned until ",moment().add(7,'d').format('YYYY-MM-DD'),expected_date.format('YYYY-MM-DD'));
-				return MemberSchema.updateOne({_id:member_id},{ban_date:moment().add(7,'d').format('YYYY-MM-DD')})
+				console.log(
+					'baned until ',
+					moment().add(7, 'd').format('YYYY-MM-DD'),
+					expected_date.format('YYYY-MM-DD')
+				);
+				return MemberSchema.updateOne(
+					{ _id: member_id },
+					{ ban_date: moment().add(7, 'd').format('YYYY-MM-DD') }
+				);
 			}
 			return true;
 		})
-		.then((data)=>{
+		.then((data) => {
 			return LogSchema.updateMany(
 				{
 					member: member_id,
@@ -490,14 +506,14 @@ exports.currentBorrowedBooks = (req, res, next) => {
 				_id: 0,
 				status: 1,
 				createdAt: 1,
-        		expected_date:1,
+				expected_date: 1,
 				book_details: { _id: 1, title: 1 },
 				member_details: { _id: 1, full_name: 1 },
 				employee_details: { _id: 1, firstName: 1 },
 				returned_date: 1,
 				isLAte: {
 					$cond: {
-						if: { $gt: ['$expected_date', "$returned_date"] },
+						if: { $gt: ['$expected_date', '$returned_date'] },
 						then: false,
 						else: true,
 					},
@@ -507,10 +523,10 @@ exports.currentBorrowedBooks = (req, res, next) => {
 		{
 			$group: {
 				_id: '$book_details.title',
-        		number_of_borrowed:{$sum:1},
+				number_of_borrowed: { $sum: 1 },
 				book_details: { $push: '$$ROOT' },
 			},
-		}
+		},
 	])
 		.then((data) => {
 			res.json({ data });
@@ -520,76 +536,75 @@ exports.currentBorrowedBooks = (req, res, next) => {
 		});
 };
 
-exports.searchBooks = (req,res,next)=>{
-  const permittedQueries = ["category","publisher","author","available","year"];
-  let findBy = {};
-//   console.log(req.query);
-  Object.keys(req.query).forEach(key => {
-    if (permittedQueries.includes(key) && req.query[key])
-      findBy[key] = req.query[key];
-  });
-  
-  if (Number(findBy.year)){
-	// must be string or it will call timestamp constructor
-    let year = moment(String(findBy.year)) 
-	// console.log(findBy.year,year);
-    findBy.publishingDate = {
-    //   $lt:new Date(new Date(`${Number(findBy.year)+1}-01-01`)).toISOString().split("T")[0],
-    //   $gte:new Date(new Date(`${findBy.year}-01-01`)).toISOString().split("T")[0]
-		$gte:year.toISOString(),	
-		$lt:year.add(1,"year").toISOString(),
-		
-    }
-	// console.log(findBy.publishingDate)
-    delete findBy['year'];
-  }
-//   console.log(findBy);
-  BookSchema.find(findBy).then(data=>{
-    res.status(200).json({data});
-  })
-  .catch(error=>{
-      next(error);
-  })  
+exports.searchBooks = (req, res, next) => {
+	const permittedQueries = ['category', 'publisher', 'author', 'available', 'year'];
+	let findBy = {};
+	console.log(req.query);
+	Object.keys(req.query).forEach((key) => {
+		if (permittedQueries.includes(key.toLowerCase()) && req.query[key]) findBy[key.toLowerCase()] = req.query[key];
+	});
+	if(Object.keys(req.query).includes("available")){
+		findBy.available = findBy.available ? {$gte:1} : {$lt:1};
+	}
+	if (Number(findBy.year)) {
+		// must be string or it will call timestamp constructor
+		let year = moment(String(findBy.year));
+		// console.log(findBy.year,year);
+		findBy.publishingDate = {
+			//   $lt:new Date(new Date(`${Number(findBy.year)+1}-01-01`)).toISOString().split("T")[0],
+			//   $gte:new Date(new Date(`${findBy.year}-01-01`)).toISOString().split("T")[0]
+			$gte: year.toISOString(),
+			$lt: year.add(1, 'year').toISOString(),
+		};
+		// console.log(findBy.publishingDate)
+		delete findBy['year'];
+	}
+	console.log(findBy);
+	if(!Object.keys(findBy).length) throw new Error("Nothing to search for.")
+	BookSchema.find(findBy)
+		.then((data) => {
+			res.status(200).json({ data });
+		})
+		.catch((error) => {
+			next(error);
+		});
 };
 
-
-
-exports.mostBorrowedBooks = (req,res,next)=>{
+exports.mostBorrowedBooks = (req, res, next) => {
 	let condition = {
 		status: 'borrow',
-	}
+	};
 	// If /mostborrowed/:year
-	if (req.params && Number(req.params.year)){
+	if (req.params && Number(req.params.year)) {
 		// must be string or it will call timestamp constructor
-		let year = moment(String(req.params.year)) 
+		let year = moment(String(req.params.year));
 		condition.createdAt = {
 			// $lt:new Date(new Date(new Date(`${Number(req.params.year)+1}-01-01`)).toISOString().split("T")[0]),
 			// $gte:new Date(new Date(new Date(`${req.params.year}-01-01`)).toISOString().split("T")[0])
-		  	//  $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)),
-		 	//  $gte:new Date(new Date(`${Number(req.params.year)}-01-01`)),
-			  $gte:year.toDate(),	
-			  $lt:year.add(1,"year").toDate(),
-		  
-		}
-	  }
+			//  $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)),
+			//  $gte:new Date(new Date(`${Number(req.params.year)}-01-01`)),
+			$gte: year.toDate(),
+			$lt: year.add(1, 'year').toDate(),
+		};
+	}
 	// console.log(condition);
 	LogSchema.aggregate([
 		{
-			$match: condition
+			$match: condition,
 		},
 		{
 			$group: {
 				_id: '$book',
-				count:{$sum:1},
+				count: { $sum: 1 },
 			},
 		},
 		{
-			$limit:10
+			$sort: {
+				count: -1,
+			},
 		},
 		{
-			$sort:{
-				count:-1
-			}
+			$limit: 10,
 		},
 		{
 			$lookup: {
@@ -601,53 +616,54 @@ exports.mostBorrowedBooks = (req,res,next)=>{
 		},
 		{
 			$project: {
-				_id:1,
-				count:1,
-				book: { title: 1,category:1 ,author:1,publisher:1,publishingDate:1,edition:1},
-			}
-		}
-	]).then(data=>{
-		res.status(200).json({data});
-	})
-	.catch(error=>{
-		next(error);
-	})	
+				_id: 1,
+				count: 1,
+				book: { title: 1, category: 1, author: 1, publisher: 1, publishingDate: 1, edition: 1 },
+			},
+		},
+	])
+		.then((data) => {
+			res.status(200).json({ data });
+		})
+		.catch((error) => {
+			next(error);
+		});
 };
 
-exports.mostReadingBooks = (req,res,next)=>{
+exports.mostReadingBooks = (req, res, next) => {
 	let condition = {
 		status: 'read',
-	}
-	if (req.params && Number(req.params.year)){
-    	// must be string or it will call timestamp constructor
-		let year = moment(String(req.params.year)) 
+	};
+	if (req.params && Number(req.params.year)) {
+		// must be string or it will call timestamp constructor
+		let year = moment(String(req.params.year));
 		condition.createdAt = {
-		//   $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)).toISOString().split("T")[0],
-		//   $gte:new Date(new Date(`${req.params.year}-01-01`)).toISOString().split("T")[0]
-		 	//  $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)),
-		 	//  $gte:new Date(new Date(`${Number(req.params.year)}-01-01`)),
-			  $gte:year.toDate(),	
-			  $lt:year.add(1,"year").toDate(),
-		}
-	  }
+			//   $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)).toISOString().split("T")[0],
+			//   $gte:new Date(new Date(`${req.params.year}-01-01`)).toISOString().split("T")[0]
+			//  $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)),
+			//  $gte:new Date(new Date(`${Number(req.params.year)}-01-01`)),
+			$gte: year.toDate(),
+			$lt: year.add(1, 'year').toDate(),
+		};
+	}
 	// console.log(condition);
 	LogSchema.aggregate([
 		{
-			$match: condition
+			$match: condition,
 		},
 		{
 			$group: {
 				_id: '$book',
-				count:{$sum:1},
+				count: { $sum: 1 },
 			},
 		},
 		{
-			$limit:10
+			$sort: {
+				count: -1,
+			},
 		},
 		{
-			$sort:{
-				count:-1
-			}
+			$limit: 10,
 		},
 		{
 			$lookup: {
@@ -659,59 +675,61 @@ exports.mostReadingBooks = (req,res,next)=>{
 		},
 		{
 			$project: {
-				_id:1,
-				count:1,
-				book: { title: 1,category:1 ,author:1,publisher:1,publishingDate:1,edition:1},
-			}
-		}
-	]).then(data=>{
-		res.status(200).json({data});
-	})
-	.catch(error=>{
-		next(error);
-	})	
+				_id: 1,
+				count: 1,
+				book: { title: 1, category: 1, author: 1, publisher: 1, publishingDate: 1, edition: 1 },
+			},
+		},
+	])
+		.then((data) => {
+			res.status(200).json({ data });
+		})
+		.catch((error) => {
+			next(error);
+		});
 };
 
 // need to add months filter thou
-exports.memberBorrowedBooks = (req,res,next)=>{
+exports.memberBorrowedBooks = (req, res, next) => {
 	let condition = {
 		status: 'borrow',
-		member:req.id||2,
-	}
+		member: req.id || 2,
+	};
 	// if month and year exists
-	if (req.params && Number(req.params.year) && Number(req.params.month)){
-		// let date = moment(`${req.params.year}-${req.params.month}`) 
-		let date = moment().year(Number(req.params.year)).month(Number(req.params.month)-1) //month is zero based
+	if (req.params && Number(req.params.year) && Number(req.params.month)) {
+		// let date = moment(`${req.params.year}-${req.params.month}`)
+		let date = moment()
+			.year(Number(req.params.year))
+			.month(Number(req.params.month) - 1); //month is zero based
 		condition.createdAt = {
-			  $gte:date.startOf("month").toDate(),	
-			  $lt:date.add(1,"month").startOf("month").toDate(),
-		}
+			$gte: date.startOf('month').toDate(),
+			$lt: date.add(1, 'month').startOf('month').toDate(),
+		};
 	}
 	// if year exists
-	else if (req.params && Number(req.params.year)){
+	else if (req.params && Number(req.params.year)) {
 		// must be string or it will call timestamp constructor
-		let date = moment(String(req.params.year)) 
+		let date = moment(String(req.params.year));
 		condition.createdAt = {
-			$gte:date.toDate(),	
-			$lt:date.add(1,"year").toDate(),
-		}
-	}
-	else{
-		condition.createdAt= {
-			$gte:moment().startOf("month").toDate(),
-			$lt:moment().add(1,"month").startOf("month").toDate(),
-		}
+			$gte: date.toDate(),
+			$lt: date.add(1, 'year').toDate(),
+		};
+	} else {
+		condition.createdAt = {
+			$gte: moment().startOf('month').toDate(),
+			$lt: moment().add(1, 'month').startOf('month').toDate(),
+		};
 	}
 	console.log(condition);
 	LogSchema.aggregate([
 		{
-			$match:condition
+			$match: condition,
 		},
 		{
 			$group: {
 				_id: '$book',
-				count:{$sum:1},
-			}
+				count: { $sum: 1 },
+			},
 		},
 		{
 			$lookup: {
@@ -723,61 +741,61 @@ exports.memberBorrowedBooks = (req,res,next)=>{
 		},
 		{
 			$project: {
-				_id:1,
-				count:1,
-				book: { title: 1,category:1 ,author:1,publisher:1,publishingDate:1,edition:1},
-			}
-		}
-		
-	
-	]).then(data=>{
-		res.status(200).json({data});
-	})
-	.catch(error=>{
-		next(error);
-	})	
+				_id: 1,
+				count: 1,
+				book: { title: 1, category: 1, author: 1, publisher: 1, publishingDate: 1, edition: 1 },
+			},
+		},
+	])
+		.then((data) => {
+			res.status(200).json({ data });
+		})
+		.catch((error) => {
+			next(error);
+		});
 };
 
 // need to add months filter thou
-exports.memberReadingBooks = (req,res,next)=>{
+exports.memberReadingBooks = (req, res, next) => {
 	let condition = {
 		status: 'read',
-		member:req.id||2,
-	}
+		member: req.id || 2,
+	};
 	// if month and year exists
-	if (req.params && Number(req.params.year) && Number(req.params.month)){
-		// let date = moment(`${req.params.year}-${req.params.month}`) 
-		let date = moment().year(Number(req.params.year)).month(Number(req.params.month)-1) //month is zero based
+	if (req.params && Number(req.params.year) && Number(req.params.month)) {
+		// let date = moment(`${req.params.year}-${req.params.month}`)
+		let date = moment()
+			.year(Number(req.params.year))
+			.month(Number(req.params.month) - 1); //month is zero based
 		condition.createdAt = {
-			  $gte:date.startOf("month").toDate(),	
-			  $lt:date.add(1,"month").startOf("month").toDate(),
-		}
+			$gte: date.startOf('month').toDate(),
+			$lt: date.add(1, 'month').startOf('month').toDate(),
+		};
 	}
 	// if year exists
-	else if (req.params && Number(req.params.year)){
+	else if (req.params && Number(req.params.year)) {
 		// must be string or it will call timestamp constructor
-		let date = moment(String(req.params.year)) 
+		let date = moment(String(req.params.year));
 		condition.createdAt = {
-			$gte:date.toDate(),	
-			$lt:date.add(1,"year").toDate(),
-		}
-	}
-	else{
-		condition.createdAt= {
-			$gte:moment().startOf("month").toDate(),
-			$lt:moment().add(1,"month").startOf("month").toDate(),
-		}
+			$gte: date.toDate(),
+			$lt: date.add(1, 'year').toDate(),
+		};
+	} else {
+		condition.createdAt = {
+			$gte: moment().startOf('month').toDate(),
+			$lt: moment().add(1, 'month').startOf('month').toDate(),
+		};
 	}
 	console.log(condition);
 	LogSchema.aggregate([
 		{
-			$match:condition
+			$match: condition,
 		},
 		{
 			$group: {
 				_id: '$book',
-				count:{$sum:1},
-			}
+				count: { $sum: 1 },
+			},
 		},
 		{
 			$lookup: {
@@ -789,18 +807,16 @@ exports.memberReadingBooks = (req,res,next)=>{
 		},
 		{
 			$project: {
-				_id:1,
-				count:1,
-				book: { title: 1,category:1 ,author:1,publisher:1,publishingDate:1,edition:1},
-			}
-		}
-		
-	
-	]).then(data=>{
-		res.status(200).json({data});
-	})
-	.catch(error=>{
-		next(error);
-	})	
+				_id: 1,
+				count: 1,
+				book: { title: 1, category: 1, author: 1, publisher: 1, publishingDate: 1, edition: 1 },
+			},
+		},
+	])
+		.then((data) => {
+			res.status(200).json({ data });
+		})
+		.catch((error) => {
+			next(error);
+		});
 };
-
