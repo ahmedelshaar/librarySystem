@@ -52,6 +52,7 @@ router.route('/books/mostborrowed').get(isEmployee, bookController.mostBorrowedB
 router
 	.route('/books/mostborrowed/:year')
 	.get(isEmployee, bookValidations.paramYear, validator, bookController.mostBorrowedBooks);
+
 router.route('/books/mostreading').get(isEmployee, bookController.mostReadingBooks);
 router
 	.route('/books/mostreading/:year')
@@ -107,7 +108,7 @@ router
 	.route('/books/history/reading/:year/:month')
 	.all(isMemberOnly)
 	.get(bookValidations.paramYear, validator, bookController.memberReadingBooks);
-router.route('/books/history/reading').all(isMemberOnly).get(bookController.memberReadingBooks);
+
 
 router
 	.route('/books/:id')

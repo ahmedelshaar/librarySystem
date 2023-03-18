@@ -2,9 +2,62 @@
  * @swagger
  * components:
  *   schemas:
- *     Member2:
+ *     AddMember:
  *       type: object
  *       properties:
+ *         full_name:
+ *           type: string
+ *           description: The full name of the new member
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: The email address of the new member
+ *     NewMember:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: integer
+ *           description: The ID of the member.
+ *         full_name:
+ *           type: string
+ *           description: The full name of the new member
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: The email address of the new member
+ *         last_login:
+ *           type: string
+ *           format: date
+ *           description: The last login date of the member
+ *         ban_date:
+ *           type: string
+ *           format: date
+ *           description: Tha date which the member banned until
+ *         activated:
+ *           type: boolean
+ *           format: boolean
+ *           description: The Member Activation State
+ *         timestamps:
+ *           type: object
+ *           description: the TimeStamps of the member
+ *           properties:
+ *             created_at:
+ *               type: string
+ *               format: date-time
+ *               description: The Date which the member created At
+ *             updated_at:
+ *               type: string
+ *               format: date-time
+ *               description: The Date which the member Updated At
+ *       required:
+ *         - full_name
+ *         - email
+ *     MemberSearch:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: integer
+ *           description: The ID of the member.
  *         full_name:
  *           type: string
  *           description: The full name of the new member
@@ -15,6 +68,9 @@
  *     MemberUpdate:
  *       type: object
  *       properties:
+ *         _id:
+ *           type: integer
+ *           description: The ID of the member.
  *         full_name:
  *           type: string
  *           description: The full name of the new member
@@ -54,6 +110,9 @@
  *     Member:
  *       type: object
  *       properties:
+ *         _id:
+ *           type: integer
+ *           description: The ID of the member.
  *         full_name:
  *           type: string
  *           description: The full name of the new member
@@ -128,8 +187,18 @@
  *               error:
  *                 type: string
  *                 example: Page Not Found
+ *     '500':
+ *       description: Internal Server Error.
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               error:
+ *                 type: string
+ *                 example: Internal Server Error.
  */
-
+// Get All Members
 /**
  * @swagger
  *
@@ -156,9 +225,11 @@
  *                $ref: '#/components/responses/NotFound'
  *       404:
  *         $ref: '#/components/responses/404'
+ *       500:
+ *         $ref: '#/components/responses/500'
  *
  */
-
+// Get Member By ID
 /**
  * @swagger
  * /members/{id}:
@@ -187,64 +258,70 @@
  *                   description: The ID of the member.
  *                 full_name:
  *                   type: string
- *                   description: The full name of the member.
+ *                   description: The full name of the new member
  *                 email:
  *                   type: string
- *                   description: The email address of the member.
+ *                   format: email
+ *                   description: The email address of the new member
+ *                 password:
+ *                   type: string
+ *                   format: password
+ *                   description: The password of the new member
  *                 image:
  *                   type: string
- *                   description: The image URL of the member.
+ *                   description: The URL of an image for the new member
  *                 phone_number:
  *                   type: string
- *                   description: The phone number of the member.
+ *                   pattern: '^01[0125][0-9]{8}$'
+ *                   description: The phone number of the new member
  *                 birth_date:
  *                   type: string
- *                   format: date-time
- *                   description: The birth date of the member.
+ *                   format: date
+ *                   maximum: '2009-01-01'
+ *                   description: The birth date of the new member
  *                 address:
  *                   type: object
- *                   description: The address object of the member.
+ *                   description: The address of the new member
  *                   properties:
- *                     street:
- *                       type: string
- *                       description: The street address of the member.
  *                     city:
  *                       type: string
- *                       description: The city of the member's address.
- *                     state:
+ *                       description: The city name of the address
+ *                     street:
  *                       type: string
- *                       description: The state of the member's address.
- *                     country:
- *                       type: string
- *                       description: The country of the member's address.
- *                     zip:
- *                       type: string
- *                       description: The zip code of the member's address.
+ *                       description: The street of the address
+ *                     building:
+ *                       type: number
+ *                       description: building number of the address
  *                 last_login:
  *                   type: string
- *                   format: date-time
- *                   description: The last login time of the member.
+ *                   format: date
+ *                   description: The last login date of the member
  *                 ban_date:
  *                   type: string
- *                   format: date-time
- *                   description: The ban date of the member.
+ *                   format: date
+ *                   description: Tha date which the member banned until
  *                 activated:
  *                   type: boolean
- *                   description: Whether the member is activated or not.
+ *                   format: boolean
+ *                   description: The Member Activation State
+ *                 timestamps:
+ *                   type: object
+ *                   description: the TimeStamps of the member
+ *                   properties:
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                       description: The Date which the member created At
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *                       description: The Date which the member Updated At
  *       404:
  *         $ref: '#/components/responses/404'
  *       500:
- *         description: Internal server error.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: The error message.
+ *         $ref: '#/components/responses/500'
  */
-
+// Add New Member
 /**
  * @swagger
  * /members:
@@ -258,20 +335,20 @@
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/NewMember'
+ *             $ref: '#/components/schemas/AddMember'
  *     responses:
  *       201:
  *         description: Member created successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Member'
+ *               $ref: '#/components/schemas/NewMember'
  *       404:
  *         $ref: '#/components/responses/404'
  *       500:
- *         description: Internal server error
+ *         $ref: '#/components/responses/500'
  */
-
+// Updated Member By ID
 /**
  * @swagger
  *
@@ -288,39 +365,6 @@
  *         required: true
  *         schema:
  *           type: integer
- *       - in: body
- *         name: body
- *         description: The fields to update for the specified member.
- *         required: true
- *         schema:
- *           type: object
- *           properties:
- *             full_name:
- *               type: string
- *             email:
- *               type: string
- *             password:
- *               type: string
- *             image:
- *               type: string
- *             phone_number:
- *               type: string
- *             birth_date:
- *               type: string
- *               format: date
- *             address:
- *               type: object
- *               description: The address of the new member
- *               properties:
- *                 city:
- *                   type: string
- *                   description: The city name of the address
- *                 street:
- *                   type: string
- *                   description: The street of the address
- *                 building:
- *                   type: number
- *                   description: building number of the address
  *     requestBody:
  *       description: The fields to update for the specified member.
  *       required: true
@@ -339,8 +383,10 @@
  *         description: Invalid request body.
  *       404:
  *         $ref: '#/components/responses/404'
+ *       500:
+ *         $ref: '#/components/responses/500'
  */
-
+// Delete Member
 /**
  * @swagger
  * /members/{id}:
@@ -361,8 +407,10 @@
  *         description: Member deleted successfully
  *       404:
  *         $ref: '#/components/responses/404'
+ *       500:
+ *         $ref: '#/components/responses/500'
  */
-
+// Search For Memebr by [Name, Email]
 /**
  * @swagger
  * /members/search:
@@ -394,11 +442,13 @@
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Member2'
+ *                 $ref: '#/components/schemas/MemberSearch'
  *       404:
  *         $ref: '#/components/responses/404'
+ *       500:
+ *         $ref: '#/components/responses/500'
  */
-
+// Autocomplete For Memebr by [Name, Email]
 /**
  * @swagger
  * /members/autocomplete:
@@ -429,11 +479,11 @@
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Member2'
+ *                 $ref: '#/components/schemas/MemberSearch'
  *       400:
  *         $ref: '#/components/responses/BadRequest'
  *       500:
- *         $ref: '#/components/responses/InternalServerError'
+ *         $ref: '#/components/responses/500'
  *       404:
  *         $ref: '#/components/responses/404'
  */

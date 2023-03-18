@@ -20,7 +20,7 @@ const adminRouter = require('./routes/adminRouter');
 const employeeRouter = require('./routes/employeeRouter');
 const bookRouter = require('./routes/bookRouter');
 const memberRouter = require('./routes/memberRouter');
-require('./services/sender');
+// require('./services/sender');
 
 const app = express();
 // ========= server =========
