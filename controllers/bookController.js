@@ -11,16 +11,16 @@ const BookSchema = mongoose.model('books');
 const LogSchema = mongoose.model('logs');
 const MemberSchema = mongoose.model('members');
 
-
-// Get All Logs for today
+// Get All Logs for specifec day or today by default
 exports.log = (req, res, next) => {
-	// LogSchema.find()
-	// console.log({ createdAt: { $gte: moment().startOf('day').toDate(), $lte: moment().endOf('day').toDate() } })
 	let day = req.query.day;
-	// console.log(day,moment(day).startOf('day').toDate());
-	// console.log({ createdAt: { $gte: moment(day).startOf('day').toDate(), $lte: moment(day).endOf('day').toDate() } })
-	LogSchema.find({ createdAt: { $gte: moment(day).startOf('day').toDate(), $lte: moment(day).endOf('day').toDate() } })
-		.populate('member emp book', 'full_name title firstName lastName')
+	LogSchema.find({
+		createdAt: { $gte: moment(day).startOf('day').toDate(), $lte: moment(day).endOf('day').toDate() },
+	})
+		// .populate('member emp book', 'full_name title firstName lastName')
+		.populate('member', 'full_name')
+		.populate('emp', 'firstName lastName')
+		.populate('book', 'title')
 		.then((data) => {
 			res.status(200).json({ data });
 			fs.writeFile(
@@ -37,7 +37,6 @@ exports.log = (req, res, next) => {
 		});
 };
 
-// Fetch all Books
 exports.getAllBooks = (req, res, next) => {
 	BookSchema.find({})
 		.then((data) => {
@@ -48,9 +47,6 @@ exports.getAllBooks = (req, res, next) => {
 		});
 };
 
-//---------------- Single Book Requets
-
-// Get Book By ID
 exports.getBookByID = (req, res, next) => {
 	let id = req.params.id;
 	BookSchema.findOne({ _id: id })
@@ -62,7 +58,6 @@ exports.getBookByID = (req, res, next) => {
 		});
 };
 
-// Delete Book By ID
 exports.deleteBook = (req, res, next) => {
 	let id = req.params.id;
 	BookSchema.deleteOne({ _id: id })
@@ -74,9 +69,7 @@ exports.deleteBook = (req, res, next) => {
 		});
 };
 
-// Add new Book
 exports.addBook = (req, res, next) => {
-	// console.log(req.body);
 	BookSchema.create({
 		title: req.body.title,
 		author: req.body.author,
@@ -102,7 +95,6 @@ exports.updateBook = (req, res, next) => {
 	BookSchema.findOne({ _id: id })
 		.then((data) => {
 			if (!data) throw new Error('Not Valid Book ID');
-
 			// if editing noOfCopies
 			// changing availabe count
 			if (req.body.noOfCopies)
@@ -140,7 +132,6 @@ exports.updateBook = (req, res, next) => {
 };
 
 exports.getBooksByAuthor = (req, res, next) => {
-	// BookSchema.find({ author: req.params.name },{title:1,publisher:1,available:1,borrowedCopies:1,noOfCopies:1,author:1})
 	BookSchema.find({ author: req.params.name }, { __v: 0, createdAt: 0, updatedAt: 0 })
 		.then((data) => {
 			res.status(200).json({ data });
@@ -182,10 +173,8 @@ exports.getAvailableBooks = (req, res, next) => {
 
 exports.getBorrowingBooks = (req, res, next) => {
 	LogSchema.find({ status: 'borrow', returned_date: '' }, { __v: 0, createdAt: 0, updatedAt: 0 })
-		// .populate({path:"member",select:{full_name:1}})
 		.populate('member', 'full_name')
 		.populate('book', 'title')
-		// .populate({path:"managers",select:{firstName:1,lastName:1}})
 		.then((data) => {
 			res.status(200).json({ data });
 		})
@@ -196,14 +185,16 @@ exports.getBorrowingBooks = (req, res, next) => {
 
 exports.getLateBooks = (req, res, next) => {
 	let today = moment().toISOString();
-	// let today = new Date(Date.now()).toISOString().split('T')[0];
-	// let today = new Date("2025-01-01").toISOString().split("T")[0]
 	LogSchema.find(
 		{ status: 'borrow', returned_date: '', expected_date: { $lt: today } },
 		{ __v: 0, _id: 0, createdAt: 0, updatedAt: 0 }
 	)
 		// .populate({path:"member",select:{full_name:1}})
-		.populate('member emp book', 'full_name title firstName lastName')
+		// .populate('member emp book', 'full_name title firstName lastName')
+		.populate('book', 'title')
+		.populate('emp', 'firstName lastName')
+		.populate('member', 'full_name')
+
 		.then((data) => {
 			res.status(200).json({ data });
 		})
@@ -213,8 +204,6 @@ exports.getLateBooks = (req, res, next) => {
 };
 
 exports.getNewBooks = (req, res, next) => {
-	// let OneMonthAgo = new Date(new Date().setMonth(new Date().getMonth() - 1));
-	// let OneMonthAgo = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0];
 	let OneMonthAgo = moment().subtract(1, 'month').toISOString();
 	// bigger of [last login || 30 days ago] for member
 	if (
@@ -233,7 +222,6 @@ exports.getNewBooks = (req, res, next) => {
 		});
 };
 
-// to be improved
 exports.borrowBook = (req, res, next) => {
 	// Happy scenario
 	// 1 count reading books from log then add the rest to available if no return date until today
@@ -248,11 +236,11 @@ exports.borrowBook = (req, res, next) => {
 	let member_id = req.body.member_id;
 	let book_id = req.body.book_id;
 	let expectedDate = req.body.expectedDate;
-	// let today = new Date(Date.now()).toISOString().split('T')[0];
 	let today = moment().toISOString();
-	// Check for Late Book reading
+	// Check for Late Book reading before today
 	LogSchema.find({ book: book_id, status: 'read', returned_date: '', createdAt: { $lte: today } })
 		.then((data) => {
+			// return no data modified count zero
 			if (!data.length) return { modifiedCount: 0 };
 
 			return LogSchema.updateMany(
@@ -261,6 +249,7 @@ exports.borrowBook = (req, res, next) => {
 			);
 		})
 		.then((data) => {
+			// if no data modified count zero skips this step
 			if (!data.modifiedCount) return true;
 
 			return BookSchema.updateMany({ _id: book_id }, { $inc: { available: data.modifiedCount } });
@@ -268,16 +257,16 @@ exports.borrowBook = (req, res, next) => {
 		.then((data) => {
 			return MemberSchema.findOne({ _id: member_id }, { _id: 1 });
 		})
-		// MemberSchema.findOne({ _id: member_id }, { _id: 1 })
 		.then((data) => {
 			if (!data) throw new Error('member is not found');
-			// console.log(data);
+
 			return BookSchema.findOne({ _id: book_id }, { _id: 1, available: 1 });
 		})
 		.then((data) => {
 			if (!data) throw new Error('book is not found');
-			// console.log(data);
-			// console.log(data.available > 1 , (data.available == 1 && data.noOfCopies-data.borrowedCopies>=2));
+			// recount reading books
+			// if any book is reading then no use for keep last one
+			// because there is one in the library anyway
 			if (data.available > 1 || (data.available == 1 && data.noOfCopies - data.borrowedCopies >= 2)) {
 				// check if member is borrowing same book
 				return LogSchema.findOne(
@@ -298,7 +287,7 @@ exports.borrowBook = (req, res, next) => {
 			return LogSchema.create({
 				member: member_id,
 				book: book_id,
-				emp: req.id || 1,
+				emp: req.id, // emp id add by authorization layer
 				status: 'borrow',
 				expected_date: expectedDate,
 			});
@@ -317,17 +306,13 @@ exports.borrowBook = (req, res, next) => {
 		});
 };
 
-// to be improved
-// return borrow
-// check if return date is larger than now
-// ban for one week
 exports.returnBorrowedBook = (req, res, next) => {
 	let member_id = req.body.member_id;
 	let book_id = req.body.book_id;
 	MemberSchema.findOne({ _id: member_id }, { _id: 1 })
 		.then((data) => {
 			if (!data) throw new Error('member is not found');
-			// console.log(data);
+
 			return BookSchema.findOne({ _id: book_id }, { _id: 1, available: 1 });
 		})
 		.then((data) => {
@@ -342,9 +327,9 @@ exports.returnBorrowedBook = (req, res, next) => {
 		})
 		.then((data) => {
 			if (!data) throw new Error('no books currenty borrowed to this member');
-			// console.log(data)
+
 			const expected_date = moment(data.expected_date);
-			// console.log(expected_date)
+
 			if (expected_date.isValid() && expected_date.isBefore(moment())) {
 				console.log(
 					'baned until ',
@@ -370,7 +355,6 @@ exports.returnBorrowedBook = (req, res, next) => {
 			);
 		})
 		.then((data) => {
-			// console.log(data);
 			if (data.modifiedCount == 0) throw new Error('no books currenty borrowed to this member');
 			return BookSchema.updateMany({ _id: book_id }, { $inc: { available: 1, borrowedCopies: -1 } });
 		})
@@ -415,7 +399,7 @@ exports.readBook = (req, res, next) => {
 			return LogSchema.create({
 				member: member_id,
 				book: book_id,
-				emp: req.id,
+				emp: req.id, // emp id add by authorization layer
 				status: 'read',
 			});
 		})
@@ -473,7 +457,7 @@ exports.currentBorrowedBooks = (req, res, next) => {
 		{
 			$match: {
 				status: 'borrow',
-				member: req.id || 2,
+				member: req.id, // member id add by authorization layer
 			},
 		},
 		{
@@ -539,28 +523,24 @@ exports.currentBorrowedBooks = (req, res, next) => {
 exports.searchBooks = (req, res, next) => {
 	const permittedQueries = ['category', 'publisher', 'author', 'available', 'year'];
 	let findBy = {};
-	console.log(req.query);
+	// console.log(req.query);
 	Object.keys(req.query).forEach((key) => {
 		if (permittedQueries.includes(key.toLowerCase()) && req.query[key]) findBy[key.toLowerCase()] = req.query[key];
 	});
-	if(Object.keys(req.query).includes("available")){
-		findBy.available = findBy.available ? {$gte:1} : {$lt:1};
+	if (Object.keys(req.query).includes('available')) {
+		findBy.available = findBy.available ? { $gte: 1 } : { $lt: 1 };
 	}
 	if (Number(findBy.year)) {
 		// must be string or it will call timestamp constructor
 		let year = moment(String(findBy.year));
-		// console.log(findBy.year,year);
 		findBy.publishingDate = {
-			//   $lt:new Date(new Date(`${Number(findBy.year)+1}-01-01`)).toISOString().split("T")[0],
-			//   $gte:new Date(new Date(`${findBy.year}-01-01`)).toISOString().split("T")[0]
 			$gte: year.toISOString(),
 			$lt: year.add(1, 'year').toISOString(),
 		};
-		// console.log(findBy.publishingDate)
 		delete findBy['year'];
 	}
-	console.log(findBy);
-	if(!Object.keys(findBy).length) throw new Error("Nothing to search for.")
+	// console.log(findBy);
+	if (!Object.keys(findBy).length) throw new Error('Nothing to search for.');
 	BookSchema.find(findBy)
 		.then((data) => {
 			res.status(200).json({ data });
@@ -579,15 +559,10 @@ exports.mostBorrowedBooks = (req, res, next) => {
 		// must be string or it will call timestamp constructor
 		let year = moment(String(req.params.year));
 		condition.createdAt = {
-			// $lt:new Date(new Date(new Date(`${Number(req.params.year)+1}-01-01`)).toISOString().split("T")[0]),
-			// $gte:new Date(new Date(new Date(`${req.params.year}-01-01`)).toISOString().split("T")[0])
-			//  $lt:new Date(new Date(`${Number(req.params.year)+1}-01-01`)),
-			//  $gte:new Date(new Date(`${Number(req.params.year)}-01-01`)),
 			$gte: year.toDate(),
 			$lt: year.add(1, 'year').toDate(),
 		};
 	}
-	// console.log(condition);
 	LogSchema.aggregate([
 		{
 			$match: condition,
@@ -689,15 +664,13 @@ exports.mostReadingBooks = (req, res, next) => {
 		});
 };
 
-// need to add months filter thou
 exports.memberBorrowedBooks = (req, res, next) => {
 	let condition = {
 		status: 'borrow',
-		member: req.id || 2,
+		member: req.id, // member id add by authorization layer
 	};
 	// if month and year exists
 	if (req.params && Number(req.params.year) && Number(req.params.month)) {
-		// let date = moment(`${req.params.year}-${req.params.month}`)
 		let date = moment()
 			.year(Number(req.params.year))
 			.month(Number(req.params.month) - 1); //month is zero based
@@ -755,15 +728,13 @@ exports.memberBorrowedBooks = (req, res, next) => {
 		});
 };
 
-// need to add months filter thou
 exports.memberReadingBooks = (req, res, next) => {
 	let condition = {
 		status: 'read',
-		member: req.id || 2,
+		member: req.id, // member id add by authorization layer
 	};
 	// if month and year exists
 	if (req.params && Number(req.params.year) && Number(req.params.month)) {
-		// let date = moment(`${req.params.year}-${req.params.month}`)
 		let date = moment()
 			.year(Number(req.params.year))
 			.month(Number(req.params.month) - 1); //month is zero based

@@ -4,9 +4,7 @@ const mongoose = require('mongoose');
 require('dotenv').config({ path: './.env' });
 const cors = require('cors');
 const logger = require('morgan');
-const api = require('./api');
-
-
+const api = require('./API/api');
 
 require('./services/folderValidations');
 
