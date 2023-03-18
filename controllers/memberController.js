@@ -1,10 +1,10 @@
+const path = require('path');
+const fs = require('fs');
 const mongoose = require('mongoose');
 require('./../models/memberModel');
 
 const moment = require('moment');
 const bcrypt = require('bcrypt');
-const path = require('path');
-const fs = require('fs');
 const maxBirthDate = moment(new Date('2009-01-01 00:00:00'));
 const mailer = require('../services/sendMails');
 const generator = require('generate-password');
@@ -154,13 +154,12 @@ exports.deleteMember = (req, res, next) => {
 			if (!data) {
 				next(new Error('Member Not Found'));
 			} else {
-				// status;
-				if (fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
-					fs.unlinkSync(path.join(__dirname, '..', 'images', `${data.image}`));
+				if (data.image != null && fs.existsSync(path.join(__dirname, '..', 'images', `${data.image}`))) {
+					req.delete_image = path.join(__dirname, '..', 'images', `${data.image}`);
 				}
-
 				return MemberSchema.deleteOne({ _id: req.params.id }).then((data) => {
 					res.status(200).json({ data: 'Deleted' });
+					if (req.delete_image) fs.unlinkSync(req.delete_image);
 				});
 			}
 		})

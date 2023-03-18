@@ -9,11 +9,6 @@ exports.postValidation = [
 		.withMessage('full name  min Length must 3 or more')
 		.trim(),
 	body('email').isEmail().withMessage('Invalid Email').normalizeEmail().trim(),
-	// body('password')
-	// 	.isLength({ min: 8 })
-	// 	.withMessage(' Must be at least 8 characters long')
-	// 	.matches(/\d/)
-	// 	.withMessage('must contain a number'),
 ];
 
 exports.patchValidation = [
