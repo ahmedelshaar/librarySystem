@@ -1,0 +1,59 @@
+{
+    "_readMe": "Review list of sync operations, then use Ftp-sync: Commit command to accept changes. Note that if you're not in your root directory then all the parent directories will also be uploaded",
+    "_warning": "This file should not be saved, reopened review file won't work!",
+    "filesToUpdate": [
+        "app.js",
+        "reminders.txt",
+        "API/api.js",
+        "controllers/bookController.js",
+        "controllers/adminController.js",
+        "controllers/employeeController.js",
+        "controllers/loginController.js",
+        "controllers/memberController.js",
+        "controllers/superAdminController.js",
+        "Docs/adminDocs.js",
+        "Docs/bookDocs.js",
+        "Docs/employeeDocs.js",
+        "Docs/memberDocs.js",
+        "Docs/superAdminDocs.js",
+        "middlewares/authorizationMw.js",
+        "middlewares/authenticationMw.js",
+        "middlewares/checks.js",
+        "models/bookSchema.js",
+        "models/managersModel.js",
+        "models/memberModel.js",
+        "routes/adminRouter.js",
+        "routes/authenticationRouter.js",
+        "routes/bookRouter.js",
+        "routes/employeeRouter.js",
+        "routes/memberRouter.js",
+        "routes/superAdminRouter.js",
+        "services/folderValidations.js",
+        "services/saveImage.js",
+        "services/sender.js",
+        "services/sendMails.js",
+        "services/utils.js",
+        "tests/adminRoute.test.js",
+        "tests/loginRoute.test.js",
+        "tests/moment.js",
+        "validation/authenticationValidation.js",
+        "validation/managersValidation.js",
+        "validation/memberValidation.js",
+        "validation/bookValidations.js",
+        "validation/validationMW.js",
+        "Core/Static/categories.js"
+    ],
+    "filesToAdd": [
+        
+    ],
+    "filesToRemove": [
+        "env",
+        "ftpquota",
+        "htaccess",
+        "librarySystem.zip",
+        "prettierrc"
+    ],
+    "dirsToRemove": [
+        "cgi-bin"
+    ]
+}
