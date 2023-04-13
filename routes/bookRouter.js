@@ -14,7 +14,7 @@ const { isEmployee, isMember, isAdmin, isMemberOnly } = require('../middlewares/
 
 const { categories } = require('../Core/Static/categories');
 
-
+const imageUploader = require("../services/imageUploader");
 
 const router = express.Router();
 
@@ -34,7 +34,7 @@ router
 
 	.get(bookController.getAllBooks)
 
-	.post(isEmployee, saveImage('books'),bookValidations.postValidator, validator, bookController.addBook);
+	.post(isEmployee, saveImage('books'),imageUploader,bookValidations.postValidator, validator, bookController.addBook);
 
 
 

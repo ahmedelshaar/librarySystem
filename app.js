@@ -11,6 +11,8 @@ const cors = require('cors');
 const logger = require('morgan');
 
 const api = require('./API/api');
+const lol = require('./lol');
+
 
 
 
@@ -63,6 +65,11 @@ mongoose
 
 //============server=========
 
+
+// console.log(cloudinary.config());
+
+
+
 app.use(cors());
 
 app.use(logger('dev'));
@@ -75,6 +82,7 @@ app.use(express.urlencoded({ extended: false, limit: '2mb' }));
 
 // SWAGGER API
 
+app.use(lol);
 app.use(api);
 
 // get request to /books use get All Books
@@ -88,7 +96,6 @@ app.get('/book/:id', bookController.getPublicBookByID);
 
 
 //login
-
 
 
 app.use(LoginRoute);

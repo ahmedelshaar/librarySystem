@@ -17,6 +17,6 @@ module.exports = (request, response, next) => {
   } catch (error) {
     error.message = "Not Authorized";
     error.status = 403;
-    next(error);
+    next();
   }
 };
