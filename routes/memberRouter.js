@@ -7,9 +7,10 @@ const validation = require('../validation/validationMW');
 const memberValidation = require('../validation/memberValidation');
 
 const saveImage = require('../services/saveImage');
+const imageUploader = require("../services/imageUploader");
 
 const { isEmployee, isMember } = require('../middlewares/authorizationMw');
-const imageUploader = require("../services/imageUploader");
+
 
 
 
@@ -31,7 +32,7 @@ router
 
 	.get(isMember, memberValidation.checkId, validation, controller.getAllMemberById)
 
-	.patch(isMember, saveImage('members'), memberValidation.patchValidation, validation, controller.updateMember)
+	.patch(isMember, saveImage('members'), imageUploader, memberValidation.patchValidation, validation, controller.updateMember)
 
 	.delete(isEmployee, memberValidation.checkId, validation, controller.deleteMember);
 

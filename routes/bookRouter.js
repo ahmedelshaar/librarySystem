@@ -7,14 +7,13 @@ const bookValidations = require('../validation/bookValidations');
 const bookController = require('../controllers/bookController');
 
 const saveImage = require('../services/saveImage');
+const imageUploader = require("../services/imageUploader");
 
 const { isBanned } = require('../middlewares/checks');
 
 const { isEmployee, isMember, isAdmin, isMemberOnly } = require('../middlewares/authorizationMw');
 
 const { categories } = require('../Core/Static/categories');
-
-const imageUploader = require("../services/imageUploader");
 
 const router = express.Router();
 
@@ -212,7 +211,7 @@ router
 
 	.get(bookValidations.getValidator, validator, bookController.getBookByID)
 
-	.patch(bookValidations.patchValidator, validator, bookController.updateBook)
+	.patch(saveImage('books'),bookValidations.patchValidator, validator, bookController.updateBook)
 
 	.delete(bookValidations.deleteValidator, validator, bookController.deleteBook);
 

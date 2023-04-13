@@ -192,9 +192,12 @@ exports.deleteBook = (req, res, next) => {
 
 
 exports.addBook = (req, res, next) => {
-	if (req.file && req.file.path) {
-		if (!req.body.image)req.body.image = req.file.filename;
-	}
+	// console.log(req.file)
+	// console.log(req.body.image)
+	// if (req.file && req.file.path) {
+	// 	if (!req.body.image)req.body.image = req.file.filename;
+	// }
+	// console.log(req.body.image)
 	BookSchema.create({
 
 		title: req.body.title,
