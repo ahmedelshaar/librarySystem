@@ -93,6 +93,7 @@ app.get('/categories', (req, res, next) => {
 });
 app.get('/books', bookController.getPublicBooks);
 app.get('/book/:id', bookController.getPublicBookByID);
+app.get('/latest', bookController.getLatestBooks);
 
 
 //login

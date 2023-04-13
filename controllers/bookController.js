@@ -464,7 +464,17 @@ exports.getLateBooks = (req, res, next) => {
 
 };
 
-
+exports.getLatestBooks = (req, res, next) => {
+	BookSchema.find({}, { __v: 0, createdAt: 0, updatedAt: 0 })
+	.sort({createdAt:-1})
+	.limit(15)
+		.then((data) => {
+			res.status(200).json({ data });
+		})
+		.catch((error) => {
+			return null;
+		});
+};
 
 exports.getNewBooks = (req, res, next) => {
 
