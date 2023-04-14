@@ -211,7 +211,7 @@ router
 
 	.get(bookValidations.getValidator, validator, bookController.getBookByID)
 
-	.patch(saveImage('books'),bookValidations.patchValidator, validator, bookController.updateBook)
+	.patch(saveImage('books'),imageUploader,bookValidations.patchValidator, validator, bookController.updateBook)
 
 	.delete(bookValidations.deleteValidator, validator, bookController.deleteBook);
 

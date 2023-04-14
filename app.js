@@ -135,7 +135,7 @@ app.use((err, req, res, next) => {
 
 	let status = err.status || 500;
 
-	res.status(status).json({ message: err + '' });
+	res.status(status).json({ message: {"error":err + ''} });
 
 	// Delete Saved files in case of error throwing
 

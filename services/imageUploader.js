@@ -1,4 +1,5 @@
 const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
 require('dotenv').config({ path: './.env' });
 cloudinary.config({
 	// api_key:'339516188774425',
@@ -14,7 +15,7 @@ module.exports  = async (req,res,next) => {
 
     // Use the uploaded file's name as the asset's public ID and 
     // allow overwriting the asset with new versions
-    // console.log(req.file);
+    console.log(req.file);
     if (req.file && req.file.path){
         imagePath = req.file.path;
         
@@ -33,6 +34,7 @@ module.exports  = async (req,res,next) => {
         req.body.image = result.url
         req.file.path = result.url
         req.file.filename = result.url
+		console.log(req.file,req.body);
         //   return result.public_id;
         
         } catch (error) {

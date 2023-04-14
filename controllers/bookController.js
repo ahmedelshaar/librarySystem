@@ -275,6 +275,7 @@ exports.updateBook = (req, res, next) => {
 					// working without $set :D
 
 					title: req.body.title,
+					image: req.body.image,
 
 					author: req.body.author,
 
