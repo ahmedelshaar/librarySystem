@@ -32,7 +32,7 @@ const MemberSchema = mongoose.model('members');
 
 exports.getAllMembers = (req, res, next) => {
 
-	MemberSchema.find({})
+	MemberSchema.find({},{ password: 0 })
 
 		.then((data) => {
 
@@ -54,7 +54,8 @@ exports.getAllMembers = (req, res, next) => {
 
 exports.getAllMemberById = (req, res, next) => {
 
-	MemberSchema.findById(req.params.id)
+// 	MemberSchema.findById(req.params.id)
+	MemberSchema.findOne({_id: req.params.id}, { password: 0 })
 
 		.then((data) => {
 

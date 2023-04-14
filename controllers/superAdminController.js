@@ -34,7 +34,7 @@ exports.getAllSuperAdmins = (req, res, next) => {
 
 	managersSchema
 
-		.find({ role: 'super-admin' })
+		.find({ role: 'super-admin' },{ password: 0 })
 
 		.then((data) => {
 
@@ -64,7 +64,7 @@ exports.getSuperAdminById = (req, res, next) => {
 
 			role: 'super-admin',
 
-		})
+		}, { password: 0 })
 
 		.then((data) => {
 
